@@ -20,7 +20,11 @@
 		"test:sqlite": "bun test ./test/sqlite",
 		"build": "tsc -p tsconfig.build.json",
 		"test:domain": "bun scripts/test-domain.ts",
-		"bench:world": "bun scripts/bench-world.ts"
+		"bench:world": "bun scripts/bench-world.ts",
+		"pack:local": "bun scripts/pack.ts",
+		"eval:extraction": "bun eval/extraction/main.ts",
+		"eval:decision": "bun eval/decision/main.ts",
+		"eval:cache-latency": "bun eval/scenarios/cache-latency/main.ts"
 	},
 	"devDependencies": {
 		"@types/bun": "1.3.14",

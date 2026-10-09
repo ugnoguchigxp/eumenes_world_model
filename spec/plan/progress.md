@@ -27,7 +27,7 @@
 | P2-08 | 復元と再構築の本体手順 | 完了 | restore.begin/register/reconcile/finish/rebuild、test/scenario/restore.test.ts(A32、journalはfixture) |
 | P2-09 | 取得上限と性能の計測 | 完了 | 増分投影、scripts/bench-world.ts、spec/performance-baseline.md(A33)。10k Slice p95 約10ms、writer p95 1ms未満(M4機材のみ) |
 | P2-10 | 永続化段階の受入 | 完了 | test/scenario/world-lifecycle.test.ts、spec/world-sqlite-public-api.md |
-| P3-01 | 正式配布物と独立consumer | 未着手 | — |
+| P3-01 | 正式配布物と独立consumer | 完了 | scripts/pack.ts、test/consumer/package.test.ts 5件(A34)、spec/distribution.md。全体verify 639件 |
 | P3-02 | 現行ホストとの境界固定 | 未着手 | — |
 | P3-03 | SourceAdapterと通常変更のoutbox | 未着手 | — |
 | P3-04 | GoalSnapshotの公開口 | 未着手 | — |
@@ -40,15 +40,15 @@
 | P4-02 | Local抽出のqueue handler | 未着手 | — |
 | P4-03 | 前景優先と取消と再開 | 未着手 | — |
 | P4-04 | Runtime結果の観測化 | 未着手 | — |
-| P4-05 | 日本語抽出の実モデル評価 | 未着手 | — |
+| P4-05 | 日本語抽出の実モデル評価 | 待機 | W側基盤(dataset200件・runner・scoring・fixture)完了: eval/extraction、test/eval/extraction.test.ts 64件、spec/evaluation-baseline.md。待機理由: G5(Local Provider未接続)・先行P4-02/03(host)。実モデル未受入 |
 | P5-01 | 判断APIを製品で使う入口 | 未着手 | — |
 | P5-02 | 根拠付き一覧と訂正画面 | 未着手 | — |
-| P5-03 | 一つの改善仕事を閉じる | 未着手 | — |
-| P5-04 | Worldを使う意味品質の比較 | 未着手 | — |
+| P5-03 | 一つの改善仕事を閉じる | 待機 | W側の純粋規則評価完了: eval/scenarios/cache-latency、test/eval/cache-latency.test.ts 47件(A45,A49のWorld部分)。待機理由: host実行台帳・Tool権限・P5-01/02/P4-04(host) |
+| P5-04 | Worldを使う意味品質の比較 | 待機 | W側harness完了: eval/decision、test/eval/decision.test.ts 74件、spec/decision-evaluation.md。待機理由: G5(実モデル)・先行P5-03。fixtureのp5Acceptedは常に偽 |
 | P6-01 | ContextStillの知識参照 | 未着手 | — |
 | P6-02 | CapabilityとToolchainと自己改善への証拠 | 未着手 | — |
-| P6-03 | 複数Scopeと長期運用 | 未着手 | — |
-| P6-04 | 運用手順と最終受入 | 未着手 | — |
+| P6-03 | 複数Scopeと長期運用 | 待機 | 条件のみ固定: spec/operational-acceptance.md。24時間実測は未実施(H runnerが必要) |
+| P6-04 | 運用手順と最終受入 | 待機 | 手順骨子: spec/operations-runbook.md。全手順が未実施 |
 
 P2-03は.a identity、.b assertions、.c projection、.d scenariosを個別記録し、4件とも完了してから親票を完了へ変える。
 
@@ -112,3 +112,26 @@ host結合: 未実施(Eumenes Writer queue・実Memory登録は未受入)
 - Memory配布物はローカル生成・生成時点のMemory src(未コミット変更含む)に固定。Memory側変更後は bun scripts/vendor-memory.ts で再生成。
 - P3以降(Eumenes結合、実モデル、実運用)は未着手。
 ```
+
+## P3-01 完了記録(2026年10月9日)
+
+```text
+票ID: P3-01
+変更ファイル: scripts/pack.ts、package.json(pack:local)、test/consumer/package.test.ts、spec/distribution.md
+公開契約・migrationの変更: なし(配布用package.jsonは生成物のみ)
+受入ケースIDと試験ファイル: A34(test/consumer/package.test.ts)
+実行したコマンド / 環境 / 結果 / 試験数: bun run pack:local 成功、bun run verify:all 639件合格・失敗0(consumer 5件を含む)、macOS/bun 1.4.2
+実装: 完了
+fixture: 成功
+実SQLite: 成功(consumerのbun:sqlite memory DBでmigration適用+1操作)
+host結合: 対象外(P3-02以降)
+実モデル: 対象外
+実運用: 対象外
+残る制約と次に進める票: Memory配布物はローカル生成(非公式)。tgzバイト列の環境間同一性は未検証。P3-02以降はEumenes変更を含む依頼が必要。
+```
+
+## P3-02〜P6 の扱い(2026年10月9日)
+
+本依頼は「World本体のみ」(../eumenes は参照専用、変更なし)。完了はP3-01まで。P3-02〜09、P4-01〜04、P5-01/02、P6-01/02はEumenes変更を含む依頼が必要で未着手。P4-05/P5-03/P5-04/P6-03/P6-04はW側の基盤・条件のみ実施し、実モデル・host結合・実運用は未受入。全体verify:all 772件合格、build成功。全体完成ではない。
+
+レビュー反映(2026年10月9日): 独立レビュー1回、指摘9件+軽微1件を一括修正。抽出評価はdataset v2/ext-threshold-v2、判断評価は対照条件plain-factsと否定対応の禁止語判定、配布はd.ts export一致検査を追加。verify:all 824件合格、build成功。
