@@ -29,8 +29,8 @@
 | P2-10 | 永続化段階の受入 | 完了 | test/scenario/world-lifecycle.test.ts、spec/world-sqlite-public-api.md |
 | P3-01 | 正式配布物と独立consumer | 完了 | scripts/pack.ts、test/consumer/package.test.ts 5件(A34)、spec/distribution.md。全体verify 639件 |
 | P3-02 | 現行ホストとの境界固定 | 完了 | spec/host-contract-v1.md、Eumenes api/infrastructure/sqlite readSnapshot+snapshot.test.ts 3件(A35)、Eumenes verify:all成功。残: Memory版差(0.3.6)の照合はP3-05/06 |
-| P3-03 | SourceAdapterと通常変更のoutbox | 未着手 | — |
-| P3-04 | GoalSnapshotの公開口 | 未着手 | — |
+| P3-03 | SourceAdapterと通常変更のoutbox | 完了(host fixture/実SQLite) | Eumenes api/domains/{conversation,world}: outbox migration、correct/retract、ConversationSourceAdapter。conversation 10+20、world 10件(A36)。残: 旧メッセージ(outbox導入前)の初期同期scan、retract後のdialogue/memory派生コピーはP3-05 |
+| P3-04 | GoalSnapshotの公開口 | 完了(host実SQLite) | Eumenes api/domains/goals 12件(A37)。goal epoch/revisionで利用receipt失効判定。残: 操作冪等キー・World向け読取専用口の分離は未実装 |
 | P3-05 | Memory依存登録と忘却復元の結合 | 未着手 | — |
 | P3-06 | migration登録と手動入力の縦断 | 未着手 | — |
 | P3-07 | Context Brokerと回答採用 | 未着手 | — |
