@@ -41,8 +41,8 @@
 | P4-03 | 前景優先と取消と再開 | 完了(host fixture/stub provider) | Eumenes world/service/foreground.ts、extraction-handler(hold/unconfirmed slot/stale attempt)、application/world-foreground.ts、inferenceにforegroundBusy hook。scheduling.test.ts 11件+application/world-scheduling.test.ts 5件(A44)。実Local Provider未実施。前景=interactive laneの全job(長時間jobで抽出が止まる) |
 | P4-04 | Runtime結果の観測化 | 待機(fixtureのみ。公開実行台帳が無く未受入) | runtime-adapter.ts+RuntimeLedgerPort fixture、outcomes.test.ts 14件(A18,A45のWorld部分)。待機理由: tool-runtime/agent-runtime/capabilitiesにcomparisonId/metric/unit/config/baseline/検証状態を持つ公開snapshotが無い。package側にoutcome source入力・prediction読取APIが無い |
 | P4-05 | 日本語抽出の実モデル評価 | 待機 | W側基盤(dataset200件・runner・scoring・fixture)完了: eval/extraction、test/eval/extraction.test.ts 64件、spec/evaluation-baseline.md。待機理由: G5(Local Provider未接続)・先行P4-02/03(host)。実モデル未受入 |
-| P5-01 | 判断APIを製品で使う入口 | 未着手 | — |
-| P5-02 | 根拠付き一覧と訂正画面 | 未着手 | — |
+| P5-01 | 判断APIを製品で使う入口 | 一部完了(Task連携は未受入) | Eumenes world-query(6 mode、上限、権限外、executionPermission none)、model tool定義、POST /api/world/query(未mount)、world-query.test.ts 14件(A14-A16,A47)。Task連携: 実Tasks domainにGap用kind/権限が無く未受入。tool登録・query mount・実resource stateは未配線 |
+| P5-02 | 根拠付き一覧と訂正画面 | 完了(fixture backend、実機未実施) | Eumenes /api/world/{status,claims,forgets,...}、web設定画面World、world-claims.test 13件+http 4件+vitest 16件+Playwright 1件(A48)。訂正理由は本人の確認済みメッセージ。source本文表示・entity表示名・曖昧対象のbrowser caseは未実装/mock |
 | P5-03 | 一つの改善仕事を閉じる | 待機 | W側の純粋規則評価完了: eval/scenarios/cache-latency、test/eval/cache-latency.test.ts 47件(A45,A49のWorld部分)。待機理由: host実行台帳・Tool権限・P5-01/02/P4-04(host) |
 | P5-04 | Worldを使う意味品質の比較 | 待機 | W側harness完了: eval/decision、test/eval/decision.test.ts 74件、spec/decision-evaluation.md。待機理由: G5(実モデル)・先行P5-03。fixtureのp5Acceptedは常に偽 |
 | P6-01 | ContextStillの知識参照 | 未着手 | — |
