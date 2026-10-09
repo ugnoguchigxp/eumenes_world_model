@@ -62,7 +62,7 @@ P2-10の受入結果。仕様は[sqlite-api-v1.md](sqlite-api-v1.md)、物理表
 
 ## P3へ渡す実行済みAPI一覧
 
-上の`src/sqlite.ts`のexportと、operation 15種。ホストが渡すべきもの: 同一writer snapshot由来の`hostChecks`（gate、sourceSnapshot、forgetEpoch、restoreEpoch、policyRevision）、同期hash関数、呼出元発行のID・operationKey・clock、検証済みの`Assertion`（`validateAssertion`相当を通したもの。applicationは中身を再検証しない）。ホストはWorld操作後のMemory登録を同じtransactionで行い、いずれかが拒否・例外ならtransaction全体を戻す。
+上の`src/sqlite.ts`のexportと、operation 17種（`src/application/sqlite/checks.ts`の`operationKinds`が正本。試験で件数を照合）。ホストが渡すべきもの: 同一writer snapshot由来の`hostChecks`（gate、sourceSnapshot、forgetEpoch、restoreEpoch、policyRevision）、同期hash関数、呼出元発行のID・operationKey・clock、検証済みの`Assertion`（`validateAssertion`相当を通したもの。applicationは中身を再検証しない）。ホストはWorld操作後のMemory登録を同じtransactionで行い、いずれかが拒否・例外ならtransaction全体を戻す。
 
 ## 独立レビュー後の動作と既知の制約
 
@@ -72,7 +72,7 @@ P2-10の受入結果。仕様は[sqlite-api-v1.md](sqlite-api-v1.md)、物理表
 - **復元中のforget**: gateの理由`RESTORE_IN_PROGRESS`は上書きされず、restore.*は継続できる。
 - **入口の検査**: `applyWorldOperation`/`readWorldSnapshot`/`readAssertionHistory`/`validateWorldUsage`（`src/sqlite.ts`）は最初にworld_schema_infoをピン留めmanifestと照合し、不一致・未来版・未完了のupgradeは`blocked SCHEMA_INCOMPATIBLE`（World表に触れない）。migrationの適用自体はホストの責務。
 - **sourceの検査**: stateがavailable以外は`SOURCE_NOT_AVAILABLE`（changedは`SOURCE_VERSION_MISMATCH`）。墓標はkind `source`と`state`の両方を見る。
-- **既知の制約（未解決）**: `received`/`held`/`rejected`のうちmanifestを持たないinbox event（生の受信payloadを含む）は、payload_jsonに索引がなく、schema変更なしではsource/state forgetの閉包から辿れない。migrationは変更しない方針のため、ホストが該当eventを`candidate` root（`{kind:"candidate", id:<eventId>}`）として明示する運用とする。settle後のeventはmanifest経由で辿られる。
+- **既知の制約（未解決）**: `received`/`held`/`rejected`のうちmanifestを持たないinbox event（生の受信payloadを含む。settle前の`received`も含む）は、payload_jsonに索引がなく、schema変更なしではsource/state forgetの閉包から辿れない。migrationは変更しない方針のため、ホストが該当eventを`candidate` root（`{kind:"candidate", id:<eventId>}`）として明示する運用とする。settle後のeventはmanifest経由で辿られる。
 - **entity forgetの到達範囲**: subjectとして持つ主張に加え、関係先(`objectId`)・entity参照値として名指す主張も消す（`payload_json`をScope内で走査するため、entity forget時のみ線形のコスト。索引なし）。統合された配下は代表より先に消え、多段の統合も到達する。
 - **復元検証の上限**: `restore.finish`は台帳の依存キーを最大1,000,000件まで1回で検証する。超えると`VERIFICATION_TOO_LARGE`。
 
@@ -85,4 +85,15 @@ P2-10の受入結果。仕様は[sqlite-api-v1.md](sqlite-api-v1.md)、物理表
 - **Replay digest**: set-valued fields (forget roots, invalidate targets/sourceKeys, restore registrations, journal tombstones, manifest dependencies) are put in canonical order before hashing, so a reordered resend is a `no_op`. `restore.*` and `rebuild` also include the host's `restoreEpoch`, so reusing a key under a new epoch is `OPERATION_KEY_CONFLICT`. forget/restore/invalidate/settle/receive operations may be up to 4 MiB canonical; every other operation stays at 64 KiB.
 - **Causal eligibility** (`world_current.causal_eligible` and the edge payload) is derived from the ledger the same way in incremental updates and in a rebuild: an active claim is eligible only while none of its refutations (own contradicts + recorded disputers) is a live (non-terminal) head. The result no longer depends on page boundaries.
 - **Invalidate by source** stops only HEAD revisions that still depend on the source.
-- **`forget.reopen`** must name the forget that owns the current gate reason (`FORGET_COMPLETE_AWAITING_REOPEN:<digest of forgetId>`); another forget's id is `GATE_OWNED_BY_OTHER_FORGET`.
+- **`forget.reopen`** (superseded by round 3 below): round 2 made the gate name a single owning forget; round 3 tracks every complete forget instead.
+
+## Review round 3: behaviour fixed after the third persistence review
+
+- **Forgetting a contradiction target**: `forget.chunk` deletes the ledger rows first and only then updates the projection, so the eligibility of the erased heads' disputers is recomputed against the remaining ledger. Incremental results equal a rebuild in every column (seeded test with forgets of targets).
+- **Restore never wedges on a draining derived forget**: forgets that `restore.register`/`restore.reconcile` derive from the journal are named `restore-<digest>` and are returned in `restore.derivedForgets` while they have pending targets. Every `restore.register` / `restore.reconcile` call (a resend, or an empty journal page with the same `seq`) advances up to 4 of them by one chunk. A `restore.register` resend is accepted even after the key's assertions and manifests are gone (the key is tombstoned, or a derived forget is still draining). `restore.finish` is `blocked FORGET_PENDING` / `JOURNAL_NOT_RECONCILED` until they are drained and the final journal page was reconciled.
+- **Entity references in conditions** (`{kind:"entity"}` operands at any depth of the condition AST, like payload values and relation objects) belong to the entity closure: forget discovery finds them, `assertion.register`/`transition` are refused for a tombstoned entity, and `readWorldSnapshot` returns `blocked TOMBSTONED` if an assertion it would carry names a forgotten entity.
+- **External-deletion confirmation, per forget**: a complete forget stays *awaiting confirmation* (a protected `world_checkpoint` row, kept by `restore.begin`) until the host sends `forget.reopen` with `externalDeletionConfirmed:true` for THAT forgetId. `forget.reopen` records the confirmation whatever holds the gate; the Scope reopens only when the gate is held by a finished forget, no forget is awaiting confirmation and no target is pending. The result reports `forget.awaitingConfirmation`. `restore.finish` is `blocked FORGET_AWAITING_CONFIRMATION` while any confirmation is owed (confirm with `forget.reopen` during the restore; the gate stays closed). Forgets derived by a restore do not need a host confirmation. A gate left by a build before this tracking (`FORGET_COMPLETE_AWAITING_REOPEN` without a tag, no awaiting row) has an unknown owner: the confirmation of any complete forget reopens it. `forget.reopen` for an already confirmed forget is `blocked FORGET_NOT_AWAITING`.
+- **Journal rollback guard**: the highest journal `seq` ever reconciled is kept in a protected checkpoint row that does not depend on the restore epoch, so a `forget.chunk`/`forget.reopen` under a newer epoch before `restore.begin` cannot make a rolled-back journal look fresh.
+- **Cost of an entity forget**: one scan of the Scope's assertions and one of its predictions per batch of entity targets (not per target), plus one `merged_into IN (...)` query; `payload_json` has no index, so the cost is linear in the Scope's rows per batch and independent of how many entity roots the batch holds. A forget chunk handles up to 500 targets.
+- **`world_forget_target`** rows stay after completion (kind/id/revision/state only: the same opaque ids the tombstones keep, no payload). They are the progress record behind `processed`. They never hold source text.
+- **Operation count** is 17 (see `operationKinds`); a test compares this document with the code.

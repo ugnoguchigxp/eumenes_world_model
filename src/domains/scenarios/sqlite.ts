@@ -10,6 +10,7 @@ export {
 	insertPrediction,
 	listPredictionsByBasisAssertion,
 	listPredictionsByComparison,
+	listPredictionsReferencingEntities,
 	listPredictionsReferencingEntity,
 	type BasisAssertion,
 	type InsertResult,

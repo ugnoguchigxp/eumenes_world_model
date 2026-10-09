@@ -18,6 +18,12 @@ import {
 export const MAX_PLAN_BUDGET = 500;
 export const MAX_PLAN_ROOTS = 500;
 export const MAX_PLAN_EDGES = 100_000;
+/**
+ * Largest closure: every root plus one new node per edge. A cursor carries
+ * pending + done nodes, so its caps must cover this or the planner would
+ * reject its own continuation near the end of a maximal closure.
+ */
+export const MAX_PLAN_NODES = MAX_PLAN_ROOTS + MAX_PLAN_EDGES;
 
 /** Input-dependency edge owned by one Scope: `dependent` was derived from `input`. */
 export interface ScopedDependencyEdge {
@@ -90,14 +96,14 @@ function checkCursor(value: unknown): Checked<PlanCursor> {
 	if (!object) return fail("INVALID_INPUT", "cursor");
 	const extra = firstUnknownKey(object, ["pending", "done", "excluded"]);
 	if (extra !== undefined) return fail("INVALID_INPUT", `cursor.${extra}`);
-	const pending = refs(object["pending"], "cursor.pending", MAX_PLAN_EDGES);
+	const pending = refs(object["pending"], "cursor.pending", MAX_PLAN_NODES);
 	if (!pending.ok) return pending;
-	const done = refs(object["done"], "cursor.done", MAX_PLAN_EDGES);
+	const done = refs(object["done"], "cursor.done", MAX_PLAN_NODES);
 	if (!done.ok) return done;
 	const excluded = refs(
 		object["excluded"] ?? [],
 		"cursor.excluded",
-		MAX_PLAN_EDGES,
+		MAX_PLAN_ROOTS,
 	);
 	if (!excluded.ok) return excluded;
 	const seen = new Set(done.value.map(dependentKey));

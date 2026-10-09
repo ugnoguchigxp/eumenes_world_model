@@ -418,6 +418,29 @@ describe("A16 dependencies and research gaps", () => {
 		expect(cut.ok && cut.value.outcome).toBe("unknown");
 		expect(cut.ok && cut.value.status).toBe("partial");
 	});
+	test("the entity budget stops dependency discovery as partial/unknown (ENTITY_BUDGET)", () => {
+		const fan = Array.from({ length: 4 }, (_, i) =>
+			edge(`f${i}`, "App", `R${i}`, "depends_on"),
+		);
+		const states = fan.map((_, i) => state(`R${i}`, "available"));
+		const cut = checkDependencies(
+			query(fan, {
+				entityId: "App",
+				resourceStates: states,
+				budget: { entities: 2 },
+			}),
+		);
+		expect(cut.ok).toBe(true);
+		if (!cut.ok) return;
+		expect(cut.value.status).toBe("partial");
+		expect(cut.value.reasons).toContain("ENTITY_BUDGET");
+		expect(cut.value.outcome).toBe("unknown");
+		expect(cut.value.dependencies.length).toBeLessThanOrEqual(2);
+		const full = checkDependencies(
+			query(fan, { entityId: "App", resourceStates: states }),
+		);
+		expect(full.ok && full.value.outcome).toBe("all_available");
+	});
 	const gap = (extra: Partial<ResearchGap>): ResearchGap => ({
 		gapKey: "k",
 		kind: "MISSING_RESOURCE",

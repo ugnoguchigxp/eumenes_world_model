@@ -38,6 +38,7 @@ export {
 	countDoneTargets,
 	countPendingTargets,
 	getForget,
+	listPendingForgetIds,
 	listPendingTargets,
 	markTargetsDone,
 	maxForgetChunk,

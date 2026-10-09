@@ -24,6 +24,7 @@ import {
 	type CurrentRow,
 } from "../../domains/projection/sqlite.ts";
 import {
+	collectEntityRefs,
 	requireTransaction,
 	WorldIntegrityError,
 	type WorldDb,
@@ -341,9 +342,10 @@ function readScope(db: WorldDb, request: ReadRequest): WorldSnapshotResult {
 	const named = new Set<string>();
 	for (const assertion of assertions) {
 		named.add(assertion.subjectId);
-		const payload = assertion.payload;
-		if (payload.kind === "relation") named.add(payload.objectId);
-		else if (payload.value.kind === "entity") named.add(payload.value.entityId);
+		for (const entity of collectEntityRefs(assertion.payload))
+			named.add(entity);
+		for (const entity of collectEntityRefs(assertion.condition))
+			named.add(entity);
 	}
 	for (const id of named)
 		if (getTombstone(db, scope, { kind: "entity", id }) !== undefined)

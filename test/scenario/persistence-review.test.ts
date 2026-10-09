@@ -526,7 +526,7 @@ describe("6 forget.reopen", () => {
 			reasonCode: "FORGET_NOT_COMPLETE",
 		});
 	});
-	test("a gate held by a restore is not reopened through forget.reopen", () => {
+	test("a gate held by a restore records the confirmation but is not opened by it", () => {
 		const store = world();
 		forgotten(store);
 		const begun = store.write((db) =>
@@ -542,7 +542,7 @@ describe("6 forget.reopen", () => {
 			),
 		);
 		expect(begun.status).toBe("applied");
-		const refused = store.write((db) =>
+		const confirmed = store.write((db) =>
 			apply(
 				db,
 				envelope(
@@ -556,9 +556,13 @@ describe("6 forget.reopen", () => {
 				),
 			),
 		);
-		expect(refused).toEqual({
-			status: "blocked",
-			reasonCode: "GATE_HELD_BY_OTHER_PROCEDURE",
+		expect(confirmed).toMatchObject({
+			status: "applied",
+			forget: { awaitingConfirmation: 0 },
+		});
+		expect(store.read((db) => getGate(db, A))).toMatchObject({
+			state: "closed",
+			reasonCode: "RESTORE_IN_PROGRESS",
 		});
 	});
 });

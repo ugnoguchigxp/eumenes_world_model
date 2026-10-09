@@ -274,3 +274,22 @@ export function countAllPendingTargets(db: WorldDb, scope: ScopeRef): number {
 		.get(scope.principal, scope.scopeKey) as { n: number };
 	return row.n;
 }
+
+/** Ids of forgets that still have pending targets, bounded (restore resumes them). */
+export function listPendingForgetIds(
+	db: WorldDb,
+	scope: ScopeRef,
+	limit: number,
+): string[] {
+	if (!checkScope(scope).ok) throw new RangeError("invalid_scope");
+	const rows = db
+		.query(
+			`SELECT DISTINCT forget_id FROM world_forget_target
+			 WHERE principal = ? AND scope_key = ? AND state = 'pending'
+			 ORDER BY forget_id LIMIT ?`,
+		)
+		.all(scope.principal, scope.scopeKey, Math.max(1, Math.trunc(limit))) as {
+		forget_id: string;
+	}[];
+	return rows.map((row) => row.forget_id);
+}

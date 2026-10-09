@@ -7,7 +7,10 @@ export const extractionMigrations: readonly MigrationDescriptor[] =
 
 export {
 	advanceCheckpoint,
+	countCheckpointsByKindPrefix,
+	deleteCheckpoint,
 	discardCheckpoints,
+	protectedKinds,
 	feedKeyOf,
 	getCheckpoint,
 	getCheckpointsByKeys,

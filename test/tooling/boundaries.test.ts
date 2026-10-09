@@ -326,3 +326,61 @@ test("A17 round 2: extensionless specifiers, test-only SQLite, Memory subpaths, 
 		check("domains/assertions/repository/a.ts", "async function f() {}").join(),
 	).toContain("persistence must be synchronous");
 });
+
+test("H2 .js specifiers map to .ts and still hit the private-path rule", () => {
+	expect(
+		check(
+			"domains/assertions/service/a.ts",
+			'import {} from "../../identity/service/index.js"',
+		).join(),
+	).toContain("domain private import");
+	expect(
+		check(
+			"domains/assertions/service/a.ts",
+			'import {} from "../../identity/index.js"',
+		),
+	).toEqual([]);
+});
+
+test("H2 dotted extensionless names cannot pass as having an extension", () => {
+	for (const spec of ["./project.test", "./x.v2", "../sqlite"])
+		expect(
+			check(
+				"domains/projection/service/a.ts",
+				`import {} from "${spec}"`,
+			).join(),
+		).toContain("must name its file extension");
+	expect(
+		check("domains/projection/service/a.ts", 'import {} from "./b.ts"'),
+	).toEqual([]);
+});
+
+test("H2 top-level await, for await and async are rejected in pure code", () => {
+	for (const code of [
+		"await Promise.resolve(1)",
+		"for await (const x of xs) {}",
+		"async function f() {}",
+	])
+		expect(check("domains/projection/service/a.ts", code).join()).toMatch(
+			/synchronous/,
+		);
+});
+
+test("H2 names that only spell a global are not globals", () => {
+	for (const code of [
+		"const a = { Date: 1, process: 2 }",
+		"declare const o: { performance: number }; o.performance",
+		"class K { crypto = 1; Date() {} }",
+		"const { process: p } = {} as { process: number }; void p",
+	])
+		expect(check("domains/projection/service/a.ts", code)).toEqual([]);
+	for (const code of [
+		"Date.now()",
+		"const { random } = Math",
+		"const x = { Date }",
+		"performance.now()",
+	])
+		expect(
+			check("domains/projection/service/a.ts", code).length,
+		).toBeGreaterThan(0);
+});

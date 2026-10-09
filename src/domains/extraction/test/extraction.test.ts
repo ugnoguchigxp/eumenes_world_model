@@ -482,6 +482,101 @@ describe("A19 validateCandidates", () => {
 			false,
 		);
 	});
+	test("a candidate that alone overflows the draft cap is rejected alone (CANDIDATE_TOO_LARGE)", () => {
+		const big = {
+			kind: "expression",
+			expression: {
+				kind: "all",
+				items: Array.from({ length: 16 }, (_, i) => ({
+					kind: "compare",
+					key: `k${i}`,
+					op: "eq",
+					value: { kind: "string", value: "x".repeat(3900) },
+				})),
+			},
+		};
+		// 31 long manifest ids make the host part of the draft large as well.
+		const deps = Array.from({ length: 31 }, (_, i) =>
+			refOf(`${"d".repeat(200)}-${i}`),
+		);
+		const r = validateCandidates(
+			base({
+				manifest: { dependencies: [refOf("m-1"), ...deps] },
+				sources: {
+					states: [stateOf("m-1"), ...deps.map((d) => stateOf(d.id))],
+				},
+				modelOutput: { candidates: [good(), good({ condition: big }), good()] },
+			}),
+			sha256,
+		);
+		if (!r.ok) throw new Error(`${r.code}:${r.path}`);
+		expect(r.value.verdicts.map(codes)).toEqual([
+			["accepted"],
+			["CANDIDATE_TOO_LARGE"],
+			["accepted"],
+		]);
+	});
+	test("model output over 64KiB is refused in both string and object form", () => {
+		const pad = { subject: "y".repeat(40_000), more: "z".repeat(40_000) };
+		for (const modelOutput of [
+			{ candidates: [good(pad)] },
+			JSON.stringify({ candidates: [good(pad)] }),
+		]) {
+			const r = validateCandidates(base({ modelOutput }), sha256);
+			expect(r.ok && r.value.reasonCode).toBe("MALFORMED_OUTPUT");
+		}
+	});
+	test("host faults fail the whole call: window over 32KiB, duplicate utteranceId, range or >500 raw manifest entries", () => {
+		const huge = "a".repeat(32769);
+		const hugeWindow = [{ ...window[0]!, source: refOf("m-1", huge) }];
+		const outputs = { modelOutput: { candidates: [good()] } };
+		const fails = (extra: Record<string, unknown>) =>
+			validateCandidates(base({ ...outputs, ...extra }), sha256);
+		const tooBig = fails({
+			window: hugeWindow,
+			manifest: { dependencies: [refOf("m-1", huge)] },
+			sources: { states: [stateOf("m-1", huge)] },
+		});
+		expect(!tooBig.ok && tooBig.code).toBe("LIMIT_EXCEEDED");
+		const dup = fails({ window: [window[0], window[0]] });
+		expect(!dup.ok && dup.code).toBe("INVALID_INPUT");
+		const ranged = fails({
+			manifest: {
+				dependencies: [
+					{ ...refOf("m-1"), range: { startByte: 0, endByte: 3 } },
+					refOf("m-extra"),
+				],
+			},
+		});
+		expect(!ranged.ok && ranged.code).toBe("INVALID_INPUT");
+		const raw = fails({
+			manifest: {
+				dependencies: Array.from({ length: 501 }, () => refOf("m-1")),
+			},
+		});
+		expect(!raw.ok && raw.code).toBe("LIMIT_EXCEEDED");
+		const dedup = fails({
+			manifest: {
+				dependencies: Array.from({ length: 500 }, () => refOf("m-1")),
+			},
+		});
+		expect(dedup.ok).toBe(true);
+	});
+	test("a missing host assignment is a rejection (not a hold) of that candidate only", () => {
+		const r = validateCandidates(
+			base({
+				modelOutput: { candidates: [good(), good()] },
+				assigned: {
+					recordedAt: 1,
+					interpretationVersion: "v",
+					freshnessMaxAgeMs: 1,
+					items: [{ assertionId: "c0", evidenceId: "e0" }],
+				},
+			}),
+			sha256,
+		);
+		expect(r.ok && r.value.verdicts[1]?.status).toBe("rejected");
+	});
 });
 
 describe("review fixes: host context checks", () => {

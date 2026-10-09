@@ -31,6 +31,9 @@ export const candidateReasonCodes = [
 	"MANIFEST_LIMIT_EXCEEDED",
 	"INVALID_SUPERSEDES",
 	"SCOPE_NOT_PERMITTED",
+	"SELF_CONTRADICTION",
+	"ROOT_LABEL_CONFLICT",
+	"CANDIDATE_TOO_LARGE",
 ] as const;
 export type CandidateReasonCode = (typeof candidateReasonCodes)[number];
 

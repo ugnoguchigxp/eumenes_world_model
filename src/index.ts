@@ -3,8 +3,8 @@
  *
  * Values are an explicit allowlist: only the operations and fixed tables a
  * host or another package should call. Internal input parsers (check*),
- * budget helpers and composition helpers (planScopeEpoch, composeEffect,
- * edgesFromEntries) stay inside their domains; types are re-exported freely.
+ * budget parsers and composition helpers (planScopeEpoch, composeEffect)
+ * stay inside their domains; types are re-exported freely.
  */
 export * from "./contracts/index.ts";
 export {
@@ -20,10 +20,22 @@ export {
 	planSplit,
 	resolveEntity,
 } from "./domains/identity/index.ts";
-export { planForget, planInvalidation } from "./domains/lifecycle/index.ts";
+export {
+	MAX_PLAN_BUDGET,
+	MAX_PLAN_EDGES,
+	MAX_PLAN_ROOTS,
+	planForget,
+	planInvalidation,
+} from "./domains/lifecycle/index.ts";
 export {
 	assessFreshness,
+	evidenceKinds,
+	freshnessStates,
 	groupEvidenceRoots,
+	lifecycles,
+	origins,
+	relationKinds,
+	transitionActions,
 	planAssertionTransition,
 	terminalLifecycles,
 	transitionTable,
@@ -32,18 +44,30 @@ export {
 export {
 	buildProjection,
 	buildWorldSlice,
+	SLICE_MAX_BYTES,
+	sliceStatuses,
 	toSliceReceipt,
 	validateSliceUsage,
 } from "./domains/projection/index.ts";
 export {
 	checkDependencies,
 	compareGaps,
+	defaultBudget,
+	edgesFromEntries,
 	explainRelevance,
 	findResearchGaps,
 	traceInfluence,
 } from "./domains/reasoning/index.ts";
-export { assessOutcome, compareScenarios } from "./domains/scenarios/index.ts";
 export {
+	assessOutcome,
+	compareScenarios,
+	maxOutcomeObservations,
+} from "./domains/scenarios/index.ts";
+export {
+	candidateKeys,
+	candidateReasonCodes,
+	extractionLimits,
+	modalities,
 	prepareExtraction,
 	validateCandidate,
 	validateCandidates,

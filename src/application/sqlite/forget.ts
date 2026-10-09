@@ -13,17 +13,24 @@ import {
 	getAssertion,
 	listAssertionsBySourceKeys,
 	listAssertionRevisionsBySubject,
-	listAssertionsReferencingEntity,
+	listAssertionsReferencingEntities,
 } from "../../domains/assertions/sqlite.ts";
 import {
 	deleteEntities,
-	listMergedMembers,
+	listMergedMembersOf,
 } from "../../domains/identity/sqlite.ts";
 import {
+	advanceCheckpoint,
+	countCheckpointsByKindPrefix,
+	deleteCheckpoint,
 	deleteInbox,
 	deleteManifests,
 	getManifest,
 	listManifestsBySourceKeys,
+	feedKeyOf,
+	getCheckpoint,
+	protectedKinds,
+	type FeedRef,
 } from "../../domains/extraction/sqlite.ts";
 import {
 	beginForget,
@@ -49,12 +56,13 @@ import { deleteProjectionFor } from "../../domains/projection/sqlite.ts";
 import {
 	deletePredictionsAndOutcomes,
 	listPredictionsByBasisAssertion,
-	listPredictionsReferencingEntity,
+	listPredictionsReferencingEntities,
 } from "../../domains/scenarios/sqlite.ts";
 import {
 	WorldIntegrityError,
 	type WorldDb,
 } from "../../infrastructure/sqlite/db.ts";
+import type { AssertionRef } from "../../domains/assertions/index.ts";
 import { rejectedResult } from "./checks.ts";
 import { removeHeads } from "./projection.ts";
 import {
@@ -70,6 +78,11 @@ interface Context {
 	readonly hasher: import("../../contracts/index.ts").CanonicalHasher;
 	readonly clock: number;
 	readonly hostChecks: HostChecks;
+	/**
+	 * Set by restore for forgets it derives from the journal: their external
+	 * deletion belongs to the restore procedure, not to a host confirmation.
+	 */
+	readonly derived?: boolean;
 }
 
 /** Dependents read per target; more than this keeps the target pending. */
@@ -111,11 +124,63 @@ export function precheckForget(
 	return null;
 }
 
+type EntityIndex = ReadonlyMap<
+	string,
+	{
+		members: { ids: readonly string[]; truncated: boolean };
+		mentions: { refs: readonly AssertionRef[]; truncated: boolean };
+		predictions: {
+			refs: readonly { id: string; revision: number }[];
+			truncated: boolean;
+		};
+	}
+>;
+
+/**
+ * One pass for every entity target of a batch: members, mentioning assertions
+ * (payload values and condition operands) and predictions are each found with
+ * a single scan of the Scope, so the cost does not grow with the target count.
+ */
+function indexEntities(
+	db: WorldDb,
+	scope: ScopeRef,
+	targets: readonly DependentRef[],
+): EntityIndex {
+	const ids = [
+		...new Set(targets.filter((t) => t.kind === "entity").map((t) => t.id)),
+	];
+	if (ids.length === 0) return new Map();
+	const members = listMergedMembersOf(db, scope, ids, discoverLimit);
+	const mentions = listAssertionsReferencingEntities(
+		db,
+		scope,
+		ids,
+		discoverLimit,
+	);
+	const predictions = listPredictionsReferencingEntities(
+		db,
+		scope,
+		ids,
+		discoverLimit,
+	);
+	return new Map(
+		ids.map((id) => [
+			id,
+			{
+				members: members.get(id) ?? { ids: [], truncated: false },
+				mentions: mentions.get(id) ?? { refs: [], truncated: false },
+				predictions: predictions.get(id) ?? { refs: [], truncated: false },
+			},
+		]),
+	);
+}
+
 /** Reverse dependencies of one target, read from the ledger (bounded). */
 function discover(
 	db: WorldDb,
 	scope: ScopeRef,
 	target: DependentRef,
+	entities: EntityIndex,
 ): { readonly refs: DependentRef[]; readonly truncated: boolean } {
 	const refs: DependentRef[] = [];
 	let truncated = false;
@@ -158,10 +223,10 @@ function discover(
 			break;
 		}
 		case "entity": {
+			const found = entities.get(target.id);
 			// Entities merged into this one must go with it (their payload is
 			// already folded into the representative, and the row would dangle).
-			const members = listMergedMembers(db, scope, target.id, discoverLimit);
-			for (const id of members.ids)
+			for (const id of found?.members.ids ?? [])
 				refs.push({ kind: "entity", id, revision: 1 });
 			// Every revision of every assertion that ever had this subject: a
 			// supersede may have moved the subject, leaving old payload behind.
@@ -173,29 +238,17 @@ function discover(
 			);
 			for (const ref of about.refs)
 				refs.push({ kind: "assertion", id: ref.id, revision: ref.revision });
-			const predictions = listPredictionsReferencingEntity(
-				db,
-				scope,
-				target.id,
-				discoverLimit,
-			);
-			for (const ref of predictions.refs)
+			for (const ref of found?.predictions.refs ?? [])
 				refs.push({ kind: "prediction", id: ref.id, revision: ref.revision });
-			// Assertions that only mention the entity (relation object or entity
-			// reference value) also carry its identity in their payload.
-			const mentions = listAssertionsReferencingEntity(
-				db,
-				scope,
-				target.id,
-				discoverLimit,
-			);
-			for (const ref of mentions.refs)
+			// Assertions that only mention the entity (relation object, entity
+			// reference value or condition operand) also carry its identity.
+			for (const ref of found?.mentions.refs ?? [])
 				refs.push({ kind: "assertion", id: ref.id, revision: ref.revision });
 			truncated =
 				about.truncated ||
-				members.truncated ||
-				mentions.truncated ||
-				predictions.truncated;
+				(found?.members.truncated ?? false) ||
+				(found?.mentions.truncated ?? false) ||
+				(found?.predictions.truncated ?? false);
 			break;
 		}
 		case "manifest": {
@@ -233,9 +286,12 @@ function erase(
 				return head ? [head] : [];
 			},
 		);
-		deleteProjectionFor(db, scope, assertionRefs);
-		removeHeads(db, scope, context, heads);
+		// Ledger first: the eligibility of the erased heads' disputers is
+		// recomputed against the remaining ledger, so a forgotten contradiction
+		// target no longer counts as a live head (incremental == rebuild).
 		must(deleteAssertions(db, scope, assertionRefs), "ASSERTIONS");
+		removeHeads(db, scope, context, heads);
+		deleteProjectionFor(db, scope, assertionRefs);
 	}
 	const scenarioRefs = processed.filter(
 		(ref) => ref.kind === "prediction" || ref.kind === "outcome",
@@ -296,9 +352,10 @@ export function applyForget(
 		if (batch.length === 0) break;
 		let processed: DependentRef[] = [];
 		let addedThisBatch = 0;
+		const entities = indexEntities(db, scope, batch);
 		for (const target of batch) {
 			if (discovered >= discoverBudget) break;
-			const found = discover(db, scope, target);
+			const found = discover(db, scope, target, entities);
 			const fresh = found.refs.filter(
 				(ref) => getTombstone(db, scope, ref) === undefined,
 			);
@@ -313,6 +370,12 @@ export function applyForget(
 		// A representative may only go together with (or after) its members.
 		// Dropping one representative can strand the one above it (a merge
 		// chain e-3 into e-2 into e-1), so filter to a fixpoint.
+		const memberIndex = listMergedMembersOf(
+			db,
+			scope,
+			processed.filter((ref) => ref.kind === "entity").map((ref) => ref.id),
+			discoverLimit,
+		);
 		for (let changed = true; changed;) {
 			changed = false;
 			const inBatch = new Set(
@@ -321,9 +384,7 @@ export function applyForget(
 			const kept = processed.filter(
 				(ref) =>
 					ref.kind !== "entity" ||
-					listMergedMembers(db, scope, ref.id, discoverLimit).ids.every((id) =>
-						inBatch.has(id),
-					),
+					(memberIndex.get(ref.id)?.ids ?? []).every((id) => inBatch.has(id)),
 			);
 			if (kept.length !== processed.length) {
 				processed = kept;
@@ -357,6 +418,8 @@ export function applyForget(
 	const remaining = countPendingTargets(db, scope, op.forgetId);
 	if (remaining === 0) {
 		must(completeForget(db, scope, op.forgetId), "COMPLETE");
+		if (context.derived !== true)
+			recordAwaiting(db, scope, op.forgetId, context.hasher);
 		holdGate(
 			db,
 			scope,
@@ -396,6 +459,11 @@ export function forgetProgress(
 		state: operation.state,
 		processed: countDoneTargets(db, scope, forgetId),
 		pending: countPendingTargets(db, scope, forgetId),
+		awaitingConfirmation: countCheckpointsByKindPrefix(
+			db,
+			scope,
+			protectedKinds.awaitingForget,
+		),
 	};
 }
 
@@ -416,7 +484,70 @@ export function completeGateReason(
 	return `${FORGET_COMPLETE_GATE_REASON}:${digest.value.slice("sha256:".length, "sha256:".length + 32)}`;
 }
 
-/** Reads only. Reopening needs every cleanup step to be demonstrably done. */
+const AWAITING_EPOCH = "awaiting";
+
+/**
+ * A complete forget stays "awaiting confirmation" until the host confirms its
+ * external (Memory) deletion. The mark lives in a checkpoint row of a
+ * protected feed kind (restore.begin keeps it), keyed by a digest of the id,
+ * so a later forget cannot overwrite an earlier forget's open obligation.
+ */
+function awaitingFeed(forgetId: string, hasher: CanonicalHasher): FeedRef {
+	const digest = canonicalDigest(["forget-awaiting", forgetId], hasher);
+	if (!digest.ok) throw new WorldIntegrityError("FORGET_AWAITING_KEY");
+	return {
+		scopeKeys: [],
+		kind: `${protectedKinds.awaitingForget}${digest.value.slice("sha256:".length)}`,
+	};
+}
+const awaitingFeedFor = (
+	scope: ScopeRef,
+	forgetId: string,
+	hasher: CanonicalHasher,
+): FeedRef => ({
+	...awaitingFeed(forgetId, hasher),
+	scopeKeys: [scope.scopeKey],
+});
+
+function recordAwaiting(
+	db: WorldDb,
+	scope: ScopeRef,
+	forgetId: string,
+	hasher: CanonicalHasher,
+): void {
+	const saved = advanceCheckpoint(db, scope, {
+		feed: awaitingFeedFor(scope, forgetId, hasher),
+		restoreEpoch: AWAITING_EPOCH,
+		cursorRestoreEpoch: AWAITING_EPOCH,
+		receivedCursor: "awaiting",
+	});
+	if (saved.status === "rejected")
+		throw new WorldIntegrityError(`FORGET_AWAITING:${saved.reasonCode}`);
+}
+
+function isAwaiting(
+	db: WorldDb,
+	scope: ScopeRef,
+	forgetId: string,
+	hasher: CanonicalHasher,
+): boolean {
+	const key = feedKeyOf(
+		scope.principal,
+		awaitingFeedFor(scope, forgetId, hasher),
+		AWAITING_EPOCH,
+	);
+	return key !== undefined && getCheckpoint(db, scope, key) !== undefined;
+}
+
+/** Forgets that completed but whose external deletion is not yet confirmed. */
+export const awaitingConfirmations = (db: WorldDb, scope: ScopeRef): number =>
+	countCheckpointsByKindPrefix(db, scope, protectedKinds.awaitingForget);
+
+/**
+ * Reads only. Confirming needs every cleanup step to be demonstrably done.
+ * Several complete forgets can be open at once: each needs its own
+ * confirmation, whatever the gate currently says or who closed it.
+ */
 export function precheckReopen(
 	db: WorldDb,
 	op: ReopenOp,
@@ -437,19 +568,22 @@ export function precheckReopen(
 	if (op.externalDeletionConfirmed !== true)
 		return { status: "blocked", reasonCode: "EXTERNAL_DELETION_UNCONFIRMED" };
 	const gate = getGate(db, scope);
+	// A gate left by a pre-tracking build names no forget: owner unknown, but
+	// the confirmation of any complete forget may reopen it (documented).
+	const legacy =
+		gate?.state === "closed" && gate.reasonCode === FORGET_COMPLETE_GATE_REASON;
+	if (!isAwaiting(db, scope, op.forgetId, hasher) && !legacy)
+		return { status: "blocked", reasonCode: "FORGET_NOT_AWAITING" };
 	if (!gate || gate.state !== "closed")
 		return { status: "blocked", reasonCode: "GATE_NOT_CLOSED" };
-	// A restore (or another forget) keeps its own gate and its own way back.
-	if (!gate.reasonCode.startsWith(`${FORGET_COMPLETE_GATE_REASON}:`))
-		return { status: "blocked", reasonCode: "GATE_HELD_BY_OTHER_PROCEDURE" };
-	if (gate.reasonCode !== completeGateReason(op.forgetId, hasher))
-		return { status: "blocked", reasonCode: "GATE_OWNED_BY_OTHER_FORGET" };
 	return null;
 }
 
 /**
- * The projection was kept equal to a ledger rebuild by every forget chunk
- * (incremental removal), so completion already implies it is rebuilt.
+ * Records the confirmation. The Scope reopens only when it is held by a
+ * finished forget and no forget is left awaiting confirmation or pending;
+ * otherwise (restore, another forget) it stays closed and the result says so.
+ * The projection was kept equal to a ledger rebuild by every forget chunk.
  */
 export function applyReopen(
 	db: WorldDb,
@@ -457,10 +591,25 @@ export function applyReopen(
 	scope: ScopeRef,
 	context: Context,
 ): null {
-	void op;
-	must(
-		openGate(db, scope, { restoreEpoch: context.hostChecks.restoreEpoch }),
-		"REOPEN",
+	deleteCheckpoint(
+		db,
+		scope,
+		awaitingFeedFor(scope, op.forgetId, context.hasher),
+		AWAITING_EPOCH,
 	);
+	const gate = getGate(db, scope);
+	const heldByForget =
+		gate?.state === "closed" &&
+		(gate.reasonCode === FORGET_COMPLETE_GATE_REASON ||
+			gate.reasonCode.startsWith(`${FORGET_COMPLETE_GATE_REASON}:`));
+	if (
+		heldByForget &&
+		awaitingConfirmations(db, scope) === 0 &&
+		countAllPendingTargets(db, scope) === 0
+	)
+		must(
+			openGate(db, scope, { restoreEpoch: context.hostChecks.restoreEpoch }),
+			"REOPEN",
+		);
 	return null;
 }

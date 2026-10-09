@@ -800,3 +800,43 @@ export function deleteEntities(
 		deletedEvents: doomed.length,
 	};
 }
+
+/**
+ * Merged members of several representatives in one query (chunked IN list),
+ * per representative. Replaces one `merged_into = ?` query per entity.
+ */
+export function listMergedMembersOf(
+	db: WorldDb,
+	scope: ScopeRef,
+	representativeIds: readonly string[],
+	limit: number,
+): ReadonlyMap<
+	string,
+	{ readonly ids: readonly string[]; readonly truncated: boolean }
+> {
+	const s = scopeOrThrow(scope);
+	if (!Number.isSafeInteger(limit) || limit < 1)
+		throw new WorldIntegrityError("INVALID_LIMIT");
+	const unique = [...new Set(representativeIds)];
+	const found = new Map<string, string[]>();
+	for (const id of unique) found.set(id, []);
+	for (let i = 0; i < unique.length; i += 400) {
+		const slice = unique.slice(i, i + 400);
+		const rows = db
+			.query(
+				`SELECT id, merged_into FROM world_entity
+				 WHERE principal = ? AND scope_key = ?
+				 AND merged_into IN (${slice.map(() => "?").join(",")})
+				 ORDER BY id`,
+			)
+			.all(s.principal, s.scopeKey, ...slice) as {
+			id: string;
+			merged_into: string;
+		}[];
+		for (const row of rows) found.get(row.merged_into)?.push(row.id);
+	}
+	const out = new Map<string, { ids: string[]; truncated: boolean }>();
+	for (const [id, ids] of found)
+		out.set(id, { ids: ids.slice(0, limit), truncated: ids.length > limit });
+	return out;
+}

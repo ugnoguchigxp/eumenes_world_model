@@ -57,6 +57,26 @@ describe("P1-11 public surface", () => {
 			"sameScope",
 			"utf8Length",
 		];
+		// Fixed tables and limits a host reads at runtime (never mutated).
+		const constants = [
+			"MAX_PLAN_BUDGET",
+			"MAX_PLAN_EDGES",
+			"MAX_PLAN_ROOTS",
+			"SLICE_MAX_BYTES",
+			"candidateKeys",
+			"candidateReasonCodes",
+			"defaultBudget",
+			"evidenceKinds",
+			"extractionLimits",
+			"freshnessStates",
+			"lifecycles",
+			"maxOutcomeObservations",
+			"modalities",
+			"origins",
+			"relationKinds",
+			"sliceStatuses",
+			"transitionActions",
+		];
 		const operations = [
 			"and3",
 			"assessFreshness",
@@ -67,6 +87,7 @@ describe("P1-11 public surface", () => {
 			"compareGaps",
 			"compareScenarios",
 			"compareValidity",
+			"edgesFromEntries",
 			"evaluateConditions",
 			"explainRelevance",
 			"findResearchGaps",
@@ -91,16 +112,18 @@ describe("P1-11 public surface", () => {
 			"validateSliceUsage",
 		];
 		expect(Object.keys(api).sort()).toEqual(
-			[...contracts, ...operations].sort(),
+			[...contracts, ...constants, ...operations].sort(),
 		);
-		for (const name of operations)
+		expect(Object.isFrozen(api.defaultBudget)).toBe(true);
+		expect(Object.isFrozen(api.extractionLimits)).toBe(true);
+		for (const name of [...constants, ...operations])
 			expect(typeof (api as Record<string, unknown>)[name]).not.toBe(
 				"undefined",
 			);
 		// No SQL, host entry or internal composition helper leaks through.
 		for (const name of Object.keys(api))
 			expect(name).not.toMatch(
-				/^(applyWorldOperation|readWorldSnapshot|migrations|planScopeEpoch|composeEffect|edgesFromEntries|checkGraphInput|checkStates|checkWindow|checkConditions)$/,
+				/^(applyWorldOperation|readWorldSnapshot|migrations|planScopeEpoch|composeEffect|checkGraphInput|checkStates|checkWindow|checkConditions)$/,
 			);
 	});
 	test("every versioned public input accepts v1 and rejects v2 as UNSUPPORTED_CONTRACT_VERSION", () => {

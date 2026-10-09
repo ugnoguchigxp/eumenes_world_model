@@ -30,6 +30,34 @@ const persistence = (name: string) =>
 	/^domains\/[^/]+\/(sqlite\.ts|repository\/)/.test(name);
 const publicDomainPath = (name: string) =>
 	/^domains\/[^/]+\/(index\.ts|sqlite\.ts|contracts\/index\.ts)$/.test(name);
+/**
+ * False for names that merely spell a global (obj.process, { Date: 1 },
+ * class members); true for anything that can resolve to the ambient global.
+ */
+function isGlobalReference(node: ts.Identifier): boolean {
+	const parent = node.parent;
+	if (ts.isPropertyAccessExpression(parent) && parent.name === node)
+		return false;
+	if (ts.isQualifiedName(parent) && parent.right === node) return false;
+	if (
+		(ts.isPropertyAssignment(parent) ||
+			ts.isPropertySignature(parent) ||
+			ts.isPropertyDeclaration(parent) ||
+			ts.isMethodDeclaration(parent) ||
+			ts.isMethodSignature(parent) ||
+			ts.isEnumMember(parent)) &&
+		parent.name === node
+	)
+		return false;
+	if (ts.isBindingElement(parent) && parent.propertyName === node) return false;
+	if (
+		(ts.isGetAccessorDeclaration(parent) ||
+			ts.isSetAccessorDeclaration(parent)) &&
+		parent.name === node
+	)
+		return false;
+	return true;
+}
 /** Static guard, not a sandbox for aliases or computed SQL. Paths are src-relative. */
 export function boundaryErrors(
 	name: string,
@@ -80,7 +108,7 @@ export function boundaryErrors(
 		let target = slash(relative(root, resolve(dirname(file), spec)));
 		// Bundler resolution would pick X.ts or X/index.ts; the checker must
 		// not guess, so every relative import has to name its file.
-		if (!/\.[a-z]+$/.test(target)) {
+		if (!/\.(ts|js|mts|cts|json)$/.test(target)) {
 			fail(`relative import must name its file extension: ${spec}`);
 			target += "/index.ts";
 		}
@@ -210,7 +238,11 @@ export function boundaryErrors(
 					}
 				}
 			}
-			if (ts.isIdentifier(node) && ambientGlobals.has(node.text))
+			if (
+				ts.isIdentifier(node) &&
+				ambientGlobals.has(node.text) &&
+				isGlobalReference(node)
+			)
 				fail(`runtime global ${node.text} is not allowed`);
 			if (
 				ts.isNewExpression(node) &&
@@ -248,7 +280,8 @@ export function boundaryErrors(
 				fail("random must be injected");
 			if (
 				node.kind === ts.SyntaxKind.AsyncKeyword ||
-				ts.isAwaitExpression(node)
+				ts.isAwaitExpression(node) ||
+				(ts.isForOfStatement(node) && node.awaitModifier !== undefined)
 			)
 				fail(
 					sql

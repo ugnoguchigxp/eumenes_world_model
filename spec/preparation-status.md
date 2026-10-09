@@ -1,6 +1,6 @@
 # 開発準備の状況
 
-2026年10月9日。完了範囲は[実装計画](implementation-plan.md)のP0のみ。Worldの機能実装、製品schema、Eumenesとの接続は未着手。
+2026年10月9日。この文書はP0（構造準備）時点の記録で、後半は当時の状態を残す。現在はP1（純粋規則）とP2（本体のSQLite永続化）まで実装済みで、証拠は[実装進捗](plan/progress.md)を正本とする。Eumenesとの接続（P3以降）、実Memory登録、journalの耐久性、実モデルは未着手・未受入。
 
 ## 作成したもの
 
@@ -35,7 +35,7 @@ SQLite試験はfileとmemoryそれぞれのcommit・rollback・async callback拒
 
 ## 未実装と保証範囲
 
-本体の公開面は型と空のmigrationだけであり、Worldの保存・検索・条件推論・忘却・モデル抽出が動作したという意味ではない。Eumenes側のWriter queue・OS lock・queue/Memoryとの結合、製品migration、復元と忘却journal、先行TTSの公開制御、実モデル・実機受入は後続段階で確認する。
+以下はP0時点の記述で、P1・P2の実装により公開面は拡大している（現状は[実装進捗](plan/progress.md)と[公開API](world-sqlite-public-api.md)）。P0時点では、本体の公開面は型と空のmigrationだけであり、Worldの保存・検索・条件推論・忘却・モデル抽出が動作したという意味ではない。Eumenes側のWriter queue・OS lock・queue/Memoryとの結合、製品migration、復元と忘却journal、先行TTSの公開制御、実モデル・実機受入は後続段階で確認する。
 
 試験は本体ソースの公開入口をself-referenceしている。build出力の正式tarball配布とconsumer試験は未実施。領域選択は本家と同じ`--domain`を採用。現在の8domainは業務試験0件のため失敗し、型検査等の共通検証は全体のまま。`--area`や未知引数は拒否する。
 

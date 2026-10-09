@@ -251,3 +251,54 @@ export function listPredictionsReferencingEntity(
 		truncated: rows.length > n,
 	};
 }
+
+/**
+ * Predictions naming any of `entityIds` as subject or object, per entity, in
+ * ONE scan of the Scope's predictions (cost independent of the batch size).
+ */
+export function listPredictionsReferencingEntities(
+	db: WorldDb,
+	scope: ScopeRef,
+	entityIds: readonly string[],
+	limit: number,
+): ReadonlyMap<
+	string,
+	{
+		readonly refs: readonly { id: string; revision: number }[];
+		readonly truncated: boolean;
+	}
+> {
+	const n = boundedLimit(limit);
+	const wanted = new Set(entityIds);
+	const matches = new Map<string, { id: string; revision: number }[]>();
+	for (const id of wanted) matches.set(id, []);
+	if (wanted.size > 0) {
+		const rows = db
+			.query(
+				`SELECT id, revision,
+				 json_extract(payload_json, '$.conditions.subjectId') AS a,
+				 json_extract(payload_json, '$.subjectId') AS b,
+				 json_extract(payload_json, '$.objectId') AS c
+				 FROM world_prediction WHERE principal = ? AND scope_key = ?
+				 ORDER BY id, revision`,
+			)
+			.all(scope.principal, scope.scopeKey) as {
+			id: string;
+			revision: number;
+			a: unknown;
+			b: unknown;
+			c: unknown;
+		}[];
+		for (const row of rows)
+			for (const key of new Set([row.a, row.b, row.c]))
+				if (typeof key === "string")
+					matches.get(key)?.push({ id: row.id, revision: row.revision });
+	}
+	const out = new Map<
+		string,
+		{ refs: { id: string; revision: number }[]; truncated: boolean }
+	>();
+	for (const [entity, refs] of matches)
+		out.set(entity, { refs: refs.slice(0, n), truncated: refs.length > n });
+	return out;
+}

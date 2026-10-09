@@ -19,6 +19,7 @@ import {
 	getCheckpoint,
 	getCheckpointsByKeys,
 	listManifestSourceKeys,
+	protectedKinds,
 	listManifestsBySourceKeys,
 	type Checkpoint,
 	type FeedRef,
@@ -27,7 +28,9 @@ import {
 	checkTargetRef,
 	closeGate,
 	countAllPendingTargets,
+	getForget,
 	getGate,
+	listPendingForgetIds,
 	listTombstones,
 	openGate,
 	tombstoneReasons,
@@ -39,7 +42,7 @@ import {
 	type WorldDb,
 } from "../../infrastructure/sqlite/db.ts";
 import { rejectedResult } from "./checks.ts";
-import { applyForget } from "./forget.ts";
+import { applyForget, awaitingConfirmations } from "./forget.ts";
 import { LedgerTooLargeError, rebuildProjection } from "./projection.ts";
 import {
 	RESTORE_GATE_REASON,
@@ -110,6 +113,50 @@ function journalOf(
 	const key = feedKeyOf(scope.principal, journalFeed(scope), epoch);
 	return key === undefined ? undefined : getCheckpoint(db, scope, key);
 }
+/**
+ * Highest journal position ever seen. It is NOT tied to a restore epoch (and
+ * restore.begin keeps it), so a forget or reopen under a newer epoch cannot
+ * make a rolled-back journal look fresh.
+ */
+const HIGH_WATER_EPOCH = "high-water";
+const highWaterFeed = (scope: ScopeRef): FeedRef => ({
+	scopeKeys: [scope.scopeKey],
+	kind: protectedKinds.journalHighWater,
+});
+function highWaterOf(db: WorldDb, scope: ScopeRef): number | undefined {
+	const key = feedKeyOf(
+		scope.principal,
+		highWaterFeed(scope),
+		HIGH_WATER_EPOCH,
+	);
+	const cursor = key === undefined ? undefined : getCheckpoint(db, scope, key);
+	return cursor?.receivedCursor == null
+		? undefined
+		: Number(cursor.receivedCursor);
+}
+/** Highest known journal position across the high-water mark and the epoch row. */
+function lastSeenSeq(
+	db: WorldDb,
+	scope: ScopeRef,
+	epoch: string,
+): number | undefined {
+	const candidates = [
+		highWaterOf(db, scope),
+		(() => {
+			const cursor = journalOf(db, scope, epoch)?.receivedCursor;
+			return cursor == null ? undefined : Number(cursor);
+		})(),
+	].filter((value): value is number => value !== undefined);
+	return candidates.length === 0 ? undefined : Math.max(...candidates);
+}
+function raiseHighWater(db: WorldDb, scope: ScopeRef, seq: number): void {
+	const current = highWaterOf(db, scope);
+	if (current !== undefined && current >= seq) return;
+	saveCursor(db, scope, highWaterFeed(scope), HIGH_WATER_EPOCH, {
+		receivedCursor: String(seq),
+	});
+}
+
 /** Dependency feed kinds use a digest, so long source keys fit the ID limit. */
 function dependencyFeed(
 	scope: ScopeRef,
@@ -389,8 +436,15 @@ export function precheckRestore(
 				return blocked("RESTORE_NOT_IN_PROGRESS");
 			const registrations = parseRegistrations(op.registrations);
 			if (!registrations) return rejectedResult("INVALID_INPUT");
+			// A resend after the key's items were erased (a derived forget still
+			// draining, or the key already tombstoned) must stay possible.
+			const draining = derivedForgetIds(db, scope).length > 0;
 			for (const item of registrations)
-				if (!inLedger(db, scope, item.sourceKey))
+				if (
+					!draining &&
+					!inLedger(db, scope, item.sourceKey) &&
+					!tombstonedKeys(db, scope, [item.sourceKey]).has(item.sourceKey)
+				)
 					return rejectedResult("DEPENDENCY_NOT_IN_LEDGER");
 			return null;
 		}
@@ -399,8 +453,8 @@ export function precheckRestore(
 				return blocked("RESTORE_NOT_IN_PROGRESS");
 			const journal = parseJournal(op.journal);
 			if (!journal) return rejectedResult("INVALID_INPUT");
-			const lastSeen = journalOf(db, scope, epoch)?.receivedCursor;
-			if (lastSeen != null && journal.seq < Number(lastSeen))
+			const lastSeen = lastSeenSeq(db, scope, epoch);
+			if (lastSeen !== undefined && journal.seq < lastSeen)
 				return blocked("JOURNAL_ROLLED_BACK");
 			return null;
 		}
@@ -416,7 +470,19 @@ export function precheckRestore(
 				return blocked("JOURNAL_NOT_RECONCILED");
 			const pendingForget = countAllPendingTargets(db, scope);
 			if (pendingForget > 0)
-				return blocked("FORGET_PENDING", { state: "pending", pendingForget });
+				return blocked("FORGET_PENDING", {
+					state: "pending",
+					pendingForget,
+					derivedForgets: derivedForgetIds(db, scope),
+				});
+			// A complete forget's external deletion must be confirmed (forget.reopen
+			// records it while this restore holds the gate) before the Scope opens.
+			const awaiting = awaitingConfirmations(db, scope);
+			if (awaiting > 0)
+				return blocked("FORGET_AWAITING_CONFIRMATION", {
+					state: "pending",
+					awaitingConfirmation: awaiting,
+				});
 			const counted = countUnaccounted(db, scope, context);
 			if (counted.tooLarge) return blocked("VERIFICATION_TOO_LARGE");
 			if (counted.unaccounted > 0)
@@ -426,6 +492,28 @@ export function precheckRestore(
 				});
 			return null;
 		}
+	}
+}
+
+const derivedPrefix = "restore-";
+/** Pending forgets this restore started (ids are derived, so the host never sees them otherwise). */
+function derivedForgetIds(db: WorldDb, scope: ScopeRef): string[] {
+	return listPendingForgetIds(db, scope, 50).filter((id) =>
+		id.startsWith(derivedPrefix),
+	);
+}
+/** One more chunk of every draining derived forget (bounded per call). */
+function advanceDerivedForgets(
+	db: WorldDb,
+	scope: ScopeRef,
+	context: Context,
+	skip: ReadonlySet<string>,
+): void {
+	for (const forgetId of derivedForgetIds(db, scope).slice(0, 4)) {
+		if (skip.has(forgetId)) continue;
+		const operation = getForget(db, scope, forgetId);
+		if (!operation || operation.state === "complete") continue;
+		forgetBatch(db, scope, context, forgetId, operation.reasonCode, []);
 	}
 }
 
@@ -443,7 +531,7 @@ function forgetBatch(
 		db,
 		{ kind: "forget.chunk", forgetId, reasonCode, roots: sortRefs(refs) },
 		scope,
-		context,
+		{ ...context, derived: true },
 	);
 	if (rejected)
 		throw new WorldIntegrityError(`RESTORE_FORGET:${rejected.reasonCode}`);
@@ -480,10 +568,11 @@ export function applyRestore(
 			// The journal position seen before this restore survives it: it is
 			// the only defence against reading a rolled-back journal.
 			const previous = getGate(db, scope)?.restoreEpoch;
-			const lastSeen =
-				journalOf(db, scope, previous ?? epoch)?.receivedCursor ??
-				journalOf(db, scope, epoch)?.receivedCursor ??
-				null;
+			const seen = [
+				lastSeenSeq(db, scope, previous ?? epoch),
+				lastSeenSeq(db, scope, epoch),
+			].filter((value): value is number => value !== undefined);
+			const lastSeen = seen.length === 0 ? null : String(Math.max(...seen));
 			discardCheckpoints(db, scope);
 			releaseUnsettledInbox(db, scope);
 			holdGate(db, scope, context.hostChecks);
@@ -496,6 +585,7 @@ export function applyRestore(
 		case "restore.register": {
 			const registrations = parseRegistrations(op.registrations)!;
 			const gone: DependentRef[] = [];
+			const started = new Set<string>();
 			for (const item of registrations) {
 				if (item.status === "registered")
 					saveCursor(
@@ -509,39 +599,39 @@ export function applyRestore(
 					gone.push({ kind: "source", id: item.sourceKey, revision: 1 });
 			}
 			// Externally tombstoned is never "registered": derived items go.
-			if (gone.length > 0)
-				forgetBatch(
-					db,
-					scope,
-					context,
-					derivedForgetId(["register", epoch, sortRefs(gone)], context.hasher),
-					"SOURCE_FORGOTTEN",
-					gone,
+			if (gone.length > 0) {
+				const forgetId = derivedForgetId(
+					["register", epoch, sortRefs(gone)],
+					context.hasher,
 				);
+				started.add(forgetId);
+				forgetBatch(db, scope, context, forgetId, "SOURCE_FORGOTTEN", gone);
+			}
+			advanceDerivedForgets(db, scope, context, started);
 			holdGate(db, scope, context.hostChecks);
 			return null;
 		}
 		case "restore.reconcile": {
 			const journal = parseJournal(op.journal)!;
 			// Re-apply the newest tombstones; an older database never un-forgets.
-			for (const group of groupJournal(journal).values())
-				forgetBatch(
-					db,
-					scope,
-					context,
-					derivedForgetId(
-						[
-							"journal",
-							epoch,
-							group.forgetId,
-							group.reasonCode,
-							sortRefs(group.refs),
-						],
-						context.hasher,
-					),
-					group.reasonCode,
-					group.refs,
+			const started = new Set<string>();
+			for (const group of groupJournal(journal).values()) {
+				const forgetId = derivedForgetId(
+					[
+						"journal",
+						epoch,
+						group.forgetId,
+						group.reasonCode,
+						sortRefs(group.refs),
+					],
+					context.hasher,
 				);
+				started.add(forgetId);
+				forgetBatch(db, scope, context, forgetId, group.reasonCode, group.refs);
+			}
+			// Resending a page (or an empty one) keeps draining earlier chunks.
+			advanceDerivedForgets(db, scope, context, started);
+			raiseHighWater(db, scope, journal.seq);
 			saveCursor(db, scope, journalFeed(scope), epoch, {
 				receivedCursor: String(journal.seq),
 			});
@@ -579,6 +669,7 @@ export function restoreProgress(
 		case "restore.register":
 			return {
 				state: "pending",
+				derivedForgets: derivedForgetIds(db, scope),
 				pendingForget: countAllPendingTargets(db, scope),
 				unknown: op.registrations.filter((item) => item.status === "unknown")
 					.length,
@@ -586,6 +677,7 @@ export function restoreProgress(
 		case "restore.reconcile":
 			return {
 				state: "pending",
+				derivedForgets: derivedForgetIds(db, scope),
 				pendingForget: countAllPendingTargets(db, scope),
 			};
 		default:

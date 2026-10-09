@@ -9,6 +9,7 @@ import {
 	ok,
 } from "../../../contracts/index.ts";
 import {
+	checkOptionalVersion,
 	normalizeAlias,
 	parseEntities,
 	strictRecord,
@@ -77,8 +78,14 @@ export function resolveEntity(
 	request: unknown,
 	entities: unknown,
 ): Checked<Resolution> {
-	const probe = strictRecord(request, "request", ["scope", "query"]);
+	const probe = strictRecord(request, "request", [
+		"contractVersion",
+		"scope",
+		"query",
+	]);
 	if (!probe.ok) return probe;
+	const version = checkOptionalVersion(probe.value, "request");
+	if (!version.ok) return version;
 	const scope = checkScope(probe.value["scope"], "request.scope");
 	if (!scope.ok) return scope;
 	const query = parseQuery(probe.value["query"]);

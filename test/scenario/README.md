@@ -1,3 +1,3 @@
 # 横断シナリオ
 
-P2以降に訂正、忘却、再起動、復元、遅着結果、scope混同を実SQLiteで確認する。ホスト結合試験はEumenes側に置く。現在は未実装。
+実SQLite（一時file/WAL・memory）で、原子性、再送、snapshot、訂正、忘却、復元、予算、性能の上限、世代をまたぐ受入を確認する。ホスト結合試験（Eumenesの単一Writer・Memory登録）はEumenes側に置くもので、ここでは未受入。

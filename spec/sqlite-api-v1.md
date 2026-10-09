@@ -5,7 +5,7 @@
 ## 共通規約
 
 - すべて同期。`db`はホストから借りた`WorldDb`で、保持・close・transaction・PRAGMAをしない。
-- 書込み: 先頭で`requireTransaction(db)`（`db.inTransaction !== true`は`WorldTransactionRequiredError`）。値はすべてbind。UPDATE/DELETEは`expectChanges`で件数を確認し、期待外は`WorldIntegrityError`（ホストがrollback）。0件更新を成功にしない。
+- 書込み: 先頭で`requireTransaction(db)`（`db.inTransaction !== true`は`WorldTransactionRequiredError`）。値はすべてbind。INSERT/UPDATEは`expectChanges`で件数を確認し、期待外は`WorldIntegrityError`（ホストがrollback）。0件更新を成功にしない。forget用のDELETEは冪等（既に消えた対象を指定しても成功）で件数を強制しない。
 - 読取り: 全SELECTのWHEREに`principal`と`scope_key`を含む。認可外を取得して後で絞らない。取得件数は呼出し側のlimit（+1 sentinel）で制限。
 - 拒否の二層: 入力・認可・期待版・墓標など予見できる拒否はDML前に`{status:"rejected"|"blocked", reasonCode}`で返す。DML後の不整合は例外。
 - canonical payloadは`src/contracts`のcanonicalBytesで固定し、再送判定にはdigestだけを`world_operation`に保存する。
@@ -36,8 +36,10 @@
 | candidate.settle | validateCandidates＋明示選択 | assertion表群, world_inbox, world_input_manifest, world_checkpoint, projection, epoch, operation | 選択不正, 遅着(TOMBSTONED) | 台帳→投影→epoch→checkpoint→operation |
 | prediction.register / outcome.register | scenariosの検査済み入力 | world_prediction, world_outcome, world_operation | PREDICTION_NOT_FOUND, REVISION_CONFLICT | 台帳→operation |
 | invalidate | 版付き対象＋理由code | assertion表群, projection, epoch, operation | — | 旧版停止→投影→epoch→operation |
-| forget.reopen | forgetId, externalDeletionConfirmed | world_scope_gate | FORGET_NOT_FOUND, FORGET_NOT_COMPLETE, FORGET_PENDING, EXTERNAL_DELETION_UNCONFIRMED, GATE_HELD_BY_OTHER_PROCEDURE | gate開のみ |
-| forget.chunk | forgetId, 最大500対象 | 全payload表の削除, world_tombstone, world_forget_*, world_scope_gate, projection, epoch | — | gate閉→次対象保存→削除→墓標→進捗 |
+| forget.reopen | forgetId, externalDeletionConfirmed | world_checkpoint（確認待ちmarkの削除）, world_scope_gate | FORGET_NOT_FOUND, FORGET_NOT_COMPLETE, FORGET_PENDING, EXTERNAL_DELETION_UNCONFIRMED, FORGET_NOT_AWAITING, GATE_NOT_CLOSED | 確認を記録→全forgetが確認済みでforget由来のgateならgate開 |
+| forget.chunk | forgetId, 最大500対象 | 全payload表の削除, world_tombstone, world_forget_*, world_scope_gate, world_checkpoint（確認待ちmark）, projection, epoch | INVALID_INPUT, FORGET_REASON_CONFLICT, FORGET_ALREADY_COMPLETE | gate閉→次対象保存→台帳削除→投影の差分除去→墓標→進捗。完了時に確認待ちmarkを記録 |
+| inbox.receive | feed, event, receivedCursor | world_inbox, world_checkpoint | EVENT_CONFLICT, TOMBSTONED, STALE_RESTORE_EPOCH | inbox→cursor→operation |
+| restore.begin / register / reconcile / finish, rebuild | restoreEpoch（hostChecks）, 登録結果, journal page | gate, world_checkpoint, 派生forget, projection | RESTORE_NOT_IN_PROGRESS, DEPENDENCY_NOT_IN_LEDGER, JOURNAL_ROLLED_BACK, JOURNAL_NOT_RECONCILED, FORGET_PENDING, FORGET_AWAITING_CONFIRMATION, DEPENDENCIES_UNACCOUNTED, LEDGER_TOO_LARGE | 詳細は[公開API](world-sqlite-public-api.md) |
 
 ## readWorldSnapshot(db, request) と validateWorldUsage
 

@@ -423,6 +423,74 @@ describe("review fixes: scenarios", () => {
 		// "zz-new" sorts last by id: without the reservation it would be cut.
 		expect(pathNodes).toContain("x>w");
 	});
+	test("an overlay larger than the candidate budget is cut and reported, not a failure", () => {
+		const added = Array.from({ length: 7 }, (_, i) =>
+			edge(`n${i}`, "x", `t${i}`, "causes"),
+		);
+		const r = compareScenarios(
+			base(
+				[],
+				[
+					{ overlayId: "A", addEdges: added, removeEdgeIds: [] },
+					{ overlayId: "B", addEdges: [], removeEdgeIds: [] },
+				],
+				{ budget: { candidates: 5 } },
+			),
+		);
+		expect(r.ok).toBe(true);
+		if (!r.ok) return;
+		expect(r.value.reasons).toContain("OVERLAY_EDGES_TRUNCATED");
+		expect(r.value.status).toBe("partial");
+	});
+	test("the host candidate budget (smaller than the default) drives truncation", () => {
+		const other = { overlayId: "B", addEdges: [], removeEdgeIds: [] };
+		const A = {
+			overlayId: "A",
+			addEdges: [edge("zz", "x", "w", "causes")],
+			removeEdgeIds: [],
+		};
+		const tight = compareScenarios(
+			base(baselineEdges(10), [A, other], { budget: { candidates: 10 } }),
+		);
+		expect(tight.ok && tight.value.reasons).toContain(
+			"OVERLAY_BASELINE_TRUNCATED",
+		);
+		const roomy = compareScenarios(base(baselineEdges(10), [A, other]));
+		expect(roomy.ok && roomy.value.reasons).not.toContain(
+			"OVERLAY_BASELINE_TRUNCATED",
+		);
+	});
+	test("baseline truncation is stable across input order: id, then revision", () => {
+		const edges = [
+			edge("b0", "x", "y0", "causes"),
+			{ ...edge("b1", "x", "y1", "causes"), revision: 2 },
+			edge("b1", "x", "y1-old", "causes"),
+		];
+		const overlays = [
+			{
+				overlayId: "A",
+				addEdges: [
+					edge("n0", "x", "w", "causes"),
+					edge("n1", "x", "v", "causes"),
+				],
+				removeEdgeIds: [],
+			},
+			{ overlayId: "B", addEdges: [], removeEdgeIds: [] },
+		];
+		const budget = { budget: { candidates: 4 } };
+		const forward = compareScenarios(base(edges, overlays, budget));
+		const backward = compareScenarios(
+			base([...edges].reverse(), overlays, budget),
+		);
+		expect(forward).toEqual(backward);
+		// room = 2 baseline edges: b0, then the lower revision of b1 is kept.
+		const paths = forward.ok
+			? forward.value.overlays[0].influence.paths.map((p) => p.nodes.join(">"))
+			: [];
+		expect(paths).toContain("x>y0");
+		expect(paths).toContain("x>y1-old");
+		expect(paths).not.toContain("x>y1");
+	});
 	test("no truncation note when everything fits", () => {
 		const r = compareScenarios(
 			base(baselineEdges(3), [
@@ -558,12 +626,14 @@ describe("round 2: decimal tolerance, overflow and overlay reporting", () => {
 		expect(run(0.3, 0.09, 0.2, "decreases").verdict).toBe("supported");
 		expect(run(100, 90, 2, "decreases").verdict).toBe("supported");
 	});
-	test("a delta that overflows is incomparable and never leaks Infinity", () => {
+	test("a delta that overflows is a determinate verdict and never leaks Infinity", () => {
+		// -1e308 - 1e308 does not fit a double, yet it is far below any tolerance.
 		const r = run(1e308, -1e308, 2);
-		expect(r.verdict).toBe("incomparable");
-		expect(r.reasons).toEqual(["NON_FINITE_DELTA"]);
+		expect(r.verdict).toBe("refuted");
+		expect(r.reasons).toEqual([]);
 		expect(JSON.stringify(r)).not.toContain("null");
 		expect("delta" in r).toBe(false);
+		expect(run(1e308, -1e308, 2, "decreases").verdict).toBe("supported");
 	});
 	test("compareScenarios reports a mistyped removal as partial", () => {
 		const edges = [edge("e1", "a", "b", "increases", { axis })];

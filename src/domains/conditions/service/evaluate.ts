@@ -117,13 +117,26 @@ function evalCompare(
 ): Outcome {
 	const allOfKey = ctx.observations.filter((o) => o.key === node.key);
 	if (allOfKey.length === 0) return unknown("NO_OBSERVATION");
-	// An observation made after asOf does not exist yet at asOf (C5): it never
-	// takes part in the selection, so a backdated query still sees the past.
-	const sameKey = allOfKey.filter((o) => o.observedAt <= ctx.asOf);
-	if (sameKey.length === 0) return unknown("FUTURE_OBSERVATION");
-	// Priority decides next, over every observation that existed at asOf: a
-	// stale, outdated or invalid authoritative observation must not let a
-	// weaker one answer in its place (it makes the result unknown instead).
+	// An observation that did not exist yet at asOf (made after it) or whose own
+	// validTime does not cover asOf says nothing about the state at asOf (C5):
+	// it never takes part in the selection, so a backdated query still sees the
+	// past and an expired or scheduled override cannot mask a valid baseline.
+	// Only validTime "unknown" (precision too coarse) stays in, as it may apply.
+	const dropped = new Set<EvaluationReason>();
+	const sameKey: Observation[] = [];
+	for (const o of allOfKey) {
+		if (o.observedAt > ctx.asOf) dropped.add("FUTURE_OBSERVATION");
+		else if (
+			o.validTime &&
+			validityAt(o.validTime, ctx.asOf).result === "violated"
+		)
+			dropped.add("OBSERVATION_NOT_VALID");
+		else sameKey.push(o);
+	}
+	if (sameKey.length === 0) return { result: "unknown", reasons: dropped };
+	// Priority decides next, over every remaining observation: a stale or
+	// outdated authoritative observation must not let a weaker one answer in
+	// its place (it makes the result unknown instead).
 	const top = Math.max(...sameKey.map((o) => o.priority));
 	const topGroup = sameKey.filter((o) => o.priority === top);
 	const excluded = new Set<EvaluationReason>();
@@ -137,9 +150,7 @@ function evalCompare(
 			const validity = o.validTime
 				? validityAt(o.validTime, ctx.asOf)
 				: undefined;
-			if (validity?.result === "violated")
-				excluded.add("OBSERVATION_NOT_VALID");
-			else if (validity?.result === "unknown")
+			if (validity?.result === "unknown")
 				excluded.add("OBSERVATION_VALIDITY_UNKNOWN");
 			else group.push(o);
 		}

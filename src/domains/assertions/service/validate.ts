@@ -20,6 +20,7 @@ import {
 	checkAssertionDraft,
 	type Assertion,
 	type AssertionDraft,
+	type AssertionRef,
 	type Freshness,
 	type FreshnessPolicy,
 	type Origin,
@@ -166,6 +167,14 @@ function checkOrigin(draft: AssertionDraft, codes: Set<AssertionRejectCode>) {
 	}
 	if (draft.origin === "runtime_observation" && draft.observedAt === undefined)
 		codes.add("MISSING_OBSERVED_AT");
+}
+
+function canonicalRefs(refs: readonly AssertionRef[]): readonly AssertionRef[] {
+	const map = new Map<string, AssertionRef>();
+	for (const ref of refs) map.set(JSON.stringify([ref.id, ref.revision]), ref);
+	return [...map.values()].sort((a, b) =>
+		a.id !== b.id ? (a.id < b.id ? -1 : 1) : a.revision - b.revision,
+	);
 }
 
 function mergedManifest(draft: AssertionDraft): readonly SourceRef[] {
@@ -368,15 +377,20 @@ export function validateAssertion(
 
 	const evidenceRoots = rootsOf(value.evidence);
 	const { lifecycle: _lifecycle, ...rest } = value;
-	return ok({
-		status: "valid",
-		assertion: {
-			...rest,
-			inputManifest: manifest,
-			// New assertions always begin as candidates, whatever the origin.
-			lifecycle: "candidate",
-			rootEvidenceIds: evidenceRoots.roots.map((r) => r.rootEvidenceId),
-		},
-		evidenceRoots,
-	});
+	const assertion = {
+		...rest,
+		inputManifest: manifest,
+		// Set-valued references: deduplicated and sorted so that the same set in
+		// another order or with duplicates yields the same canonical digest.
+		supersedes: canonicalRefs(value.supersedes),
+		contradicts: canonicalRefs(value.contradicts),
+		// New assertions always begin as candidates, whatever the origin.
+		lifecycle: "candidate" as const,
+		rootEvidenceIds: evidenceRoots.roots.map((r) => r.rootEvidenceId),
+	};
+	// The merged manifest and root ids make the stored assertion larger than
+	// the draft; one that cannot be stored must not be reported as valid.
+	const stored = canonicalBytes(assertion);
+	if (!stored.ok) return stored;
+	return ok({ status: "valid", assertion, evidenceRoots });
 }

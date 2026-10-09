@@ -10,6 +10,7 @@ import {
 } from "../../../contracts/index.ts";
 import {
 	canAdvanceRevision,
+	checkOptionalVersion,
 	maxEntityItems,
 	normalizeAlias,
 	parseEntities,
@@ -39,6 +40,7 @@ const snapshot = (e: Entity): MemberSnapshot => ({
 
 function parseRequest(value: unknown): Checked<MergeRequest> {
 	const o = strictRecord(value, "request", [
+		"contractVersion",
 		"scope",
 		"operationId",
 		"representativeId",
@@ -48,6 +50,8 @@ function parseRequest(value: unknown): Checked<MergeRequest> {
 		"entities",
 	]);
 	if (!o.ok) return o;
+	const version = checkOptionalVersion(o.value, "request");
+	if (!version.ok) return version;
 	const scope = checkScope(o.value["scope"], "request.scope");
 	if (!scope.ok) return scope;
 	const operationId = checkId(o.value["operationId"], "request.operationId");
@@ -179,20 +183,21 @@ export function planMerge(input: unknown): Checked<MergeResult> {
 		return fail("LIMIT_EXCEEDED", "representativeAfter");
 	if (!canonicalBytes(after).ok)
 		return fail("LIMIT_EXCEEDED", "representativeAfter");
-	return ok({
-		status: "planned",
-		plan: {
-			kind: "merge",
-			operationId: req.operationId,
-			scope: req.scope,
-			representativeId: rep.id,
-			evidence,
-			representativeBefore: snapshot(rep),
-			representativeAfter: after,
-			members: others.map((e) => ({
-				...snapshot(e),
-				nextRevision: e.revision + 1,
-			})),
-		},
-	});
+	const plan = {
+		kind: "merge" as const,
+		operationId: req.operationId,
+		scope: req.scope,
+		representativeId: rep.id,
+		evidence,
+		representativeBefore: snapshot(rep),
+		representativeAfter: after,
+		members: others.map((e) => ({
+			...snapshot(e),
+			nextRevision: e.revision + 1,
+		})),
+	};
+	// The whole plan is persisted as one identity event (64KiB payload cap).
+	// A plan the repository cannot store must not be reported as planned.
+	if (!canonicalBytes(plan).ok) return fail("LIMIT_EXCEEDED", "plan");
+	return ok({ status: "planned", plan });
 }

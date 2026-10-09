@@ -5,6 +5,7 @@ import {
 	type ScopeRef,
 } from "../../../contracts/index.ts";
 import {
+	collectEntityRefs,
 	expectChanges,
 	requireTransaction,
 	WorldIntegrityError,
@@ -156,44 +157,89 @@ export function listBySubject(
 }
 
 /**
- * Assertions (any revision) that name `entityId` as relation object or as an
- * entity-reference value, returned as head refs. payload_json is not indexed,
- * so this scans one Scope's rows; it is used only when an entity is forgotten.
+ * Assertions that name any of `entityIds` as relation object or as an
+ * entity-reference value anywhere (payload value or condition operand),
+ * returned as head refs per entity. payload_json is not indexed: ONE bounded
+ * keyset scan of the Scope covers the whole batch (cost is linear in the
+ * Scope's rows, independent of the number of entities). Forget discovery only.
  */
+export function listAssertionsReferencingEntities(
+	db: WorldDb,
+	scope: ScopeRef,
+	entityIds: readonly string[],
+	limit: number,
+): ReadonlyMap<
+	string,
+	{ readonly refs: readonly AssertionRef[]; readonly truncated: boolean }
+> {
+	const checked = scopeOf(scope);
+	if (!checked) throw new RangeError("invalid_scope");
+	const cap = Math.min(Math.max(1, Math.trunc(limit)), maxBatch);
+	const wanted = new Set(entityIds);
+	const matches = new Map<string, Set<string>>();
+	for (const id of wanted) matches.set(id, new Set());
+	if (wanted.size > 0)
+		for (let after = { id: "", revision: 0 }; ;) {
+			const rows = db
+				.query(
+					`SELECT id, revision, payload_json FROM world_assertion
+					 WHERE principal = ? AND scope_key = ?
+					 AND (id > ? OR (id = ? AND revision > ?))
+					 AND (payload_json LIKE '%"entityId":%' OR payload_json LIKE '%"objectId":%')
+					 ORDER BY id, revision LIMIT 1000`,
+				)
+				.all(
+					checked.principal,
+					checked.scopeKey,
+					after.id,
+					after.id,
+					after.revision,
+				) as { id: string; revision: number; payload_json: string }[];
+			for (const row of rows)
+				for (const entity of collectEntityRefs(JSON.parse(row.payload_json)))
+					matches.get(entity)?.add(row.id);
+			if (rows.length < 1000) break;
+			const last = rows[rows.length - 1]!;
+			after = { id: last.id, revision: last.revision };
+		}
+	const heads = new Map<string, number>();
+	const allIds = [...new Set([...matches.values()].flatMap((m) => [...m]))];
+	for (let i = 0; i < allIds.length; i += 400) {
+		const slice = allIds.slice(i, i + 400);
+		const rows = db
+			.query(
+				`SELECT id, current_revision AS revision FROM world_assertion_head
+				 WHERE principal = ? AND scope_key = ? AND id IN (${slice.map(() => "?").join(",")})`,
+			)
+			.all(checked.principal, checked.scopeKey, ...slice) as {
+			id: string;
+			revision: number;
+		}[];
+		for (const row of rows) heads.set(row.id, row.revision);
+	}
+	const out = new Map<string, { refs: AssertionRef[]; truncated: boolean }>();
+	for (const [entity, ids] of matches) {
+		const refs = [...ids]
+			.sort()
+			.filter((id) => heads.has(id))
+			.map((id) => ({ id, revision: heads.get(id)! }));
+		out.set(entity, { refs: refs.slice(0, cap), truncated: refs.length > cap });
+	}
+	return out;
+}
+
+/** Single-entity form of {@link listAssertionsReferencingEntities}. */
 export function listAssertionsReferencingEntity(
 	db: WorldDb,
 	scope: ScopeRef,
 	entityId: string,
 	limit: number,
 ): { readonly refs: readonly AssertionRef[]; readonly truncated: boolean } {
-	const checked = scopeOf(scope);
-	if (!checked) throw new RangeError("invalid_scope");
-	const cap = Math.min(Math.max(1, Math.trunc(limit)), maxBatch);
-	const rows = db
-		.query(
-			`SELECT h.id AS id, h.current_revision AS revision FROM world_assertion_head h
-			 WHERE h.principal = ? AND h.scope_key = ? AND h.id IN (
-				SELECT a.id FROM world_assertion a
-				WHERE a.principal = ? AND a.scope_key = ?
-				AND (json_extract(a.payload_json, '$.payload.objectId') = ?
-					OR json_extract(a.payload_json, '$.payload.value.entityId') = ?)
-			 ) ORDER BY h.id LIMIT ?`,
-		)
-		.all(
-			checked.principal,
-			checked.scopeKey,
-			checked.principal,
-			checked.scopeKey,
+	return (
+		listAssertionsReferencingEntities(db, scope, [entityId], limit).get(
 			entityId,
-			entityId,
-			cap + 1,
-		) as AssertionRef[];
-	return {
-		refs: rows
-			.slice(0, cap)
-			.map((row) => ({ id: row.id, revision: row.revision })),
-		truncated: rows.length > cap,
-	};
+		) ?? { refs: [], truncated: false }
+	);
 }
 
 /**

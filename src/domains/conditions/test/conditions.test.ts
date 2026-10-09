@@ -310,6 +310,91 @@ describe("review fixes: fail-closed operators, priority first, no duplicate vers
 			reasons: ["FUTURE_OBSERVATION"],
 		});
 	});
+	test("an observation whose validTime does not cover asOf cannot mask a valid weaker one", () => {
+		const ended = {
+			kind: "period",
+			precision: "exact",
+			original: "ended",
+			start: { earliest: NOW - 20_000, latest: NOW - 20_000 },
+			end: { earliest: NOW - 10_000, latest: NOW - 10_000 },
+		};
+		const scheduled = {
+			kind: "period",
+			precision: "exact",
+			original: "tomorrow",
+			start: { earliest: NOW + 10_000, latest: NOW + 10_000 },
+		};
+		const baseline = obs({ observationId: "base", value: ms(90), priority: 1 });
+		for (const validTime of [
+			ended,
+			scheduled,
+			{ kind: "instant", at: NOW - 5 },
+		]) {
+			const override = obs({
+				observationId: "override",
+				value: ms(500),
+				priority: 9,
+				validTime,
+			});
+			for (const observations of [
+				[override, baseline],
+				[baseline, override],
+			])
+				expect(run(input(cmp("lt", ms(100)), { observations }))).toEqual({
+					result: "satisfied",
+					reasons: [],
+				});
+		}
+		// alone it still explains why nothing answers
+		const alone = obs({ validTime: ended });
+		expect(run(input(cmp("lt", ms(100)), { observations: [alone] }))).toEqual({
+			result: "unknown",
+			reasons: ["OBSERVATION_NOT_VALID"],
+		});
+		// coarse validity (unknown coverage) stays in the selection
+		const coarse = obs({
+			observationId: "coarse",
+			value: ms(500),
+			priority: 9,
+			validTime: {
+				kind: "period",
+				precision: "month",
+				original: "9月まで",
+				end: { earliest: NOW - 1000, latest: NOW + 1000 },
+			},
+		});
+		expect(
+			run(input(cmp("lt", ms(100)), { observations: [coarse, baseline] }))
+				.result,
+		).toBe("unknown");
+	});
+	test("several reasons are reported sorted regardless of observation order", () => {
+		const stale = obs({
+			observationId: "a",
+			priority: 9,
+			observedAt: NOW - 1_000_000,
+		});
+		const future = obs({
+			observationId: "b",
+			priority: 1,
+			observedAt: NOW + 5,
+		});
+		const both = (observations: unknown[]) =>
+			run(
+				input(
+					{
+						kind: "all",
+						items: [cmp("lt", ms(100)), cmp("lt", ms(100), "other")],
+					},
+					{ observations },
+				),
+			);
+		const forward = both([stale, future]);
+		const reversed = both([future, stale]);
+		expect(forward).toEqual(reversed);
+		expect(forward.reasons).toEqual([...forward.reasons].sort());
+		expect(forward.reasons.length).toBeGreaterThan(1);
+	});
 	test("a fresh authoritative observation still wins over a stale weaker one", () => {
 		const authoritative = obs({
 			observationId: "auth",

@@ -3,6 +3,7 @@ import {
 	checkId,
 	checkOpaque,
 	checkRevision,
+	checkContractVersion,
 	checkScope,
 	fail,
 	firstUnknownKey,
@@ -143,6 +144,22 @@ export function strictRecord(
 	const extra = firstUnknownKey(object, keys);
 	if (extra !== undefined) return fail("INVALID_INPUT", `${path}.${extra}`);
 	return ok(object);
+}
+/**
+ * `contractVersion` is optional on identity inputs for compatibility with the
+ * existing internal callers; when present it must be exactly 1 (an unknown
+ * version is UNSUPPORTED_CONTRACT_VERSION, not an unknown field).
+ */
+export function checkOptionalVersion(
+	o: Record<string, unknown>,
+	path: string,
+): Checked<true> {
+	if (!Object.hasOwn(o, "contractVersion")) return ok(true);
+	const v = checkContractVersion(
+		o["contractVersion"],
+		`${path}.contractVersion`,
+	);
+	return v.ok ? ok(true) : v;
 }
 export function listOf<T>(
 	value: unknown,

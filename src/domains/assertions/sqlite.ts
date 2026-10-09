@@ -12,6 +12,7 @@ export {
 	getHead,
 	insertAssertion,
 	listBySubject,
+	listAssertionsReferencingEntities,
 	listAssertionsReferencingEntity,
 	listAssertionRevisionsBySubject,
 	listScopeAssertions,

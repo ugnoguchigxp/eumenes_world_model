@@ -144,6 +144,10 @@ export interface RestoreProgress {
 	readonly unknown?: number;
 	/** Recorded dependencies not yet registered or tombstoned. */
 	readonly unaccounted?: number;
+	/** Forgets (derived by this restore) that still have pending targets. */
+	readonly derivedForgets?: readonly string[];
+	/** Complete forgets still awaiting the host's external-deletion confirmation. */
+	readonly awaitingConfirmation?: number;
 }
 
 export interface FeedSpec {
@@ -197,6 +201,11 @@ export interface ForgetProgress {
 	readonly state: "pending" | "complete";
 	readonly processed: number;
 	readonly pending: number;
+	/**
+	 * Complete forgets (this Scope) whose external deletion the host has not
+	 * confirmed yet; the Scope reopens only when this reaches 0.
+	 */
+	readonly awaitingConfirmation: number;
 }
 
 export const maxInvalidateTargets = 50;

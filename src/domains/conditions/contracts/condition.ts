@@ -60,6 +60,12 @@ export interface Observation {
 	readonly version: string;
 	/** Higher wins; equal priority with differing values is a contradiction. */
 	readonly priority: number;
+	/**
+	 * When the observation holds. If it definitely does not cover asOf (not
+	 * started, ended, other instant) the observation is ignored before priority
+	 * selection, like an observation made after asOf; if coverage is unknown
+	 * (coarse precision) it stays in the selection and yields unknown.
+	 */
 	readonly validTime?: ValidTime;
 }
 

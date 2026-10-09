@@ -25,6 +25,7 @@ import {
 	sourceInputKey,
 	validateAssertion,
 	type AssertionDraft,
+	type AssertionRejectCode,
 	type Payload,
 	type RelationKind,
 } from "../../assertions/index.ts";
@@ -403,11 +404,18 @@ function judge(
 	// Every model-derived part was validated above and the host parts were
 	// parsed strictly, so a structural failure here is a host fault: fail the
 	// whole call instead of discarding a good candidate.
-	if (!checked.ok) return checked;
+	// A draft that is too large only because of this candidate is that
+	// candidate's fault: reject it alone and keep the rest of the batch.
+	if (!checked.ok)
+		return checked.code === "LIMIT_EXCEEDED"
+			? rejected(index, "CANDIDATE_TOO_LARGE")
+			: checked;
 	if (checked.value.status === "rejected")
 		return rejected(
 			index,
-			...(checked.value.reasonCodes as readonly CandidateReasonCode[]),
+			...checked.value.reasonCodes.map(
+				(code): CandidateReasonCode => assertionReasonMap[code],
+			),
 		);
 	return {
 		index,
@@ -432,6 +440,29 @@ export function validateCandidate(
 	const verdict = judge(ctx.value.rest["candidate"], 0, ctx.value, hasher);
 	return "ok" in verdict ? verdict : ok(verdict);
 }
+
+/** Explicit, exhaustive mapping: a new assertion reject code fails typecheck here. */
+const assertionReasonMap: Readonly<
+	Record<AssertionRejectCode, CandidateReasonCode>
+> = {
+	SCOPE_NOT_PERMITTED: "SCOPE_NOT_PERMITTED",
+	SOURCE_NOT_AVAILABLE: "SOURCE_NOT_AVAILABLE",
+	SOURCE_VERSION_MISMATCH: "SOURCE_VERSION_MISMATCH",
+	SOURCE_DIGEST_MISMATCH: "SOURCE_DIGEST_MISMATCH",
+	QUOTE_UNVERIFIABLE: "QUOTE_UNVERIFIABLE",
+	QUOTE_OUT_OF_RANGE: "QUOTE_OUT_OF_RANGE",
+	QUOTE_DIGEST_MISSING: "QUOTE_DIGEST_MISSING",
+	QUOTE_DIGEST_MISMATCH: "QUOTE_DIGEST_MISMATCH",
+	ORIGIN_EVIDENCE_MISMATCH: "ORIGIN_EVIDENCE_MISMATCH",
+	MISSING_OBSERVED_AT: "MISSING_OBSERVED_AT",
+	UNCONDITIONAL_WITHOUT_EVIDENCE: "UNCONDITIONAL_WITHOUT_EVIDENCE",
+	SUBJECT_NOT_RESOLVED: "SUBJECT_NOT_RESOLVED",
+	OBJECT_NOT_RESOLVED: "OBJECT_NOT_RESOLVED",
+	MANIFEST_LIMIT_EXCEEDED: "MANIFEST_LIMIT_EXCEEDED",
+	INVALID_SUPERSEDES: "INVALID_SUPERSEDES",
+	SELF_CONTRADICTION: "SELF_CONTRADICTION",
+	ROOT_LABEL_CONFLICT: "ROOT_LABEL_CONFLICT",
+};
 
 function parseOutput(value: unknown): readonly unknown[] | undefined {
 	let output = value;

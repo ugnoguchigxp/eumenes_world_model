@@ -209,8 +209,60 @@ export function discardCheckpoints(
 ): { readonly discarded: number } {
 	requireTransaction(db);
 	if (!checkScope(scope).ok) throw new RangeError("invalid_scope");
+	// Durable bookkeeping that must outlive a restore is not a feed cursor:
+	// forget confirmations still owed, and the journal high-water mark.
 	const result = db
-		.query("DELETE FROM world_checkpoint WHERE principal = ? AND scope_key = ?")
-		.run(scope.principal, scope.scopeKey) as { changes: number };
+		.query(
+			`DELETE FROM world_checkpoint WHERE principal = ? AND scope_key = ?
+			 AND feed_key NOT LIKE '%,"' || ? || '%'
+			 AND feed_key NOT LIKE '%,"' || ? || '"]'`,
+		)
+		.run(
+			scope.principal,
+			scope.scopeKey,
+			protectedKinds.awaitingForget,
+			protectedKinds.journalHighWater,
+		) as { changes: number };
 	return { discarded: result.changes };
+}
+
+/** Feed kinds that restore.begin must keep (see discardCheckpoints). */
+export const protectedKinds = {
+	awaitingForget: "forget-awaiting:",
+	journalHighWater: "journal-high-water",
+} as const;
+
+/** Number of checkpoint rows whose feed kind starts with `kindPrefix`. */
+export function countCheckpointsByKindPrefix(
+	db: WorldDb,
+	scope: ScopeRef,
+	kindPrefix: (typeof protectedKinds)["awaitingForget"],
+): number {
+	if (!checkScope(scope).ok) throw new RangeError("invalid_scope");
+	const row = db
+		.query(
+			`SELECT COUNT(*) AS n FROM world_checkpoint WHERE principal = ? AND scope_key = ?
+			 AND feed_key LIKE '%,"' || ? || '%'`,
+		)
+		.get(scope.principal, scope.scopeKey, kindPrefix) as { n: number };
+	return row.n;
+}
+
+/** Removes one checkpoint row; absent is not an error (idempotent). */
+export function deleteCheckpoint(
+	db: WorldDb,
+	scope: ScopeRef,
+	feed: FeedRef,
+	restoreEpoch: string,
+): { readonly deleted: number } {
+	requireTransaction(db);
+	const feedKey = feedKeyOf(scope.principal, feed, restoreEpoch);
+	if (!checkScope(scope).ok || feedKey === undefined)
+		throw new RangeError("invalid_checkpoint");
+	const result = db
+		.query(
+			"DELETE FROM world_checkpoint WHERE principal = ? AND scope_key = ? AND feed_key = ?",
+		)
+		.run(scope.principal, scope.scopeKey, feedKey) as { changes: number };
+	return { deleted: result.changes };
 }

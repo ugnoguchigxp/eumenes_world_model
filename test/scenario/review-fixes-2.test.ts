@@ -644,7 +644,7 @@ describe("10 forget.reopen names the forget that owns the gate", () => {
 		expect(finish(store, "f2", "fg-2", 8).status).toBe("applied");
 		expect(reopen(store, "ro-old", "fg-1")).toEqual({
 			status: "blocked",
-			reasonCode: "GATE_OWNED_BY_OTHER_FORGET",
+			reasonCode: "FORGET_NOT_AWAITING",
 		});
 		expect(store.read((db) => getGate(db, A))?.state).toBe("closed");
 		expect(reopen(store, "ro2", "fg-2").status).toBe("applied");

@@ -29,8 +29,7 @@ export type IncomparableReason =
 	| "INPUT_PROFILE_MISMATCH"
 	| "BASELINE_MISMATCH"
 	| "WINDOW_MISMATCH"
-	| "INSUFFICIENT_RESOLUTION"
-	| "NON_FINITE_DELTA";
+	| "INSUFFICIENT_RESOLUTION";
 
 export type ObservationVerdict = "supported" | "refuted" | "incomparable";
 export interface ObservationAssessment {
@@ -110,14 +109,11 @@ function assessOne(
 		toDecimal(prediction.baselineValue),
 	);
 	const tolerance = toDecimal(prediction.measurementTolerance);
-	const delta = toNumber(exactDelta);
-	// A delta that does not fit a finite number is never reported.
-	if (!Number.isFinite(delta))
-		return {
-			...base,
-			verdict: "incomparable",
-			reasons: ["NON_FINITE_DELTA"],
-		};
+	// The verdict is decided on the exact decimal delta. A delta that does not
+	// fit a finite number is a determinate (huge) increase/decrease; the number
+	// itself is then omitted rather than reported as Infinity.
+	const approx = toNumber(exactDelta);
+	const delta = Number.isFinite(approx) ? { delta: approx } : {};
 	const observed: ExpectedDirection | undefined =
 		compare(exactDelta, tolerance) > 0
 			? "increases"
@@ -128,14 +124,14 @@ function assessOne(
 		return {
 			...base,
 			verdict: "incomparable",
-			delta,
+			...delta,
 			reasons: ["INSUFFICIENT_RESOLUTION"],
 		};
 	return {
 		...base,
 		verdict:
 			observed === prediction.expectedDirection ? "supported" : "refuted",
-		delta,
+		...delta,
 		reasons: [],
 	};
 }

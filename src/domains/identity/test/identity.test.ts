@@ -512,3 +512,128 @@ describe("round-2 fixes", () => {
 		}
 	});
 });
+
+describe("round-3 fixes", () => {
+	const heavy = (n: number) =>
+		Array.from({ length: n }, (_, i) => `${i}`.padEnd(4000, "x"));
+	const req = (over: Record<string, unknown> = {}) => ({
+		scope: A,
+		operationId: "op-3",
+		representativeId: "r",
+		targetIds: ["r", "m1", "m2"],
+		expectedRevisions: { r: 1, m1: 1, m2: 1 },
+		evidence: ["ev-1"],
+		entities: [ent("r", "Rep"), ent("m1", "One"), ent("m2", "Two")],
+		...over,
+	});
+	test("a plan too large to persist as one event is not reported as planned", () => {
+		// the union stays small (the same aliases everywhere) but the event
+		// carries every member's snapshot as well
+		const same = heavy(6);
+		const ids = ["r", "m1", "m2", "m3", "m4"];
+		const r = planMerge(
+			req({
+				targetIds: ids,
+				expectedRevisions: Object.fromEntries(ids.map((i) => [i, 1])),
+				entities: ids.map((i) => ent(i, i, { aliases: same })),
+			}),
+		);
+		expect(!r.ok && r.code).toBe("LIMIT_EXCEEDED");
+		// a modest plan is still planned
+		expect(planMerge(req()).ok).toBe(true);
+	});
+	test("a split plan too large to persist is refused", () => {
+		const { plan } = planned(planMerge(req()));
+		const big = {
+			...plan,
+			representativeBefore: {
+				...plan.representativeBefore,
+				aliases: heavy(7),
+			},
+			members: plan.members.map((m) => ({ ...m, aliases: heavy(7) })),
+		};
+		const r = planSplit({
+			scope: A,
+			operationId: "op-s",
+			mergeOperationId: "op-3",
+			expectedRevision: 2,
+			history: [big],
+			splitMergeOperationIds: [],
+			entities: [
+				ent("r", "Rep", { revision: 2 }),
+				ent("m1", "One", { revision: 2, mergedInto: "r" }),
+				ent("m2", "Two", { revision: 2, mergedInto: "r" }),
+			],
+		});
+		expect(!r.ok && r.code).toBe("LIMIT_EXCEEDED");
+	});
+	test("contractVersion: 1 accepted, other numbers unsupported, other types invalid", () => {
+		const split = {
+			scope: A,
+			operationId: "op-s",
+			mergeOperationId: "nope",
+			expectedRevision: 1,
+			history: [],
+			splitMergeOperationIds: [],
+			entities: [],
+		};
+		const calls: [string, (v: unknown) => { ok: boolean; code?: string }][] = [
+			[
+				"resolve",
+				(v) =>
+					resolveEntity(
+						{
+							scope: A,
+							query: { kind: "id", id: "x" },
+							contractVersion: v,
+						},
+						[],
+					),
+			],
+			["merge", (v) => planMerge({ ...req(), contractVersion: v })],
+			["split", (v) => planSplit({ ...split, contractVersion: v })],
+		];
+		for (const [, call] of calls) {
+			expect(call(1).ok).toBe(true);
+			const unsupported = call(2);
+			expect(!unsupported.ok && unsupported.code).toBe(
+				"UNSUPPORTED_CONTRACT_VERSION",
+			);
+			const wrongType = call("1");
+			expect(!wrongType.ok && wrongType.code).toBe("INVALID_INPUT");
+		}
+	});
+	test("an entity of another Scope with the same id never overrides the real one", () => {
+		const { plan } = planned(planMerge(req()));
+		const entities = [
+			ent("r", "Rep", { revision: 2 }),
+			ent("m1", "One", { revision: 2, mergedInto: "r" }),
+			ent("m2", "Two", { revision: 2, mergedInto: "r" }),
+			// foreign twins listed LAST so a missing scope filter would let them win
+			ent("r", "Foreign", { scope: B, revision: 99 }),
+			ent("m1", "Foreign", { scope: B, revision: 99, mergedInto: "zz" }),
+		];
+		const r = planSplit({
+			scope: A,
+			operationId: "op-s",
+			mergeOperationId: "op-3",
+			expectedRevision: 2,
+			history: [plan],
+			splitMergeOperationIds: [],
+			entities,
+		});
+		expect(planned(r).plan.restored.map((m) => m.id)).toEqual(["m1", "m2"]);
+	});
+	test("whitespace-only names and aliases are rejected as input", () => {
+		for (const bad of [
+			ent("e", "   "),
+			ent("e", "ok", { aliases: ["  \t "] }),
+			ent("e", "ok", { aliases: [""] }),
+		]) {
+			const r = q({ kind: "id", id: "e" }, [bad]);
+			expect(!r.ok && r.code).toBe("INVALID_INPUT");
+			expect(planMerge(req({ entities: [bad] })).ok).toBe(false);
+		}
+		expect(q({ kind: "id", id: "e" }, [ent("e", "ok")]).ok).toBe(true);
+	});
+});

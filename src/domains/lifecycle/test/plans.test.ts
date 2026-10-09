@@ -199,6 +199,71 @@ describe("A11 closure", () => {
 	});
 });
 
+describe("closure shape and cursor capacity", () => {
+	test("a diamond emits the shared dependent exactly once", () => {
+		const c = r("assertion", "c");
+		const edges = [e(s1, a), e(s1, b), e(a, c), e(b, c)];
+		for (const budget of [1, 2, 3, 500]) {
+			const all = drain(planForget, { roots: [s1], edges }, budget);
+			expect(keys(all)).toEqual(keys([s1, a, b, c]));
+		}
+	});
+	test("a cursor as large as a maximal closure is accepted (roots + edges)", () => {
+		const nodes = 500 + 100_000;
+		const make = (count: number) =>
+			Array.from({ length: count }, (_, i) =>
+				r("assertion", `d${String(i).padStart(6, "0")}`),
+			);
+		const pending = Array.from({ length: 500 }, (_, i) =>
+			r("assertion", `p${String(i).padStart(3, "0")}`),
+		);
+		// the last call of a maximal closure carries all but `budget` nodes in done
+		const done = make(nodes - 450);
+		const out = planForget(
+			request({
+				roots: [],
+				budget: 450,
+				cursor: { pending: pending.slice(0, 450), done, excluded: [] },
+			}),
+		);
+		if (out.status !== "planned") throw new Error(`rejected:${out.reasonCode}`);
+		expect(out.targets.length).toBe(450);
+		expect(out.complete).toBe(true);
+		// done alone may hold the whole closure (100_500 > the old 100_000 cap)
+		const full = planForget(
+			request({
+				roots: [],
+				budget: 1,
+				cursor: { pending: [], done: make(nodes), excluded: [] },
+			}),
+		);
+		expect(full.status).toBe("planned");
+		// one past the capacity is still refused
+		const tooMany = planForget(
+			request({
+				roots: [],
+				cursor: { pending: [], done: make(nodes + 1), excluded: [] },
+			}),
+		);
+		expect(tooMany).toEqual({
+			status: "rejected",
+			reasonCode: "LIMIT_EXCEEDED",
+		});
+	});
+	test("many roots with several dependents drain in chunks without loss", () => {
+		const roots = Array.from({ length: 500 }, (_, i) =>
+			r("source", `s${String(i).padStart(3, "0")}`),
+		);
+		const edges: ScopedDependencyEdge[] = [];
+		for (const [i, root] of roots.entries())
+			for (let j = 0; j < 3; j++)
+				edges.push(e(root, r("assertion", `a${i}-${j}`)));
+		const all = drain(planForget, { roots, edges }, 450);
+		expect(all.length).toBe(500 + 1500);
+		expect(new Set(keys(all)).size).toBe(all.length);
+	});
+});
+
 describe("strict validation from unknown", () => {
 	const bad = (input: unknown, code: string) =>
 		expect(planForget(input)).toEqual({

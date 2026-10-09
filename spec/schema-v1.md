@@ -150,7 +150,7 @@ CREATE INDEX world_forget_operation_state ON world_forget_operation (principal, 
 |---|---|
 | world_tombstone | retained (kind/id/forget_id/reason enum only) |
 | world_forget_operation | retained (progress state only) |
-| world_forget_target | retained until complete (kind/id/revision only) |
+| world_forget_target | retained after complete (kind/id/revision/state only: the same opaque ids the tombstones keep; no payload) |
 | world_scope_gate | retained |
 | world_operation | retained (digest + receipt ref; no payload body) |
 
@@ -378,8 +378,8 @@ CREATE INDEX world_manifest_dependency_source ON world_manifest_dependency (prin
 
 | table | on forget |
 |---|---|
-| world_inbox | DELETE row on forget (pending events too) |
+| world_inbox | DELETE row on forget when reached (via its manifest, or an explicit candidate root; see world-sqlite-public-api.md) |
 | world_input_manifest | DELETE row on forget |
 | world_manifest_dependency | DELETE row on forget |
-| world_checkpoint | retained (opaque cursors only) |
+| world_checkpoint | retained (opaque cursors; forget-awaiting marks and the journal high-water mark survive restore.begin) |
 

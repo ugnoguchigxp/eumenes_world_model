@@ -1,4 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import {
+	canonicalBytes,
+	canonicalDigest,
+	limits,
+} from "../../../contracts/index.ts";
 import { validateAssertion, assessFreshness } from "../index.ts";
 import {
 	A,
@@ -473,5 +478,83 @@ describe("round-2 fixes", () => {
 			(() => 42) as unknown as typeof sha256,
 		);
 		expect(!r.ok && r.code).toBe("INVALID_INPUT");
+	});
+});
+
+describe("round-3 fixes", () => {
+	const longId = (prefix: string, n: number, bytes: number) =>
+		`${prefix}${n}`.padEnd(bytes, "x");
+	/** 32 sources with long ids, `count` evidence items sharing one root per source. */
+	function bulk(count: number) {
+		const states = Array.from({ length: 32 }, (_, i) =>
+			state({ id: longId("src-", i, 200) }),
+		);
+		const items = Array.from({ length: count }, (_, i) =>
+			evidence({
+				evidenceId: longId("ev-", i, 20),
+				rootEvidenceId: longId("root-", i % 32, 100),
+				source: ref({ id: longId("src-", i % 32, 200) }),
+			}),
+		);
+		return { states, draft: draft({ evidence: items }) };
+	}
+	const bytesOf = (value: unknown) => {
+		const c = canonicalBytes(value);
+		if (!c.ok) throw new Error("not canonical");
+		return c.value.length;
+	};
+	test("an assertion that only exceeds the payload cap after merging is not valid", () => {
+		const { states, draft: d } = bulk(100);
+		// the draft itself fits; the stored form adds the merged manifest and roots
+		expect(bytesOf(d)).toBeLessThanOrEqual(limits.payloadBytes);
+		const r = validate(input(d, { sources: { states } }));
+		expect(!r.ok && r.code).toBe("LIMIT_EXCEEDED");
+		// a smaller draft is valid and its stored form fits
+		const small = bulk(60);
+		const ok = validate(
+			input(small.draft, { sources: { states: small.states } }),
+		);
+		expect(ok.ok && ok.value.status).toBe("valid");
+		if (ok.ok && ok.value.status === "valid")
+			expect(bytesOf(ok.value.assertion)).toBeLessThanOrEqual(
+				limits.payloadBytes,
+			);
+	});
+	test("supersedes and contradicts are stored as a sorted, duplicate-free set", () => {
+		const a = { id: "claim-9", revision: 2 };
+		const b = { id: "claim-3", revision: 1 };
+		const c = { id: "claim-3", revision: 7 };
+		const stored = (contradicts: unknown[]) => {
+			const r = validate(input(draft({ contradicts })));
+			if (!r.ok || r.value.status !== "valid") throw new Error("not valid");
+			return r.value.assertion;
+		};
+		const one = stored([a, b, c, b]);
+		const two = stored([c, b, a]);
+		expect(one.contradicts).toEqual([b, c, a]);
+		expect(one.contradicts).toEqual(two.contradicts);
+		const digest = (v: unknown) => {
+			const d = canonicalDigest(v, sha256);
+			return d.ok ? d.value : "";
+		};
+		expect(digest(one)).toBe(digest(two));
+		const sup = validate(
+			input(
+				draft({
+					revision: 5,
+					supersedes: [
+						{ id: "claim-1", revision: 4 },
+						{ id: "claim-1", revision: 2 },
+						{ id: "claim-1", revision: 4 },
+					],
+				}),
+			),
+		);
+		expect(
+			sup.ok && sup.value.status === "valid" && sup.value.assertion.supersedes,
+		).toEqual([
+			{ id: "claim-1", revision: 2 },
+			{ id: "claim-1", revision: 4 },
+		]);
 	});
 });

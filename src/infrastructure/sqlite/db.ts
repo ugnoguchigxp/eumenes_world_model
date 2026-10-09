@@ -54,3 +54,24 @@ export function expectChanges(
 	const changes = (result as { changes?: unknown } | undefined)?.changes;
 	if (changes !== count) throw new WorldIntegrityError(reasonCode);
 }
+
+/**
+ * Entity IDs named anywhere inside a JSON value: `{kind:"entity", entityId}`
+ * values (payload values and condition operands at any depth) and
+ * `{kind:"relation", objectId}` payloads. Shared by forget discovery and the
+ * tombstone guards so both agree on what "names an entity" means.
+ */
+export function collectEntityRefs(value: unknown, depth = 0): string[] {
+	if (depth > 64 || typeof value !== "object" || value === null) return [];
+	if (Array.isArray(value))
+		return value.flatMap((item) => collectEntityRefs(item, depth + 1));
+	const object = value as Record<string, unknown>;
+	const found: string[] = [];
+	if (object["kind"] === "entity" && typeof object["entityId"] === "string")
+		found.push(object["entityId"]);
+	if (object["kind"] === "relation" && typeof object["objectId"] === "string")
+		found.push(object["objectId"]);
+	for (const child of Object.values(object))
+		found.push(...collectEntityRefs(child, depth + 1));
+	return found;
+}

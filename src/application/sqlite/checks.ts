@@ -18,7 +18,10 @@ import {
 	listTombstones,
 	type TombstoneTarget,
 } from "../../domains/lifecycle/sqlite.ts";
-import type { WorldDb } from "../../infrastructure/sqlite/db.ts";
+import {
+	collectEntityRefs,
+	type WorldDb,
+} from "../../infrastructure/sqlite/db.ts";
 import type {
 	HostChecks,
 	WorldOperation,
@@ -216,13 +219,15 @@ export function operationSources(operation: WorldOperation): SourceRef[] {
 	return [];
 }
 
-/** Entities an assertion names: subject, relation object, entity-ref value. */
+/**
+ * Entities an assertion names: subject, relation object, entity-reference
+ * value and entity operands anywhere in its condition.
+ */
 function entitiesOf(assertion: unknown): string[] {
-	const payload = field(assertion, "payload");
 	return [
 		...id(field(assertion, "subjectId")),
-		...id(field(payload, "objectId")),
-		...id(field(field(payload, "value"), "entityId")),
+		...collectEntityRefs(field(assertion, "payload")),
+		...collectEntityRefs(field(assertion, "condition")),
 	];
 }
 

@@ -1,5 +1,6 @@
 # 共通のWorld契約
 
-複数ドメインが共有する最小のID・reasonCode・契約版だけを置く。固有の型は各domainのcontractsが所有する。SourceRefやAccessContextの仮定義は作らず、P1でMemoryの公開型との接続を確定する。
+複数ドメインが共有するID・値・版・limits・結果型・canonical化・DependentRefを置く。固有のpayloadは各domainのcontractsが所有し、SQLは置かない。
 
-現在は配置のみで公開exportは空。ここからdomainや永続化への依存は禁止。共通契約を変更したら全体verifyを行う。
+- Memoryの公開型（SourceRef、AccessContext等）は`source.ts`だけが`import type`で参照する。固定版の配布物は`vendor/eumenes-memory`（ローカル生成、公式リリースではない）。手書きの複製は作らない。
+- ここからdomainや永続化への依存は禁止。共通契約を変更したら全体verifyを行う。

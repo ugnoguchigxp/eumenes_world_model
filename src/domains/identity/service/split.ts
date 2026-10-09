@@ -1,4 +1,5 @@
 import {
+	canonicalBytes,
 	checkId,
 	checkRevision,
 	checkScope,
@@ -11,6 +12,7 @@ import {
 	listOf,
 	parseEntities,
 	canAdvanceRevision,
+	checkOptionalVersion,
 	parseMergePlan,
 	strictRecord,
 	type Entity,
@@ -24,6 +26,7 @@ const rejected = (
 
 function parseRequest(value: unknown): Checked<SplitRequest> {
 	const o = strictRecord(value, "request", [
+		"contractVersion",
 		"scope",
 		"operationId",
 		"mergeOperationId",
@@ -33,6 +36,8 @@ function parseRequest(value: unknown): Checked<SplitRequest> {
 		"entities",
 	]);
 	if (!o.ok) return o;
+	const version = checkOptionalVersion(o.value, "request");
+	if (!version.ok) return version;
 	const scope = checkScope(o.value["scope"], "request.scope");
 	if (!scope.ok) return scope;
 	const operationId = checkId(o.value["operationId"], "request.operationId");
@@ -119,30 +124,29 @@ export function planSplit(input: unknown): Checked<SplitResult> {
 	)
 		return fail("LIMIT_EXCEEDED", "request.expectedRevision");
 	const { id, displayName, aliases, externalRefs } = merge.representativeBefore;
-	return ok({
-		status: "planned",
-		plan: {
-			kind: "split",
-			operationId: req.operationId,
-			mergeOperationId: merge.operationId,
-			scope: req.scope,
-			representativeId: merge.representativeId,
-			representative: {
-				id,
-				revision: rep.revision,
-				displayName,
-				aliases: [...aliases],
-				externalRefs: externalRefs.map((r) => ({ ...r })),
-				nextRevision: rep.revision + 1,
-			},
-			restored: merge.members.map((m) => ({
-				id: m.id,
-				revision: m.nextRevision,
-				displayName: m.displayName,
-				aliases: [...m.aliases],
-				externalRefs: m.externalRefs.map((r) => ({ ...r })),
-				nextRevision: m.nextRevision + 1,
-			})),
+	const plan = {
+		kind: "split" as const,
+		operationId: req.operationId,
+		mergeOperationId: merge.operationId,
+		scope: req.scope,
+		representativeId: merge.representativeId,
+		representative: {
+			id,
+			revision: rep.revision,
+			displayName,
+			aliases: [...aliases],
+			externalRefs: externalRefs.map((r) => ({ ...r })),
+			nextRevision: rep.revision + 1,
 		},
-	});
+		restored: merge.members.map((m) => ({
+			id: m.id,
+			revision: m.nextRevision,
+			displayName: m.displayName,
+			aliases: [...m.aliases],
+			externalRefs: m.externalRefs.map((r) => ({ ...r })),
+			nextRevision: m.nextRevision + 1,
+		})),
+	};
+	if (!canonicalBytes(plan).ok) return fail("LIMIT_EXCEEDED", "plan");
+	return ok({ status: "planned", plan });
 }

@@ -14,6 +14,7 @@ export {
 	getEntity,
 	listEvents,
 	listMergedMembers,
+	listMergedMembersOf,
 	registerEntity,
 } from "./repository/entities.ts";
 export type {

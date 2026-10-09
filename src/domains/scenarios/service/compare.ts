@@ -26,6 +26,7 @@ export interface ScenarioComparison {
 }
 export type CompareReason =
 	| "OVERLAY_BASELINE_TRUNCATED"
+	| "OVERLAY_EDGES_TRUNCATED"
 	/** An overlay removes an edge id the baseline does not contain. */
 	| "UNKNOWN_REMOVE_EDGE_ID";
 
@@ -118,8 +119,30 @@ export function compareScenarios(input: unknown): Checked<CompareResult> {
 		});
 		// The overlay is the question being asked: when the candidate budget is
 		// short, cut baseline edges (deterministically by id), never overlay edges.
-		if (kept.length + overlay.addEdges.length > candidateLimit) {
-			const room = Math.max(0, candidateLimit - overlay.addEdges.length);
+		let added = overlay.addEdges;
+		// An overlay that alone exceeds the candidate budget is cut by id (then
+		// revision) and reported, instead of failing the whole comparison.
+		if (added.length > candidateLimit) {
+			const key = (edge: unknown) => {
+				const record = asRecord(edge);
+				const id = record?.["id"];
+				const revision = record?.["revision"];
+				return [
+					typeof id === "string" ? id : "",
+					typeof revision === "number" ? revision : 0,
+				] as const;
+			};
+			added = [...added]
+				.sort((x, y) => {
+					const [xi, xr] = key(x);
+					const [yi, yr] = key(y);
+					return xi < yi ? -1 : xi > yi ? 1 : xr - yr;
+				})
+				.slice(0, candidateLimit);
+			reasons.add("OVERLAY_EDGES_TRUNCATED");
+		}
+		if (kept.length + added.length > candidateLimit) {
+			const room = Math.max(0, candidateLimit - added.length);
 			const idOf = (edge: unknown) => {
 				const id = asRecord(edge)?.["id"];
 				return typeof id === "string" ? id : "";
@@ -140,7 +163,7 @@ export function compareScenarios(input: unknown): Checked<CompareResult> {
 				.slice(0, room);
 			reasons.add("OVERLAY_BASELINE_TRUNCATED");
 		}
-		const merged = [...kept, ...overlay.addEdges];
+		const merged = [...kept, ...added];
 		const influence = trace(merged);
 		if (!influence.ok) return influence;
 		outcomes.push({

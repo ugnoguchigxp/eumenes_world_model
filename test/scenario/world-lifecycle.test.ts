@@ -278,6 +278,23 @@ test("A21-A33 world lifecycle: register -> adopt -> Slice -> correct -> forget -
 				"r2",
 			).status,
 		).toBe("applied");
+		// The earlier forget still owes its external-deletion confirmation: the
+		// restore may not open the Scope until the host confirms it.
+		expect(step("rs-f0", { kind: "restore.finish" }, "r2")).toMatchObject({
+			status: "blocked",
+			reasonCode: "FORGET_AWAITING_CONFIRMATION",
+		});
+		expect(
+			step(
+				"rs-c",
+				{
+					kind: "forget.reopen",
+					forgetId: "forget-1",
+					externalDeletionConfirmed: true,
+				},
+				"r2",
+			).status,
+		).toBe("applied");
 		const finished = step("rs-f", { kind: "restore.finish" }, "r2");
 		expect(finished).toMatchObject({
 			status: "applied",

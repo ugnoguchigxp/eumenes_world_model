@@ -1,3 +1,3 @@
 # conditions / test
 
-このドメインの*.test.tsを置く。純粋試験と、test/supportの試験hostを使った実SQLite試験を所有する。現在は0件であり、test:domainは未実装として失敗する。
+このドメインの*.test.tsを置く。純粋試験（このドメインに実SQLite試験はない）を所有する。`bun run verify -- --domain conditions`で実行する。0件の領域は未実装として失敗する。

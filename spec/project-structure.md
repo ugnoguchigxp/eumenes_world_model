@@ -1,6 +1,6 @@
 # WorldModelのプロジェクト構造
 
-現在はP0の開発準備。Worldの業務API・製品schemaは未実装で、SQLite接続ポートと試験用hostだけが実行可能である。本家Eumenesに合わせ、意味処理・SQL・固有試験をドメインごとに所有する構造へ整理した。
+P0（構造準備）に加えてP1（純粋規則）とP2（本体のSQLite永続化）を実装済み。Eumenesとの結合（P3以降）、実Memory登録、journalの耐久性、実モデルは未受入。進捗の正本は[実装進捗](plan/progress.md)。本家Eumenesに合わせ、意味処理・SQL・固有試験をドメインごとに所有する構造へ整理した。
 
 ```text
 eumenes_world_model/
@@ -10,9 +10,10 @@ eumenes_world_model/
   tsconfig.json                   本体・試験・ツールのstrict型検査
   tsconfig.build.json             本体のみJS・型宣言生成
   src/
-    index.ts                      パッケージの純粋API入口、現在は空
-    sqlite.ts                     同期SQLite API入口、接続型と空のmigrations
-    contracts/index.ts            ドメインを跨ぐ最小の共通型、現在は空
+    index.ts                      パッケージの純粋API入口（明示的なexport許可リスト）
+    sqlite.ts                     同期SQLite API入口（調整済み操作とmigrations）
+    contracts/index.ts            ドメインを跨ぐ共通の値・版・limits・canonical化
+    application/sqlite/           複数domainの更新調整（apply/read/validate-usage/forget/restore）
     domains/
       identity/                   対象解決、alias、統合・分離
       assertions/                 主張、採用、訂正、競合、遷移
@@ -31,7 +32,7 @@ eumenes_world_model/
         test/                     純粋試験・実SQLite試験
     infrastructure/sqlite/
       db.ts                       借りた接続の構造型
-      migrations/index.ts         domainのmigration順序を集約、現在は空
+      migrations/                 domainのmigration順序の集約・hash固定・互換性検査
   test/
     support/sqlite-store.ts        接続を開く試験用host
     sqlite/store.test.ts           host基盤の原子性・分離・回収
@@ -50,7 +51,7 @@ eumenes_world_model/
   dist/                           生成物、保存対象外
 ```
 
-予約場所には責務のREADMEと空のexportだけを置く。空のexportはimport境界を予約するもので、成功を返す仮の業務APIではない。
+各domainのREADMEに、純粋層・実SQL・ホスト結合それぞれの到達点を書いている。未実装APIに成功を返す仮実装は作らない。
 
 ## 本家と合わせた規則
 
@@ -69,7 +70,7 @@ eumenes_world_model/
 
 共通contractsは最下位。各domainのcontractsは共通型と宣言済み依存先のcontractsを参照できる。serviceは純粋処理を所有し、repositoryはserviceと接続型を利用できる。serviceからrepository、sqlite.ts、SQLite基盤への参照は禁止する。
 
-別domainを利用するときは、そのindex.ts、contracts/index.ts、sqlite.tsだけを使う。実装のservice/repositoryへ直接入らない。製品コードはdomains.tsに直接依存を宣言し、domain内試験はその推移的な依存先の公開面まで利用できる。内部からパッケージ最上位のbarrelを参照しない。現在は実処理間の参照がないためdependsはすべて空で、P1以降に実際の参照を追加するときに宣言する。
+別domainを利用するときは、そのindex.ts、contracts/index.ts、sqlite.tsだけを使う。実装のservice/repositoryへ直接入らない。製品コードはdomains.tsに直接依存を宣言し、domain内試験はその推移的な依存先の公開面まで利用できる。内部からパッケージ最上位のbarrelを参照しない。dependsは実際のimportができた時点で宣言する（現在の辺はscripts/domains.tsを参照）。application/sqliteはdomainの公開入口だけを参照し、domainはapplicationを参照できない。
 
 各repositoryは自分の表を所有する。複数domainの更新には同一の借りた接続と公開sqlite操作を使い、transactionの開始・commit・rollbackはホストが担当する。共通SQLite基盤はDB接続型とmigrationの順序集約のみを担当し、業務SQLの集積場所にはしない。migrationの定義は各repository、安定した適用順・版の集約はinfrastructure、実際の適用と記録はホストが所有する。
 
