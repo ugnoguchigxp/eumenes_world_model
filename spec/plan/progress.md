@@ -38,8 +38,8 @@
 | P3-09 | 最初の製品接続の受入 | 完了(host fixture)、実Local Provider未受入 | Eumenes api/application/world.ts(EUMENES_WORLD=off|protect|on、既定off)、world-acceptance-p3.test.ts 4件+world.test.ts 9件(A34host側,A35-A41)、real-local-providerは明示skip(未実施)。残: 既存メッセージのsnapshot scan無し、製品のmessage forget入口無し、既定Scopeのみ、実migrationは一時DBのみ。実モデル未受入はP4-05へ |
 | P4-01 | 継続入力の受領と進捗 | 完了(host fixture/実SQLite) | Eumenes world/service/extraction-intake.ts、feedStages(owner→scanned→received→applied)、change-feed.test.ts 14件(A28,A29,A42)。残: 履歴backfillなし、packageにinbox/checkpoint読取APIが無くhost recordで代用 |
 | P4-02 | Local抽出のqueue handler | 完了(fixture provider) | extraction-handler.ts(world.extract、larm-only/cloudAllowed=false、30s budget、slot再利用防止)、extraction-handler.test.ts 16件+application/world-extraction.test.ts 6件(A19,A20,A43、Cloud fetch 0)。実Local Provider未実施、entity listing無しでsubject名はSUBJECT_UNRESOLVED |
-| P4-03 | 前景優先と取消と再開 | 未着手 | — |
-| P4-04 | Runtime結果の観測化 | 未着手 | — |
+| P4-03 | 前景優先と取消と再開 | 完了(host fixture/stub provider) | Eumenes world/service/foreground.ts、extraction-handler(hold/unconfirmed slot/stale attempt)、application/world-foreground.ts、inferenceにforegroundBusy hook。scheduling.test.ts 11件+application/world-scheduling.test.ts 5件(A44)。実Local Provider未実施。前景=interactive laneの全job(長時間jobで抽出が止まる) |
+| P4-04 | Runtime結果の観測化 | 待機(fixtureのみ。公開実行台帳が無く未受入) | runtime-adapter.ts+RuntimeLedgerPort fixture、outcomes.test.ts 14件(A18,A45のWorld部分)。待機理由: tool-runtime/agent-runtime/capabilitiesにcomparisonId/metric/unit/config/baseline/検証状態を持つ公開snapshotが無い。package側にoutcome source入力・prediction読取APIが無い |
 | P4-05 | 日本語抽出の実モデル評価 | 待機 | W側基盤(dataset200件・runner・scoring・fixture)完了: eval/extraction、test/eval/extraction.test.ts 64件、spec/evaluation-baseline.md。待機理由: G5(Local Provider未接続)・先行P4-02/03(host)。実モデル未受入 |
 | P5-01 | 判断APIを製品で使う入口 | 未着手 | — |
 | P5-02 | 根拠付き一覧と訂正画面 | 未着手 | — |
