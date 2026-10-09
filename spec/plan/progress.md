@@ -35,7 +35,7 @@
 | P3-06 | migration登録と手動入力の縦断 | 完了(host実Writer/temp file) | World migration7本+world_host_state/lifecycleを末尾に追加、manual-world.test.ts、migrations.test.ts 12件(A22,A25,A39)。World既定OFF。server.tsへの配線は未実施、製品DBへの実migrationも未実施 |
 | P3-07 | Context Brokerと回答採用 | 完了(host実Writer/queue、fixture provider) | Eumenes api/domains/world/service/context-broker.ts、dialogue worldContext port、world_host_usage。context-broker 11件+dialogue/world-context 36件(A24,A40: 4注入点×7原因)。送信直前検査はWriter往復でありsend直前の窓は閉じられない。app.ts配線・実provider未実施。他セッション作業(timers)の途中変更によりEumenes全体testは一時的に失敗中のため最終確認は未了 |
 | P3-08 | World回答の本文とTTS公開制御 | 完了(fixture、実ブラウザ/実TTS未実施) | Eumenes dialogue worldUsed/worldBlocked、progress()を採用済み回答のみ、attitude dataset先行保存の漏れ修正、voice canSpeak。voice-dialogue/test/world-release.test.ts 8件(A41: SSE本文とTTS spy)。ゲートを外すと6件失敗を確認。残: LARM delivery judgeへ未採用本文が送られる、Memory/agent-projection runの同種dataset保存、app.ts未配線のため実ブラウザ検査不可 |
-| P3-09 | 最初の製品接続の受入 | 未着手 | — |
+| P3-09 | 最初の製品接続の受入 | 完了(host fixture)、実Local Provider未受入 | Eumenes api/application/world.ts(EUMENES_WORLD=off|protect|on、既定off)、world-acceptance-p3.test.ts 4件+world.test.ts 9件(A34host側,A35-A41)、real-local-providerは明示skip(未実施)。残: 既存メッセージのsnapshot scan無し、製品のmessage forget入口無し、既定Scopeのみ、実migrationは一時DBのみ。実モデル未受入はP4-05へ |
 | P4-01 | 継続入力の受領と進捗 | 未着手 | — |
 | P4-02 | Local抽出のqueue handler | 未着手 | — |
 | P4-03 | 前景優先と取消と再開 | 未着手 | — |
