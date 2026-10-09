@@ -1,0 +1,5 @@
+# 共通のWorld契約
+
+複数ドメインが共有する最小のID・reasonCode・契約版だけを置く。固有の型は各domainのcontractsが所有する。SourceRefやAccessContextの仮定義は作らず、P1でMemoryの公開型との接続を確定する。
+
+現在は配置のみで公開exportは空。ここからdomainや永続化への依存は禁止。共通契約を変更したら全体verifyを行う。

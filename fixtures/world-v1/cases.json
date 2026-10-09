@@ -1,0 +1,166 @@
+{
+	"fixtureVersion": 1,
+	"note": "Index of pure-rule acceptance cases. Inputs/expected values live in the listed tests and in the executable fixtures. SAAA is not an execution dependency. SAAA compatibility has NOT been verified against shared fixtures; no case is claimed as SAAA-inherited.",
+	"cases": [
+		{
+			"caseId": "A01",
+			"domain": "contracts",
+			"test": "test/contracts/common.test.ts",
+			"summary": "Contract version, revision, number and ID runtime checks",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A02",
+			"domain": "contracts",
+			"test": "test/contracts/common.test.ts",
+			"summary": "Canonical bytes and digest; byte-limit boundaries",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A03",
+			"domain": "contracts",
+			"test": "test/contracts/source.test.ts",
+			"summary": "Pinned Memory types and Japanese byte-range citation",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A04",
+			"domain": "conditions",
+			"test": "src/domains/conditions/test/conditions.test.ts",
+			"summary": "Three-valued truth tables",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A05",
+			"domain": "conditions",
+			"test": "src/domains/conditions/test/conditions.test.ts",
+			"summary": "Units, stale observations, contradictions, AST limits",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A06",
+			"domain": "conditions",
+			"test": "src/domains/conditions/test/time.test.ts",
+			"summary": "Month precision, future observation, unconditional needs evidence",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A07",
+			"domain": "identity",
+			"test": "src/domains/identity/test/identity.test.ts",
+			"summary": "Scope-bounded resolution and reversible merge/split",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A08",
+			"domain": "assertions",
+			"test": "src/domains/assertions/test/assertion.test.ts",
+			"summary": "Origin kept; model hypothesis starts candidate",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A09",
+			"domain": "assertions",
+			"test": "src/domains/assertions/test/evidence.test.ts",
+			"summary": "Root series counting; invalid citations",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A10",
+			"domain": "assertions",
+			"test": "src/domains/assertions/test/transition.test.ts",
+			"summary": "Full transition table; stale correction",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A11",
+			"domain": "lifecycle",
+			"test": "src/domains/lifecycle/test/plans.test.ts",
+			"summary": "Reverse closure, cycles, batches",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A12",
+			"domain": "projection",
+			"test": "src/domains/projection/test/projection.test.ts",
+			"summary": "State classes, blocked, disabled",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A13",
+			"domain": "projection",
+			"test": "src/domains/projection/test/slice.test.ts",
+			"summary": "8KiB Japanese byte budget, whole-unit drop",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A14",
+			"domain": "reasoning",
+			"test": "src/domains/reasoning/test/reasoning.test.ts",
+			"summary": "Directed causal propagation only",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A15",
+			"domain": "reasoning",
+			"test": "src/domains/reasoning/test/reasoning.test.ts",
+			"summary": "Budgets consumed in loops; partial not no_effect",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A16",
+			"domain": "reasoning",
+			"test": "src/domains/reasoning/test/reasoning.test.ts",
+			"summary": "Dependency states and gap ordering",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A17",
+			"domain": "tooling",
+			"test": "test/tooling/boundaries.test.ts",
+			"summary": "Boundary negative cases incl. Memory type import allowlist",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A18",
+			"domain": "scenarios",
+			"test": "src/domains/scenarios/test/scenarios.test.ts",
+			"summary": "Prediction reconciliation 90/110/99ms",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A19",
+			"domain": "extraction",
+			"test": "src/domains/extraction/test/extraction.test.ts",
+			"summary": "Candidate validation and modality",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		},
+		{
+			"caseId": "A20",
+			"domain": "extraction",
+			"test": "src/domains/extraction/test/extraction.test.ts",
+			"summary": "Manifest limits and full input dependencies",
+			"saaaInherited": "unverified",
+			"intentionalChange": "none recorded"
+		}
+	]
+}

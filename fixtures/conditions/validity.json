@@ -1,0 +1,30 @@
+{
+	"caseId": "A06",
+	"note": "validTime relative to asOf. Month precision 'from September' is [Sep 1, Oct 1) for the start; it is never turned into a single day. Times are UTC epoch ms.",
+	"septemberFrom": {
+		"kind": "period",
+		"precision": "month",
+		"original": "9月から",
+		"start": { "earliest": 1788220800000, "latest": 1790812800000 }
+	},
+	"cases": [
+		{
+			"name": "before September",
+			"asOf": 1786000000000,
+			"result": "violated",
+			"reason": "NOT_STARTED"
+		},
+		{
+			"name": "inside September",
+			"asOf": 1789000000000,
+			"result": "unknown",
+			"reason": "PRECISION_INSUFFICIENT"
+		},
+		{
+			"name": "after September",
+			"asOf": 1791500000000,
+			"result": "satisfied",
+			"reason": "IN_PERIOD"
+		}
+	]
+}

@@ -1,0 +1,3 @@
+# 配布物のconsumer試験
+
+P3で正式tarballからインストールし、公開APIと型宣言だけで使えることを検査する。現在のSQLite基盤試験はソースのself-referenceであり、配布物試験の合格ではない。

@@ -1,0 +1,26 @@
+{
+	"fixtureVersion": 1,
+	"canonical": {
+		"caseId": "A02",
+		"a": {
+			"a": 1,
+			"b": [1, 2]
+		},
+		"sameMeaning": {
+			"b": [1, 2],
+			"a": 1
+		},
+		"differentOrder": {
+			"a": 1,
+			"b": [2, 1]
+		}
+	},
+	"tri": {
+		"caseId": "A04",
+		"not": [
+			["satisfied", "violated"],
+			["violated", "satisfied"],
+			["unknown", "unknown"]
+		]
+	}
+}

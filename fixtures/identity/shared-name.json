@@ -1,0 +1,22 @@
+{
+	"caseId": "A07-shared-name",
+	"note": "Same display name in two scopes; scope-b must never leak into scope-a",
+	"entities": [
+		{
+			"id": "e-a1",
+			"scope": { "principal": "p-a", "scopeKey": "scope-a" },
+			"revision": 1,
+			"displayName": "音声サービス",
+			"aliases": [],
+			"externalRefs": [{ "system": "crm", "id": "x1" }]
+		},
+		{
+			"id": "e-b1",
+			"scope": { "principal": "p-a", "scopeKey": "scope-b" },
+			"revision": 1,
+			"displayName": "音声サービス",
+			"aliases": [],
+			"externalRefs": []
+		}
+	]
+}

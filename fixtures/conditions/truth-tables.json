@@ -1,0 +1,31 @@
+{
+	"caseId": "A04",
+	"note": "C5 three-valued tables. S=satisfied V=violated U=unknown. Empty all/any and unspecified are unknown.",
+	"not": [
+		["S", "V"],
+		["V", "S"],
+		["U", "U"]
+	],
+	"and": [
+		["S", "S", "S"],
+		["S", "V", "V"],
+		["S", "U", "U"],
+		["V", "S", "V"],
+		["V", "V", "V"],
+		["V", "U", "V"],
+		["U", "S", "U"],
+		["U", "V", "V"],
+		["U", "U", "U"]
+	],
+	"or": [
+		["S", "S", "S"],
+		["S", "V", "S"],
+		["S", "U", "S"],
+		["V", "S", "S"],
+		["V", "V", "V"],
+		["V", "U", "U"],
+		["U", "S", "S"],
+		["U", "V", "U"],
+		["U", "U", "U"]
+	]
+}

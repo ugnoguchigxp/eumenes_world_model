@@ -1,0 +1,74 @@
+{
+	"date": "2026-10-09",
+	"scope": "read-only source inspection, no build or runtime acceptance",
+	"sources": [
+		{
+			"path": "/Users/y.noguchi/Code/SAAA/src-tauri/Cargo.toml",
+			"sha256": "ece9cfc90544e13a23977a350ac83dd77cdd0a6f34f6104fc5b80f3706867f98"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/SAAA/src-tauri/src/lib.rs",
+			"sha256": "c05d2d28b3a5ff1558eee2e8504c5f84450f1f6342d37eb62dab1f16ad36b228"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/SAAA/src-tauri/build.rs",
+			"sha256": "6b47d2737141aabb194eb333e2e38c8c155049f776568bdccd5126d2db8ef4c6"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/SAAA/crates/personal-state-core/src/world/model_v2.rs",
+			"sha256": "686389f9646100eb76e530797b076c39e389b8e57bd3ae18488643c658ee17de"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/SAAA/crates/personal-state-core/src/world/conditions_v2.rs",
+			"sha256": "e594275227d44e5fcdcea6ceb443abd135a483d030b9bee3d801ae83307f82c5"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/SAAA/crates/personal-state-core/src/world/traversal_v2.rs",
+			"sha256": "d13f8a643c61276402d1ba0f45e9b1b4d7e609c8bced794c5a16b82e409813a7"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/SAAA/crates/personal-state-core/src/world/validation_v2.rs",
+			"sha256": "973b6e1b77634724a42a989b07b2f10e96641ed77aca8a5a483186c837720008"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes/api/application/server.ts",
+			"sha256": "b6b401646342a8d093c018eaa807826e2b2ba05b4b22a2a4f142f5fb8ef26c38"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes/api/domains/dialogue/service/index.ts",
+			"sha256": "657756baf9fefd6bea40ca03690b18a3582fc7e6408a45eee30d8eac6df7e8f8"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes/api/infrastructure/sqlite/index.ts",
+			"sha256": "d85ef530a0631186057c930fd82c01b0a25574e22dfd981766fbd48cfcdc2b7b"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes/scripts/domains.ts",
+			"sha256": "95365deae76e8b34870a773d4f3c42fcf3e9136f60831193abda440dad1bf2b4"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes/spec/memory-system-incremental-adoption-concept.md",
+			"sha256": "3f9d48cf71c2e320912c2267d6e1082e394e069f8ecb176ca641669f17b51ee8"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes_memory/README.md",
+			"sha256": "442a29c6d812ada4665e663d8c2cacf498931b50f5b848f27c0fee5d9955f329"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes_memory/src/contracts/external.ts",
+			"sha256": "85a19ae9df4dbfcc0e75bf21050be9720676ca570fbdc5be3824265e649eda97"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes_memory/src/store/changes.ts",
+			"sha256": "301ec4137e9c6cc40f18c46c147a55c472b2c71b22f60565da8db099a3157da6"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes_memory/src/store/lifecycle.ts",
+			"sha256": "a76b1191607f7c194235d12d0f7e4c137216ec75c59769de19fd8f7750e4c7d5"
+		},
+		{
+			"path": "/Users/y.noguchi/Code/eumenes_memory/spec/verification-status.md",
+			"sha256": "4aca756d99693d4eda2f6d79ee9496f94b36bfbd11da01db8dd8682de8191000"
+		}
+	]
+}
