@@ -34,7 +34,7 @@
 | P3-05 | Memory依存登録と忘却復元の結合 | 完了(host temp file SQLite、crashはfixture) | Eumenes api/domains/world: memory-adapter、world-journal(別JSONL)、lifecycle-adapter、host-gate、feed consumer。world 63件、memory 2件(A25,A30-A32,A38)。残: 実process killとMemory実復元は未実施、>500 rootsは複数forget(~n)に分割 |
 | P3-06 | migration登録と手動入力の縦断 | 完了(host実Writer/temp file) | World migration7本+world_host_state/lifecycleを末尾に追加、manual-world.test.ts、migrations.test.ts 12件(A22,A25,A39)。World既定OFF。server.tsへの配線は未実施、製品DBへの実migrationも未実施 |
 | P3-07 | Context Brokerと回答採用 | 完了(host実Writer/queue、fixture provider) | Eumenes api/domains/world/service/context-broker.ts、dialogue worldContext port、world_host_usage。context-broker 11件+dialogue/world-context 36件(A24,A40: 4注入点×7原因)。送信直前検査はWriter往復でありsend直前の窓は閉じられない。app.ts配線・実provider未実施。他セッション作業(timers)の途中変更によりEumenes全体testは一時的に失敗中のため最終確認は未了 |
-| P3-08 | World回答の本文とTTS公開制御 | 未着手 | — |
+| P3-08 | World回答の本文とTTS公開制御 | 完了(fixture、実ブラウザ/実TTS未実施) | Eumenes dialogue worldUsed/worldBlocked、progress()を採用済み回答のみ、attitude dataset先行保存の漏れ修正、voice canSpeak。voice-dialogue/test/world-release.test.ts 8件(A41: SSE本文とTTS spy)。ゲートを外すと6件失敗を確認。残: LARM delivery judgeへ未採用本文が送られる、Memory/agent-projection runの同種dataset保存、app.ts未配線のため実ブラウザ検査不可 |
 | P3-09 | 最初の製品接続の受入 | 未着手 | — |
 | P4-01 | 継続入力の受領と進捗 | 未着手 | — |
 | P4-02 | Local抽出のqueue handler | 未着手 | — |
@@ -135,3 +135,5 @@ host結合: 対象外(P3-02以降)
 本依頼は「World本体のみ」(../eumenes は参照専用、変更なし)。完了はP3-01まで。P3-02〜09、P4-01〜04、P5-01/02、P6-01/02はEumenes変更を含む依頼が必要で未着手。P4-05/P5-03/P5-04/P6-03/P6-04はW側の基盤・条件のみ実施し、実モデル・host結合・実運用は未受入。全体verify:all 772件合格、build成功。全体完成ではない。
 
 レビュー反映(2026年10月9日): 独立レビュー1回、指摘9件+軽微1件を一括修正。抽出評価はdataset v2/ext-threshold-v2、判断評価は対照条件plain-factsと否定対応の禁止語判定、配布はd.ts export一致検査を追加。verify:all 824件合格、build成功。
+
+P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依存キー1つ以上が根でカバー=強い版の「全て」ではない)、root検証/abandoned part、release失敗の分離、post-escape予算、cursorSecret必須、setEnabled(true)はinitial sync完了までrefuse(guard migration)等。Eumenes world/dialogue/memory/goals/conversation/migrations 221件合格。
