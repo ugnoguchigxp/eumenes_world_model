@@ -1,6 +1,6 @@
 {
 	"name": "eumenes-memory",
-	"version": "0.1.0-local.0",
+	"version": "0.3.6-local.0",
 	"description": "Locally generated type/JS distribution of the public eumenes_memory exports. Not an official release.",
 	"private": true,
 	"type": "module",

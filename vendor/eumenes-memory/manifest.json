@@ -1,13 +1,14 @@
 {
 	"kind": "local-generated-not-official-release",
 	"source": {
-		"repository": "../eumenes_memory (read-only)",
-		"packageVersion": "0.1.0",
-		"gitCommit": "66768feb9ee1741f0f9298cc70068d2e044e0743",
-		"srcDirtyFiles": 100,
+		"repository": "../eumenes/node_modules/eumenes-memory (read-only)",
+		"packageVersion": "0.3.6",
+		"gitCommit": "unknown",
+		"sourceTarballSha256": "fafeba5657fb1e21a3f2756de6d3e3e22a9dc3bd03589efc03fe42da50f5c88a",
+		"srcDirtyFiles": "unknown",
 		"publicEntry": "src/index.ts",
-		"sourceFileCount": 115,
-		"sourceTreeSha256": "f01b93e293a5e5684a223870ededbc9f7efc90feb5a232ef3c5c24b9041c84b9"
+		"sourceFileCount": 124,
+		"sourceTreeSha256": "a84e57d8e890a515d20ddfe4b2198b735c77f267bb0f7907705076373b686a80"
 	},
 	"generation": {
 		"command": "bun scripts/vendor-memory.ts",
@@ -185,7 +186,7 @@
 		},
 		{
 			"path": "dist/domains/extraction/contracts/index.d.ts",
-			"sha256": "c95a7417012fe1a3f55693891f239f46508fc13af1f3d144ce83887e66ff5e5c"
+			"sha256": "dca2da25ff949e22a06630d69531cca48b554b10904f278af2b1b63026d0b2c0"
 		},
 		{
 			"path": "dist/domains/extraction/contracts/index.js",
@@ -221,7 +222,7 @@
 		},
 		{
 			"path": "dist/domains/extraction/service/parse.js",
-			"sha256": "d7e2b4465c8bc34607b0f3d7a3634c666bc07f0ff7107a7e000141218c103759"
+			"sha256": "9e8cdfcb52e2e437a36929082ad2e5e16874acaa5bf2a917c0d3e7a35385e700"
 		},
 		{
 			"path": "dist/domains/extraction/service/prompt.d.ts",
@@ -440,6 +441,14 @@
 			"sha256": "2a21020fb2ec83cfeed8c6011ffde2c7e18a19cff63091e1e54a3a88578393cf"
 		},
 		{
+			"path": "dist/domains/records/contracts/retention.d.ts",
+			"sha256": "4aec722b38db772b039a5887c36a0b84a626d8fa4cec90cacbb1d343680ebf30"
+		},
+		{
+			"path": "dist/domains/records/contracts/retention.js",
+			"sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+		},
+		{
 			"path": "dist/domains/records/index.d.ts",
 			"sha256": "02495929ebb1b2f8d58c66f8c138fb686ea6f34fac44873cdfec2dc750dc7634"
 		},
@@ -473,27 +482,35 @@
 		},
 		{
 			"path": "dist/domains/selection/contracts/index.d.ts",
-			"sha256": "38673bca23b1f83ae470d7f219948eda8885320c356663f2d378f5e79ce5fe92"
+			"sha256": "431e5da6bf2d4dd662439add4f34a5fedf0fc3010450be5a9dca9e62ccd10de8"
 		},
 		{
 			"path": "dist/domains/selection/contracts/index.js",
-			"sha256": "df6d2735b5b7a6f0530d68e0fcbc0c3ac2978236ee37d8b160e74cd33d36022d"
+			"sha256": "e1146bededab609be6b6cd1ff6c1a500408fa654b19b166d6353664cd35a613b"
 		},
 		{
 			"path": "dist/domains/selection/index.d.ts",
-			"sha256": "000338c3d7870d475222d08fcd6d844e6d3fa192ede130f88867ff2c679c1daa"
+			"sha256": "ce461cb09e55dedd017dfb720c85c6dbe37fc22a1829326fd0230b88d9afd13c"
 		},
 		{
 			"path": "dist/domains/selection/index.js",
-			"sha256": "1a6f2d4062f8a78daada4f04a14e2fdf39e19b6dbd99520d02276ebce94c8792"
+			"sha256": "5cdd6355fbeb953cc2ac45eea4e7fb33c0eab899f511e8c4697bfdbd07f103ea"
+		},
+		{
+			"path": "dist/domains/selection/service/adapter.d.ts",
+			"sha256": "2765e109b86e7a55f05c49f3223298cf66b0c894d9a6e1cb9ad76aa4eb0198a8"
+		},
+		{
+			"path": "dist/domains/selection/service/adapter.js",
+			"sha256": "4f6615e62931b974f75667862b705f994e41c53dd9e5b27138f79c2f4039039b"
 		},
 		{
 			"path": "dist/domains/selection/service/publication.d.ts",
-			"sha256": "9bcc8ba5d7d9f47aa0119149d96dc118f615a3eb8a91b945d761cc8d42e9464b"
+			"sha256": "f941d1c32c65532f27e917ce53f8e96a083416405188affe2a33578f38d6f952"
 		},
 		{
 			"path": "dist/domains/selection/service/publication.js",
-			"sha256": "dd5f0f5cefdf9c8da6a2c7d515bff0df7f5e209af2e826b80b94806ed3f3063d"
+			"sha256": "2fe6963681782c260e8279351dc0cb0c31b80323915f04ff38853ead4a80dfc1"
 		},
 		{
 			"path": "dist/domains/selection/service/revalidate.d.ts",
@@ -501,31 +518,31 @@
 		},
 		{
 			"path": "dist/domains/selection/service/revalidate.js",
-			"sha256": "dfea575d2e7fc9c0b3ba4415a7a6e6016c225339ed9d79ffce0269b659354ad5"
+			"sha256": "5d9f3299165485c4d765f392e336752b0e5eb3198898ce53cf8217db667d61d3"
 		},
 		{
 			"path": "dist/domains/selection/service/select.d.ts",
-			"sha256": "501aad7c704dbb16c96e0f211a7ced0a57b4749bd52f8189b41ecb0898fb72b0"
+			"sha256": "9715e8385d90090bc83ad3265207c5720798150de190578bfe99a0f229d720c7"
 		},
 		{
 			"path": "dist/domains/selection/service/select.js",
-			"sha256": "f06d4a07340c5238b80c00331bc7c354b3d6f82efc7945a2c62b421a18dbf083"
+			"sha256": "3afee6b7975a733a4a494358737fb0cc9268d7fa6562809b57f9a80b9be92851"
 		},
 		{
 			"path": "dist/domains/state/contracts/index.d.ts",
-			"sha256": "92c24be755502e9e1e8397e00f5f12df755551aec2fe41bd495ddeb0028f549a"
+			"sha256": "54ff2661d8f86e85e980e7d58d0ae0b71a022dcc34620eae12c1118d6c83bc34"
 		},
 		{
 			"path": "dist/domains/state/contracts/index.js",
-			"sha256": "3b30a0e761d416844d312e1f35375dc13f3d8e686cd5261c8b1d68732b4c8ac6"
+			"sha256": "3022890a8931c9995508d3105fe2870c2d1968b30fd3a27d711a66e79571c363"
 		},
 		{
 			"path": "dist/domains/state/index.d.ts",
-			"sha256": "51ccdf56051ca5c9e8f2a328b26e0d465f00bebcfb9618c0d4606a496e437bef"
+			"sha256": "caba8751c3bfc579808b28c967cde53bf323d72c7df829c239fbe34abc2de001"
 		},
 		{
 			"path": "dist/domains/state/index.js",
-			"sha256": "eacae2477055e837f52387b6b804680ed451fea6c7747cd3ed41a33b73a02fcb"
+			"sha256": "538a6b020727abac80dc624f729ccab22126dc282dcb035a244dd8ae00c67420"
 		},
 		{
 			"path": "dist/domains/state/service/admission.d.ts",
@@ -553,11 +570,11 @@
 		},
 		{
 			"path": "dist/domains/state/service/parse.d.ts",
-			"sha256": "54e14f8cf62ed19fec9effb756cd06b0daf9ca2fb574a5d02bff9ec12d4c96af"
+			"sha256": "e0413d1a8614459b95f84196d20e5af6c7083ec21527190976dd20d3fb610e65"
 		},
 		{
 			"path": "dist/domains/state/service/parse.js",
-			"sha256": "6885cde0996756e09f1098b1e525b1e3b4b44bc17be6cfb825d98d58348a680c"
+			"sha256": "66fd7f5fafa0cb821923286ca2dac3a2e9570a85ba17a32b45159426c4b3118a"
 		},
 		{
 			"path": "dist/domains/state/service/reducer.d.ts",
@@ -566,6 +583,14 @@
 		{
 			"path": "dist/domains/state/service/reducer.js",
 			"sha256": "da84efd065a39a2544e008186d9872314278b15823ad831e79ca0174e90019b6"
+		},
+		{
+			"path": "dist/domains/state/service/semantic-key.d.ts",
+			"sha256": "80ae1b9b7fd87d176bbfaf874eab6677b5fb4f371dedf3d1206a605fee3ccb33"
+		},
+		{
+			"path": "dist/domains/state/service/semantic-key.js",
+			"sha256": "5f36e7969f60d24e6a1031dbcf4046d260c92ef3e34f02924ff95ec0159ada73"
 		},
 		{
 			"path": "dist/domains/state/service/value.d.ts",
@@ -577,7 +602,7 @@
 		},
 		{
 			"path": "dist/domains/temporal/contracts/index.d.ts",
-			"sha256": "b51f286b572752f3e5e726cf9d64201a743473c98127e265f02f29a156da2cf0"
+			"sha256": "496316097641e0ab1da9625dd0b60e614896b9c588d534d885f7936a84af416c"
 		},
 		{
 			"path": "dist/domains/temporal/contracts/index.js",
@@ -593,23 +618,23 @@
 		},
 		{
 			"path": "dist/domains/temporal/service/evaluate.d.ts",
-			"sha256": "ce102d85088465df553dccd98580c4bbffd2e2257ccf895a6e70dfba0ea60f8b"
+			"sha256": "6d6e3acf609b8cdcec56dc460df99d42b59841f5d03f2b3e62d2f53add3a0454"
 		},
 		{
 			"path": "dist/domains/temporal/service/evaluate.js",
-			"sha256": "0fe5e5374e10892ad99193d7dcc3a91e166acaf978d217022dff921e60bf6900"
+			"sha256": "2a11ef67d27f6ab281d0110e643d65d0d2869de77a4b87cf44708d484b66a73a"
 		},
 		{
 			"path": "dist/domains/temporal/service/period.d.ts",
-			"sha256": "6abb71c662cc0b50ca730e7b47dcd427861de92d5a57316b0bd8346ee59d1879"
+			"sha256": "bf0f69b2755c9154f9c9377a89c0671b3fce9c3c47f8bf10dec011949e055a88"
 		},
 		{
 			"path": "dist/domains/temporal/service/period.js",
-			"sha256": "4cc85a35e135f26085fda68f18bf002c98ffc5be2e71f6dc3b19b3988278c40c"
+			"sha256": "f8152769b44b40e379fb971cab32d598bcc2cfeb903c85335e893a74ef0ce257"
 		},
 		{
 			"path": "dist/index.d.ts",
-			"sha256": "3d1f61de3da25378ab9837f5c9df6ae7f3887540c0f3e2a9d3c7b19b00b8ae9d"
+			"sha256": "44cdb859fc81d455685fe843e99d21fab2a9854ccdd9ab29ac76360048331e4d"
 		},
 		{
 			"path": "dist/index.js",
@@ -617,7 +642,7 @@
 		},
 		{
 			"path": "package.json",
-			"sha256": "782fe4ec94cd6e55b8d2edb1583d44d96d88c3635460135d5197eb766cb31d2a"
+			"sha256": "3172c2cfae557542f354fd417bfb9b53c5495d22288f1427bf5ab8e9a6089607"
 		}
 	]
 }

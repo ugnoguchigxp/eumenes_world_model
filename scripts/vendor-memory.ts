@@ -20,7 +20,7 @@ import { join, relative, resolve } from "node:path";
 import { isTest, walk } from "./files.ts";
 
 const root = resolve(import.meta.dir, "..");
-const memoryRoot = resolve(root, "../eumenes_memory");
+const memoryRoot = resolve(root, process.argv[2] ?? "../eumenes_memory");
 const target = join(root, "vendor/eumenes-memory");
 // Built beside the live directory and swapped in only after everything succeeded.
 const next = `${target}.next`;
@@ -110,13 +110,16 @@ try {
 			"\t",
 		)}\n`,
 	);
-	const commit = await run(["git", "rev-parse", "HEAD"], memoryRoot).catch(
-		() => "unknown",
-	);
-	const dirty = await run(
-		["git", "status", "--porcelain", "--", "src"],
-		memoryRoot,
-	).catch(() => "unknown");
+	const ownRepo = existsSync(join(memoryRoot, ".git"));
+	const commit = ownRepo
+		? await run(["git", "rev-parse", "HEAD"], memoryRoot).catch(() => "unknown")
+		: "unknown";
+	const dirty = ownRepo
+		? await run(
+				["git", "status", "--porcelain", "--", "src"],
+				memoryRoot,
+			).catch(() => "unknown")
+		: "unknown";
 	const files = hashTree(next, (file) => file.endsWith("manifest.json"));
 	writeFileSync(
 		join(next, "manifest.json"),
@@ -124,9 +127,12 @@ try {
 			{
 				kind: "local-generated-not-official-release",
 				source: {
-					repository: "../eumenes_memory (read-only)",
+					repository: `${process.argv[2] ?? "../eumenes_memory"} (read-only)`,
 					packageVersion: memoryPackage.version,
 					gitCommit: commit,
+					sourceTarballSha256: process.argv[3]
+						? sha(readFileSync(resolve(root, process.argv[3])))
+						: null,
 					srcDirtyFiles:
 						dirty === "unknown"
 							? "unknown"

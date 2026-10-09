@@ -157,7 +157,8 @@ writeFileSync(
 				"./package.json": "./package.json",
 			},
 			files: ["dist", "distribution-manifest.json"],
-			peerDependencies: { [memoryPackage.name]: memoryPackage.version },
+			// eumenes-memory is a types-only requirement recorded in the manifest;
+			// a peerDependency would make bun resolve it from the registry.
 		},
 		undefined,
 		"\t",

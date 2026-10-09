@@ -67,7 +67,13 @@ describe("A03 pinned Memory distribution", () => {
 			readFileSync(resolve(vendor, "manifest.json"), "utf8"),
 		);
 		expect(manifest.kind).toBe("local-generated-not-official-release");
-		expect(manifest.source.gitCommit).toMatch(/^[0-9a-f]{40}$/);
+		// Provenance is a git commit (own checkout) or the SHA-256 of the host's
+		// pinned Memory tarball when generated from the host's dependency.
+		const provenance =
+			manifest.source.gitCommit !== "unknown"
+				? manifest.source.gitCommit
+				: manifest.source.sourceTarballSha256;
+		expect(provenance).toMatch(/^([0-9a-f]{40}|[0-9a-f]{64})$/);
 		expect(manifest.source.sourceTreeSha256).toMatch(/^[0-9a-f]{64}$/);
 		expect(manifest.files.length).toBeGreaterThan(0);
 		for (const file of manifest.files)
