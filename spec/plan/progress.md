@@ -33,7 +33,7 @@
 | P3-04 | GoalSnapshotの公開口 | 完了(host実SQLite) | Eumenes api/domains/goals 12件(A37)。goal epoch/revisionで利用receipt失効判定。残: 操作冪等キー・World向け読取専用口の分離は未実装 |
 | P3-05 | Memory依存登録と忘却復元の結合 | 完了(host temp file SQLite、crashはfixture) | Eumenes api/domains/world: memory-adapter、world-journal(別JSONL)、lifecycle-adapter、host-gate、feed consumer。world 63件、memory 2件(A25,A30-A32,A38)。残: 実process killとMemory実復元は未実施、>500 rootsは複数forget(~n)に分割 |
 | P3-06 | migration登録と手動入力の縦断 | 完了(host実Writer/temp file) | World migration7本+world_host_state/lifecycleを末尾に追加、manual-world.test.ts、migrations.test.ts 12件(A22,A25,A39)。World既定OFF。server.tsへの配線は未実施、製品DBへの実migrationも未実施 |
-| P3-07 | Context Brokerと回答採用 | 未着手 | — |
+| P3-07 | Context Brokerと回答採用 | 完了(host実Writer/queue、fixture provider) | Eumenes api/domains/world/service/context-broker.ts、dialogue worldContext port、world_host_usage。context-broker 11件+dialogue/world-context 36件(A24,A40: 4注入点×7原因)。送信直前検査はWriter往復でありsend直前の窓は閉じられない。app.ts配線・実provider未実施。他セッション作業(timers)の途中変更によりEumenes全体testは一時的に失敗中のため最終確認は未了 |
 | P3-08 | World回答の本文とTTS公開制御 | 未着手 | — |
 | P3-09 | 最初の製品接続の受入 | 未着手 | — |
 | P4-01 | 継続入力の受領と進捗 | 未着手 | — |
