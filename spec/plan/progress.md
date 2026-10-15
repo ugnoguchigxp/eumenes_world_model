@@ -45,7 +45,6 @@
 | P5-02 | 根拠付き一覧と訂正画面 | 完了(fixture backend、実機未実施) | Eumenes /api/world/{status,claims,forgets,...}、web設定画面World、world-claims.test 13件+http 4件+vitest 16件+Playwright 1件(A48)。訂正理由は本人の確認済みメッセージ。source本文表示・entity表示名・曖昧対象のbrowser caseは未実装/mock |
 | P5-03 | 一つの改善仕事を閉じる | 待機 | W側の純粋規則評価完了: eval/scenarios/cache-latency、test/eval/cache-latency.test.ts 47件(A45,A49のWorld部分)。待機理由: host実行台帳・Tool権限・P5-01/02/P4-04(host) |
 | P5-04 | Worldを使う意味品質の比較 | 待機 | W側harness完了: eval/decision、test/eval/decision.test.ts 74件、spec/decision-evaluation.md。待機理由: G5(実モデル)・先行P5-03。fixtureのp5Acceptedは常に偽 |
-| P6-01 | ContextStillの知識参照 | 未着手 | — |
 | P6-02 | CapabilityとToolchainと自己改善への証拠 | 未着手 | — |
 | P6-03 | 複数Scopeと長期運用 | 待機 | 条件のみ固定: spec/operational-acceptance.md。24時間実測は未実施(H runnerが必要) |
 | P6-04 | 運用手順と最終受入 | 待機 | 手順骨子: spec/operations-runbook.md。全手順が未実施 |
@@ -132,7 +131,7 @@ host結合: 対象外(P3-02以降)
 
 ## P3-02〜P6 の扱い(2026年10月9日)
 
-本依頼は「World本体のみ」(../eumenes は参照専用、変更なし)。完了はP3-01まで。P3-02〜09、P4-01〜04、P5-01/02、P6-01/02はEumenes変更を含む依頼が必要で未着手。P4-05/P5-03/P5-04/P6-03/P6-04はW側の基盤・条件のみ実施し、実モデル・host結合・実運用は未受入。全体verify:all 772件合格、build成功。全体完成ではない。
+本依頼は「World本体のみ」(../eumenes は参照専用、変更なし)。完了はP3-01まで。P3-02〜09、P4-01〜04、P5-01/02、P6-02はEumenes変更を含む依頼が必要で未着手。P4-05/P5-03/P5-04/P6-03/P6-04はW側の基盤・条件のみ実施し、実モデル・host結合・実運用は未受入。全体verify:all 772件合格、build成功。全体完成ではない。
 
 レビュー反映(2026年10月9日): 独立レビュー1回、指摘9件+軽微1件を一括修正。抽出評価はdataset v2/ext-threshold-v2、判断評価は対照条件plain-factsと否定対応の禁止語判定、配布はd.ts export一致検査を追加。verify:all 824件合格、build成功。
 

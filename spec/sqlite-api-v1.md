@@ -45,6 +45,10 @@
 
 `readWorldSnapshot`はホストのtransaction内（`inTransaction===true`）で複数SELECTを行い、単一Scopeのbounded snapshotと現在のscope epoch・forgetEpoch・restoreEpochを返す。transaction外は`WorldTransactionRequiredError`。履歴照会も現在の認可と墓標を検査する。`validateWorldUsage(db, receipt, current)`はwriter上でassertion版・source版・scope epoch・policy・forgetEpoch・restoreEpochをすべて照合する。
 
+## listEntities(db, request)
+
+Scope内の生きた対象（active、墓標なし、統合された配下は代表へ解決）を`id`昇順でboundedに返す読取り。形・上限・結果は[公開API](world-sqlite-public-api.md#listentities)。
+
 ## 削除方針
 
 forgetは payload表の行をDELETEし、残すのは[schema-v1.md](schema-v1.md)の「on forget」列がretainedの表だけ（不透明ID・forget ID・enum理由・cursor・digest）。自由文の理由は保存しない。

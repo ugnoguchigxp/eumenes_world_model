@@ -14,9 +14,11 @@ import { schemaCompatibility } from "./infrastructure/sqlite/migrations/gate.ts"
 import {
 	applyWorldOperation as applyCoordinated,
 	readAssertionHistory as readHistoryCoordinated,
+	listEntities as listEntitiesCoordinated,
 	readWorldSnapshot as readCoordinated,
 	validateWorldUsage as validateCoordinated,
 	type ApplyDeps,
+	type ListEntitiesResult,
 	type WorldHistoryResult,
 	type WorldOperationResult,
 	type WorldSnapshotResult,
@@ -55,6 +57,19 @@ export function readAssertionHistory(
 	if (schemaCompatibility(db).status !== "current") return schemaBlocked;
 	return readHistoryCoordinated(db, request);
 }
+/**
+ * Bounded listing of one Scope's live entities (no assertions, no evidence).
+ * Merged members resolve to their representative; forgotten entities are
+ * never listed. Query: `aliasPrefix` (NFC-trimmed prefix of a name or alias)
+ * and `ids`; `limit` is 1..maxListEntities and over-limit is rejected.
+ */
+export function listEntities(
+	db: WorldDb,
+	request: unknown,
+): ListEntitiesResult {
+	if (schemaCompatibility(db).status !== "current") return schemaBlocked;
+	return listEntitiesCoordinated(db, request);
+}
 export function validateWorldUsage(
 	db: WorldDb,
 	receipt: unknown,
@@ -64,11 +79,16 @@ export function validateWorldUsage(
 		return schemaBlocked as unknown as WorldUsageResult;
 	return validateCoordinated(db, receipt, current);
 }
-export { WORLD_INTERPRETATION_VERSION } from "./application/sqlite/index.ts";
+export {
+	maxListEntities,
+	WORLD_INTERPRETATION_VERSION,
+} from "./application/sqlite/index.ts";
 export type {
 	ApplyDeps,
 	ForgetProgress,
 	HostChecks,
+	ListedEntity,
+	ListEntitiesResult,
 	RegistrationStatus,
 	RestoreProgress,
 	WorldOperation,

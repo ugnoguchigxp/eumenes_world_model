@@ -25,8 +25,33 @@ P2-10の受入結果。仕様は[sqlite-api-v1.md](sqlite-api-v1.md)、物理表
 | `applyWorldOperation(db, input, {hasher})` | 唯一の更新入口。tx外は`WorldTransactionRequiredError` |
 | `readWorldSnapshot(db, request)` | tx内の一貫したbounded読取り（単一Scope、予算付き） |
 | `readAssertionHistory(db, request)` | 現在の認可・墓標を検査する履歴照会 |
+| `listEntities(db, request)` | Scope内の生きた対象の一覧（名前・別名・外部参照・revisionだけ。主張・根拠は含まない） |
 | `validateWorldUsage(db, receipt, current)` | writer上でassertion版・source版・scope epoch・policy・forget/restoreEpochを照合 |
 | `WorldTransactionRequiredError` / `WorldIntegrityError` | ホストがrollbackすべき失敗 |
+
+### listEntities
+
+追加（パッケージ版0.0.1）。tx内のbounded読取りで、`readonly`接続からも呼べる。入口で`world_schema_info`を照合し、不一致は`blocked SCHEMA_INCOMPATIBLE`。
+
+```ts
+listEntities(db, {
+  contractVersion: 1,
+  access: { principal, scopeKeys, purpose, policyRevision },
+  scopeKey: string,
+  query?: { aliasPrefix?: string; ids?: string[] },
+  limit: number, // 1..500（必須）
+}): { status: "ready"; entities: ListedEntity[]; truncated: boolean }
+ | { status: "rejected" | "blocked"; reasonCode: string }
+
+ListedEntity = { id, revision, displayName, aliases: string[], externalRefs: {system, id}[] }
+```
+
+- **Scopeと認可**: Scopeは`{principal: access.principal, scopeKey}`。`scopeKeys`に`scopeKey`がなければ`rejected SCOPE_NOT_PERMITTED`（存在しないScopeと同じ応答。表を読む前）。DBのgateが閉じていれば`blocked GATE_CLOSED`（forget完了後は`forget.reopen`まで閉じたまま）。要求にhostChecksがないため`policyRevision`はaccess自身のものを使い、`POLICY_CHANGED`は返らない。
+- **返す対象**: そのScopeのactiveな対象だけを`id`昇順で返す。`mergedInto`を持つ吸収済みの配下は単独では返さない。`ids`に配下を指すと（多段の統合も）代表を1件返し、`aliasPrefix`は代表が持つ配下の名称・別名でも当たる。墓標のある対象は返さない（`ids`に含めても黙って除く）。存在しない`ids`は除く。
+- **`aliasPrefix`**: package既存の正規形（trimとUnicode NFCのみ。大文字小文字は区別する）に正規化し、`displayName`と別名の正規形の前方一致。部分一致ではない。正規化後が空なら`INVALID_INPUT`。`ids`と併用するとAND（代表の名称・別名で判定）。
+- **上限**: `limit`は1〜`maxListEntities`(500)。500超は**切り詰めず**`rejected LIMIT_EXCEEDED`、0・非整数・未指定は`INVALID_INPUT`。`ids`も500件まで（超過は`LIMIT_EXCEEDED`、重複は`INVALID_INPUT`）。該当が`limit`を超えるとき`entities`は先頭`limit`件、`truncated: true`。
+- **種別**: 対象は`kind`を持たない（identityの`Entity`に種別はない）。`query.kind`は未知キーとして`INVALID_INPUT`。種別が要るならホストが`externalRefs`の規約等で持つ。
+- **試験**: `test/scenario/list-entities.test.ts`（Scope隔離、忘却、統合の代表解決と多段、前方一致、ids、limit、gate）。
 
 ### applyWorldOperationのoperation
 

@@ -6,6 +6,12 @@ export {
 	type WorldHistoryResult,
 	type WorldSnapshotResult,
 } from "./read.ts";
+export {
+	listEntities,
+	maxListEntities,
+	type ListedEntity,
+	type ListEntitiesResult,
+} from "./list-entities.ts";
 export { validateWorldUsage, type WorldUsageResult } from "./validate-usage.ts";
 export {
 	WORLD_INTERPRETATION_VERSION,

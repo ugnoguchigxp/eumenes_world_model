@@ -840,3 +840,135 @@ export function listMergedMembersOf(
 		out.set(id, { ids: ids.slice(0, limit), truncated: ids.length > limit });
 	return out;
 }
+
+/** Merge chains are acyclic; a longer walk can only be corruption. */
+const maxMergeChain = 10_000;
+
+/**
+ * The active entity that stands for `id`: the entity itself when active,
+ * otherwise the end of its `merged_into` chain. Undefined when `id` is not in
+ * the Scope. A chain that never reaches an active entity is corruption.
+ */
+export function resolveRepresentativeId(
+	db: WorldDb,
+	scope: ScopeRef,
+	id: string,
+): string | undefined {
+	const s = scopeOrThrow(scope);
+	let current = id;
+	for (let hop = 0; hop <= maxMergeChain; hop++) {
+		const row = selectEntity(db, s, current);
+		if (!row) {
+			if (current === id) return undefined;
+			throw new WorldIntegrityError("MERGE_TARGET_MISSING");
+		}
+		if (row.status === "active") return row.id;
+		if (row.merged_into === null)
+			throw new WorldIntegrityError("MERGED_WITHOUT_TARGET");
+		current = row.merged_into;
+	}
+	throw new WorldIntegrityError("MERGE_CHAIN_TOO_LONG");
+}
+
+/** Half-open range [lower, upper) of alias_norm values with a given prefix. */
+export interface AliasPrefixRange {
+	readonly lower: string;
+	/** Undefined when no string sorts above every string with the prefix. */
+	readonly upper: string | undefined;
+}
+/**
+ * Range over the NFC-trimmed alias form. SQLite compares TEXT by UTF-8 bytes,
+ * which orders like code points, so the upper bound is the prefix with its
+ * last code point incremented.
+ */
+export function aliasPrefixRange(prefix: string): AliasPrefixRange {
+	const lower = normalizeAlias(prefix);
+	const points = [...lower];
+	for (let i = points.length - 1; i >= 0; i--) {
+		let next = points[i]!.codePointAt(0)! + 1;
+		if (next === 0xd800) next = 0xe000;
+		if (next > 0x10ffff) continue;
+		return {
+			lower,
+			upper: points.slice(0, i).join("") + String.fromCodePoint(next),
+		};
+	}
+	return { lower, upper: undefined };
+}
+function rangeSql(range: AliasPrefixRange | undefined): {
+	readonly sql: string;
+	readonly params: SqlValue[];
+} {
+	if (!range) return { sql: "", params: [] };
+	return range.upper === undefined
+		? { sql: " AND a.alias_norm >= ?", params: [range.lower] }
+		: {
+				sql: " AND a.alias_norm >= ? AND a.alias_norm < ?",
+				params: [range.lower, range.upper],
+			};
+}
+
+/**
+ * Ids of ACTIVE entities (absorbed members are never listed) in id order,
+ * strictly after `afterId`, optionally only those with a displayName/alias in
+ * the prefix range. At most `batch` ids.
+ */
+export function listActiveEntityIds(
+	db: WorldDb,
+	scope: ScopeRef,
+	options: {
+		readonly afterId: string | undefined;
+		readonly range: AliasPrefixRange | undefined;
+		readonly batch: number;
+	},
+): readonly string[] {
+	const s = scopeOrThrow(scope);
+	if (!Number.isSafeInteger(options.batch) || options.batch < 1)
+		throw new WorldIntegrityError("INVALID_LIMIT");
+	const after = options.afterId === undefined ? "" : " AND e.id > ?";
+	const afterParams: SqlValue[] =
+		options.afterId === undefined ? [] : [options.afterId];
+	const range = rangeSql(options.range);
+	const rows = db
+		.query(
+			`SELECT DISTINCT e.id AS id FROM world_entity e
+			 ${options.range ? "JOIN world_alias a ON a.principal = e.principal AND a.scope_key = e.scope_key AND a.entity_id = e.id" : ""}
+			 WHERE e.principal = ? AND e.scope_key = ? AND e.status = 'active'${after}${range.sql}
+			 ORDER BY e.id LIMIT ?`,
+		)
+		.all(
+			s.principal,
+			s.scopeKey,
+			...afterParams,
+			...range.params,
+			options.batch,
+		) as { id: string }[];
+	return rows.map((r) => r.id);
+}
+
+/** The subset of `ids` (any order, at most 400 per query) with an alias in the range. */
+export function filterActiveIdsByAliasPrefix(
+	db: WorldDb,
+	scope: ScopeRef,
+	ids: readonly string[],
+	range: AliasPrefixRange,
+): ReadonlySet<string> {
+	const s = scopeOrThrow(scope);
+	const found = new Set<string>();
+	const bounds = rangeSql(range);
+	for (let i = 0; i < ids.length; i += 400) {
+		const slice = ids.slice(i, i + 400);
+		const rows = db
+			.query(
+				`SELECT DISTINCT a.entity_id AS id FROM world_alias a
+				 JOIN world_entity e ON e.principal = a.principal AND e.scope_key = a.scope_key AND e.id = a.entity_id
+				 WHERE a.principal = ? AND a.scope_key = ? AND e.status = 'active'
+				 AND a.entity_id IN (${placeholders(slice.length)})${bounds.sql}`,
+			)
+			.all(s.principal, s.scopeKey, ...slice, ...bounds.params) as {
+			id: string;
+		}[];
+		for (const row of rows) found.add(row.id);
+	}
+	return found;
+}

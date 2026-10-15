@@ -7,18 +7,23 @@ export const identityMigrations: readonly MigrationDescriptor[] = Object.freeze(
 );
 
 export {
+	aliasPrefixRange,
 	applyMergePlan,
 	applySplitPlan,
 	deleteEntities,
+	filterActiveIdsByAliasPrefix,
 	findAliasCandidates,
 	getEntity,
+	listActiveEntityIds,
 	listEvents,
 	listMergedMembers,
 	listMergedMembersOf,
 	registerEntity,
+	resolveRepresentativeId,
 } from "./repository/entities.ts";
 export type {
 	AliasCandidates,
+	AliasPrefixRange,
 	DeleteEntitiesResult,
 	EntityRejectCode,
 	EntityWriteResult,

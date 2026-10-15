@@ -60,7 +60,6 @@ eumenes_world_model/
 | EumenesのGoalと委任 | 採用された目標、許可操作、期限、予算 | GoalRef。推定した目標は提案に留める |
 | Eumenes queueとTask実行台帳 | attempt、lease、取消、実行結果、検証 | 版付きRuntimeRef。LLMが成功状態を作らない |
 | Capability Registry | Toolの版、適格性、利用条件 | 能力の関連を示す参照。実行直前の照合はRegistry側 |
-| ContextStill | 再利用知識、Episode | 公開契約で取得。永続根拠の要件不足なら一時参考 |
 | Eumenes Context Broker | 今回提示する情報と共通予算 | MemoryViewとWorldSliceを合成。新しい長期正本を作らない |
 
 SAAAのPersonal Stateという論理的責務を、本人の主張はMemory、World固有の主張はWorldへ分担する。**Worldが独自の主張履歴を持つことと、Memoryの同じ事実を二重管理することを区別する。** Memoryには現在World関係を格納する契約がないため、汎用`personal_fact`へedgeを押し込まない。
@@ -298,7 +297,7 @@ Situationは現在の会議・集中等の期限付き観測をWorldへ渡せる
 | W2 最初の製品接続 | 正式tarball、world adapter、SourceAdapter、Goal公開口、Context Broker、回答採用 | 一つのScopeで登録→質問→訂正→再質問→忘却を通す。生成中の訂正を回答・TTSへ出さない |
 | W3 継続構築 | Local抽出、永続inbox、checkpoint、queue、結果照合 | 日本語の否定・仮定・伝聞・多条件を評価。重複・取消・再起動・前景復帰が成立 |
 | W4 判断支援 | 関連・因果・依存の製品接続、Gap、scenario比較、訂正画面 | 実際の一つの改善仕事で、候補→確認→実測結果→再評価を閉じる |
-| W5 全体の実証 | ContextStill、Toolchain、複数Scope、長期運用、自己改善への証拠 | 個別の外部契約と受入を通し、無許可操作・削除後復活なく有用性を示す |
+| W5 全体の実証 | Toolchain、複数Scope、長期運用、自己改善への証拠 | 個別の外部契約と受入を通し、無許可操作・削除後復活なく有用性を示す |
 
 W0から五要素の構造と推論規則を持ち、W4で初めて因果の設計を始めるわけではない。W2は自動抽出を待たず、明示された構造化主張と実測fixtureを使ってホスト境界を検証できる。UIは最初に根拠付き一覧・詳細・訂正を作り、大きなグラフ表示は後から追加する。
 
