@@ -1,0 +1,105 @@
+{
+	"date": "2026-10-15",
+	"python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+	"archive_sha256": "a2ce6ee0c2c091f2e004e8bd0607f7834c9fa3b3336a21fdf9ddc15b49113e5f",
+	"scope": "read-only structural checks; no semantic quality judgment",
+	"unique_missing_source_paths": 93,
+	"results": [
+		{
+			"batch": "improvement/round2",
+			"validate_exit": 1,
+			"coverage_exit": 0,
+			"validation_ok": false,
+			"first_output_ok": false,
+			"errors": [
+				{
+					"location": "raw.jsonl:17",
+					"code": "source_identity_missing",
+					"detail": ""
+				},
+				{
+					"location": "raw.jsonl:18",
+					"code": "source_identity_missing",
+					"detail": ""
+				},
+				{
+					"location": "excluded_held.jsonl:5",
+					"code": "source_identity_missing",
+					"detail": ""
+				},
+				{
+					"location": "excluded_held.jsonl:6",
+					"code": "source_identity_missing",
+					"detail": ""
+				}
+			],
+			"unverified_source_count": 54,
+			"counts": {
+				"ready": 46,
+				"held": 1,
+				"excluded": 23,
+				"unfilled": 30,
+				"partial": 0,
+				"candidate_count": 100
+			},
+			"legacy_record_id_fallbacks": 70
+		},
+		{
+			"batch": "improvement/round3",
+			"validate_exit": 1,
+			"coverage_exit": 0,
+			"validation_ok": false,
+			"first_output_ok": false,
+			"errors": [
+				{
+					"location": "raw.jsonl:20",
+					"code": "source_identity_missing",
+					"detail": ""
+				},
+				{
+					"location": "raw.jsonl:21",
+					"code": "source_identity_missing",
+					"detail": ""
+				},
+				{
+					"location": "first_output.jsonl:14",
+					"code": "source_identity_missing",
+					"detail": ""
+				},
+				{
+					"location": "excluded_held.jsonl:7",
+					"code": "source_identity_missing",
+					"detail": ""
+				}
+			],
+			"unverified_source_count": 47,
+			"counts": {
+				"ready": 47,
+				"held": 1,
+				"excluded": 17,
+				"unfilled": 35,
+				"partial": 0,
+				"candidate_count": 100
+			},
+			"legacy_record_id_fallbacks": 65
+		},
+		{
+			"batch": "holdout/run1",
+			"validate_exit": 1,
+			"coverage_exit": 0,
+			"validation_ok": false,
+			"first_output_ok": false,
+			"errors": [],
+			"unverified_source_count": 39,
+			"counts": {
+				"ready": 77,
+				"held": 0,
+				"excluded": 53,
+				"unfilled": 70,
+				"partial": 0,
+				"candidate_count": 200
+			},
+			"legacy_record_id_fallbacks": 130
+		}
+	]
+}

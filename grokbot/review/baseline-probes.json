@@ -1,0 +1,48 @@
+[
+	{
+		"case": "source_quoted_without_spans",
+		"accepted": true
+	},
+	{
+		"case": "invalid_justification_ref",
+		"accepted": true
+	},
+	{
+		"case": "source_reported_without_scope",
+		"accepted": true
+	},
+	{
+		"case": "ready_record_also_marked_held",
+		"accepted": true
+	},
+	{
+		"case": "unknown_schema",
+		"accepted": true
+	},
+	{
+		"case": "missing_raw_and_candidate_id",
+		"accepted": true
+	},
+	{
+		"case": "slot_in_first_output_counted",
+		"result": {
+			"ready": 0,
+			"held": 0,
+			"excluded": 0,
+			"partial": 0,
+			"unfilled": 1,
+			"candidate_count": 1,
+			"target_ready": 4,
+			"ready_gap": 4,
+			"ready_fraction": 0.0
+		}
+	},
+	{
+		"case": "cache_metadata_corruption",
+		"result": "hit"
+	},
+	{
+		"case": "nonfinite_json_number",
+		"parsed": "{'v': inf}"
+	}
+]

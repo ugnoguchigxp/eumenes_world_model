@@ -1,0 +1,32 @@
+{
+	"before": {
+		"files": {
+			"README.md": "6e4f995c18c36406e205364c22de8b34d86c3c8af264b94fe7020014a8b21d5b",
+			"collect-eumenes-knowledge/SKILL.md": "4e133319bea2a9414d1608dee9414e415505e28632a3b00b35c1f62af34c3df4",
+			"collect-eumenes-knowledge/config/distribution.json": "13a985c90955f0e9f4728742c877f5bdff9a475ab556344bd37d59a157d100c8",
+			"collect-eumenes-knowledge/references/acceptance.md": "290bf3529595a5754655a9846b0340ed74ec0bee8d222c82472d87521c40fe78",
+			"collect-eumenes-knowledge/references/data-contract.md": "13d5dae19cbcf3e7767af131fe239d2cc32c8eb4e4a7e0cd033046e9bb9c3c95",
+			"collect-eumenes-knowledge/references/framework.md": "1073e8487ea5b69deb624994e45eb99e833993d1deecb9aab16d2859dcedf370",
+			"collect-eumenes-knowledge/references/quality-examples.md": "b7934bcdd238d4ffc5b7d1431d9b2fdb7ab53273c252a60479d8796fefe41f27",
+			"collect-eumenes-knowledge/scripts/collector_tools.py": "c51e4fdadbe62df7ee05e1097ecdd524cd5d4632a4c9ec7b4c63e4db722c19bf",
+			"collect-eumenes-knowledge/tests/test_collector_tools.py": "1a3655c84d393e3ca0a73c21a34844011b0ca3701939cd7897210542be10fc5d"
+		},
+		"digest": "b09fc3340d98a0fa6a27b62a784dacb82af56114e80a728b78a3a5a28121d888"
+	},
+	"after": {
+		"files": {
+			".gitignore": "9b9dc66af90f9ff99fa79101a6e3eb357e4d8b53cafcf51e9a8d2e2e32ca7dbb",
+			"README.md": "ed453bca890b390cd961aba07fe66837b7506c0bc87b0c65a932a2ded64cd224",
+			"collect-eumenes-knowledge/SKILL.md": "bd00c850c53f248c19aa616545212e01324100acb13caf773c0f2d44ad48e535",
+			"collect-eumenes-knowledge/config/distribution.json": "13a985c90955f0e9f4728742c877f5bdff9a475ab556344bd37d59a157d100c8",
+			"collect-eumenes-knowledge/references/acceptance.md": "ecfb8566fe8633159f60ed59e69a4d05325496ca415566c7b617e1cc9aee1beb",
+			"collect-eumenes-knowledge/references/data-contract.md": "c0b42bfc3ed01c2ac0abbe940254a094e728e13e6c31ff31aad3f835c6bb7733",
+			"collect-eumenes-knowledge/references/framework.md": "3346679231e5420f182b8892a34832ca4c120555e07157e6570d0dbd94812e92",
+			"collect-eumenes-knowledge/references/quality-examples.md": "b7934bcdd238d4ffc5b7d1431d9b2fdb7ab53273c252a60479d8796fefe41f27",
+			"collect-eumenes-knowledge/scripts/collector_tools.py": "2495ca62e6a7943c9e23e01909da60f40c0a6c0e376e84b59338ca4625205875",
+			"collect-eumenes-knowledge/tests/test_collector_tools.py": "c400d7645e905297423190d286a122b7109ade9b6418560dad941e77289f71d8"
+		},
+		"digest": "416f7722cebe53097159b8cdab6f4bfb9450a1cfc54ed773c1c82b7bc391e555"
+	},
+	"note": "review evidence and ignored runtime/bytecode excluded; before copy omits unchanged .gitignore"
+}

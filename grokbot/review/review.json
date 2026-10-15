@@ -1,0 +1,475 @@
+{
+	"rubric_version": "1.1.0",
+	"mode": "technical",
+	"depth": "deep",
+	"technical_profile": "balanced",
+	"assessment_kind": "re-evaluated",
+	"target": {
+		"locator": "grokbot/",
+		"snapshot": "sha256:416f7722cebe53097159b8cdab6f4bfb9450a1cfc54ed773c1c82b7bc391e555",
+		"reviewed_at": "2026-10-15",
+		"stage": "local pilot kit; Grok execution untested",
+		"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+	},
+	"evidence": [
+		{
+			"id": "E01",
+			"kind": "execution",
+			"locator": "review/baseline-probes.json",
+			"observed_at": "2026-10-15",
+			"observation": "Before fixes: unsupported schema, missing spans, invalid references, absent candidate IDs/raw and held output passed. Corrupt cache metadata returned hit.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		},
+		{
+			"id": "E02",
+			"kind": "execution",
+			"locator": "collect-eumenes-knowledge/tests/test_collector_tools.py",
+			"observed_at": "2026-10-15",
+			"observation": "python3 -m unittest discover -s grokbot/collect-eumenes-knowledge/tests -q: exit 0, 41 tests, Python 3.14.7. Temp directories only; fault-injected failed publication preserves old cache. Native Grok not exercised.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		},
+		{
+			"id": "E03",
+			"kind": "execution",
+			"locator": "review/integration.json",
+			"observed_at": "2026-10-15",
+			"observation": "CLI validate --legacy exit 1 for all three historical batches; coverage --legacy exit 0 and 100/100/200 candidate totals unchanged; 93 missing source paths. Archive digest recorded.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		},
+		{
+			"id": "E04",
+			"kind": "code",
+			"locator": "collect-eumenes-knowledge/scripts/collector_tools.py",
+			"observed_at": "2026-10-15",
+			"observation": "Traced input parsing, common disposition, source containment, quotes, grouping, cache publication/read, JSON CLI errors; no network/model/semantic classification.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		},
+		{
+			"id": "E05",
+			"kind": "primary_doc",
+			"locator": "collect-eumenes-knowledge/SKILL.md; references/framework.md; references/data-contract.md",
+			"observed_at": "2026-10-15",
+			"observation": "Reviewed all instructions and reconciled collection/evaluation mode, raw audit/output validation, current batch revisions and unimplemented host enforcement. Static review only.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		},
+		{
+			"id": "E06",
+			"kind": "execution",
+			"locator": "runtime/review-2026-10-15/project-verify.log",
+			"observed_at": "2026-10-15",
+			"observation": "bun run verify: exit 0; 833 tests, format/lint/type/boundary checks. WorldModel source unchanged; this is regression evidence, not collection quality proof.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		},
+		{
+			"id": "E07",
+			"kind": "primary_doc",
+			"locator": "collect-eumenes-knowledge/references/quality-examples.md",
+			"observed_at": "2026-10-15",
+			"observation": "Four improvement-only examples retain original IDs, source links, boundaries and missing snapshot caveat. Primary-page confirmation occurred earlier in this conversation, not a new independent semantic audit.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		},
+		{
+			"id": "E08",
+			"kind": "execution",
+			"locator": "collect-eumenes-knowledge/SKILL.md",
+			"observed_at": "2026-10-15",
+			"observation": "skill-creator/scripts/quick_validate.py: exit 0. Structure only, no agent behavior assessment.",
+			"scope": "All grokbot source, Skill, references, examples, distribution config and tests. Technical/deep/balanced. Excludes WorldModel features, actual Grok runtime, scheduling, legal clearance and independent semantic grading. Single local writer; Python 3.14.7 on macOS."
+		}
+	],
+	"claims": [
+		{
+			"id": "C01",
+			"type": "Fact",
+			"statement": "The initial 17 passing tests did not cover reproduced false acceptance paths. Added regression tests now pass.",
+			"evidence_ids": ["E01", "E02"],
+			"limitations": "Same reviewer implemented fixes; no independent agent execution."
+		},
+		{
+			"id": "C02",
+			"type": "Unknown",
+			"statement": "Continuous collection quality, host budgets and checkpoint recovery in Grok remain unassessed.",
+			"limitations": "No Grok runtime integration or credentials were provided; prompt instructions are not enforced host controls."
+		}
+	],
+	"findings": [
+		{
+			"id": "F01",
+			"status": "withdrawn",
+			"severity": "High",
+			"priority": "P1",
+			"priority_reason": "Before relying on the affected pilot validation or evaluation path.",
+			"confidence": "High",
+			"title": "引用・契約の欠落が検証を通過",
+			"root_cause": "Missing span fields, invalid references, absent raw/IDs or unsupported schema.",
+			"evidence_ids": ["E01", "E02", "E04"],
+			"condition": "Missing span fields, invalid references, absent raw/IDs or unsupported schema.",
+			"consequence": "False machine acceptance of incomplete or uninterpretable records.",
+			"counterevidence": "Resolved in reviewed snapshot. Normal paths passed before; reproduced exceptions or instruction conflicts justified the fix.",
+			"fix": "Require explicit spans/references, supported schema and strict collection identity; retain explicit legacy profile.",
+			"verification": "Implemented and covered by E02/E03 where executable; F06 verified by instruction tracing only, Grok behavior remains unknown.",
+			"resolution": "Implemented; withdrawn from unresolved finding count, not a claim of live agent acceptance.",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "contracts",
+					"reason": "False machine acceptance of incomplete or uninterpretable records."
+				}
+			]
+		},
+		{
+			"id": "F02",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "Before relying on the affected pilot validation or evaluation path.",
+			"confidence": "High",
+			"title": "原抽出の監査と最終候補の合否が未分離",
+			"root_cause": "Self-check fixes a quote error while raw is intentionally immutable.",
+			"evidence_ids": ["E02", "E04", "E05"],
+			"condition": "Self-check fixes a quote error while raw is intentionally immutable.",
+			"consequence": "A single all-history result does not expose whether corrected output is usable, encouraging raw rewrites.",
+			"counterevidence": "Resolved in reviewed snapshot. Normal paths passed before; reproduced exceptions or instruction conflicts justified the fix.",
+			"fix": "Expose first_output_ok and count alongside unchanged all-history ok; preserve raw and identity.",
+			"verification": "Implemented and covered by E02/E03 where executable; F06 verified by instruction tracing only, Grok behavior remains unknown.",
+			"resolution": "Implemented; withdrawn from unresolved finding count, not a claim of live agent acceptance.",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "contracts",
+					"reason": "A single all-history result does not expose whether corrected output is usable, encouraging raw rewrites."
+				}
+			]
+		},
+		{
+			"id": "F03",
+			"status": "withdrawn",
+			"severity": "High",
+			"priority": "P1",
+			"priority_reason": "Before relying on the affected pilot validation or evaluation path.",
+			"confidence": "High",
+			"title": "集計の識別子と状態に不整合",
+			"root_cause": "Slots in first_output, held records in output, legacy ID collision or same candidate across revisions.",
+			"evidence_ids": ["E01", "E02", "E04", "E05"],
+			"condition": "Slots in first_output, held records in output, legacy ID collision or same candidate across revisions.",
+			"consequence": "Wrong candidate totals or ambiguous revision mixing.",
+			"counterevidence": "Resolved in reviewed snapshot. Normal paths passed before; reproduced exceptions or instruction conflicts justified the fix.",
+			"fix": "Share disposition; namespace legacy IDs; reject cross-batch candidate/revision mixing and document current_batches.",
+			"verification": "Implemented and covered by E02/E03 where executable; F06 verified by instruction tracing only, Grok behavior remains unknown.",
+			"resolution": "Implemented; withdrawn from unresolved finding count, not a claim of live agent acceptance.",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "edge_cases",
+					"reason": "Wrong candidate totals or ambiguous revision mixing."
+				}
+			]
+		},
+		{
+			"id": "F04",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "Before relying on the affected pilot validation or evaluation path.",
+			"confidence": "High",
+			"title": "破損したキャッシュメタデータを受理",
+			"root_cause": "Query or expiry changed without changing body hash.",
+			"evidence_ids": ["E01", "E02", "E04"],
+			"condition": "Query or expiry changed without changing body hash.",
+			"consequence": "Stale/wrong-identity result reported as current hit.",
+			"counterevidence": "Resolved in reviewed snapshot. Normal paths passed before; reproduced exceptions or instruction conflicts justified the fix.",
+			"fix": "Check identity, saved history metadata and finite timestamps; fault-test publication.",
+			"verification": "Implemented and covered by E02/E03 where executable; F06 verified by instruction tracing only, Grok behavior remains unknown.",
+			"resolution": "Implemented; withdrawn from unresolved finding count, not a claim of live agent acceptance.",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "edge_cases",
+					"reason": "Stale/wrong-identity result reported as current hit."
+				}
+			]
+		},
+		{
+			"id": "F05",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "Before relying on the affected pilot validation or evaluation path.",
+			"confidence": "High",
+			"title": "JSON・Unicode・数値境界の扱い不足",
+			"root_cause": "1e999 parsed to infinity, Unicode line separator inside JSON string, malformed nested shapes, large weights.",
+			"evidence_ids": ["E01", "E02", "E04"],
+			"condition": "1e999 parsed to infinity, Unicode line separator inside JSON string, malformed nested shapes, large weights.",
+			"consequence": "Invalid data accepted, valid JSONL rejected or allocation/diagnosis fails.",
+			"counterevidence": "Resolved in reviewed snapshot. Normal paths passed before; reproduced exceptions or instruction conflicts justified the fix.",
+			"fix": "Finite parsing, LF-delimited JSONL, shape diagnostics and exact rational allocation; controlled source resolution.",
+			"verification": "Implemented and covered by E02/E03 where executable; F06 verified by instruction tracing only, Grok behavior remains unknown.",
+			"resolution": "Implemented; withdrawn from unresolved finding count, not a claim of live agent acceptance.",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "edge_cases",
+					"reason": "Invalid data accepted, valid JSONL rejected or allocation/diagnosis fails."
+				}
+			]
+		},
+		{
+			"id": "F06",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "Before relying on the affected pilot validation or evaluation path.",
+			"confidence": "Medium",
+			"title": "固定評価と継続収集への指示が衝突",
+			"root_cause": "Skill always asks to read new examples, or resumes by aggregating old/new revisions.",
+			"evidence_ids": ["E05", "E08"],
+			"condition": "Skill always asks to read new examples, or resumes by aggregating old/new revisions.",
+			"consequence": "Frozen method may change or history may be double-counted.",
+			"counterevidence": "Resolved in reviewed snapshot. Normal paths passed before; reproduced exceptions or instruction conflicts justified the fix.",
+			"fix": "Route mode first; preserve frozen instructions; define revision selection and separate record/candidate counts.",
+			"verification": "Implemented and covered by E02/E03 where executable; F06 verified by instruction tracing only, Grok behavior remains unknown.",
+			"resolution": "Implemented; withdrawn from unresolved finding count, not a claim of live agent acceptance.",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "architecture",
+					"criterion": "flow",
+					"reason": "Frozen method may change or history may be double-counted."
+				}
+			]
+		}
+	],
+	"tracks": {
+		"technical": {
+			"dimensions": {
+				"architecture": {
+					"criteria": {
+						"boundaries": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E04", "E05"],
+							"rationale": "LLM meaning decisions and deterministic local helpers are separated; no provider-specific branch was added."
+						},
+						"flow": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Agent-managed checkpoint and publication flow is documented but not executed in Grok."
+						},
+						"fit": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Fit for continuous operation depends on unavailable host tools and persistence."
+						}
+					}
+				},
+				"correctness": {
+					"criteria": {
+						"contracts": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E04"],
+							"rationale": "Declared core contracts exercised through CLI, with explicit legacy mode and audit/output separation; not a full-schema or semantic validator."
+						},
+						"edge_cases": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02"],
+							"rationale": "Malformed refs, nested inputs, candidate collisions, Unicode, nonfinite values and corruption tested.",
+							"countercheck": "Existing valid/legacy paths and failure-preserving checks also pass; actual archive totals remain unchanged. No semantic or live-model guarantee."
+						},
+						"concurrency": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E04"],
+							"rationale": "Single-writer contract; fault before publishing entry retains previous complete state. Multiwriter and power-loss durability excluded explicitly."
+						}
+					}
+				},
+				"security": {
+					"criteria": {
+						"access": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Host permissions and execution boundaries unavailable; helper containment alone does not establish agent authorization."
+						},
+						"input_secrets": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E04", "E05"],
+							"rationale": "No network/subprocess in helper; untrusted paths contained, no secret configuration; prompt input boundary explicit. Host permissions untested."
+						},
+						"abuse": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Host-enforced cumulative budgets, rate limits and storage caps not tested."
+						}
+					}
+				},
+				"reliability": {
+					"criteria": {
+						"failure": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03"],
+							"rationale": "CLI distinguishes input failure, missing evidence, cache miss and stale. Failed publication preserves previous readable entry."
+						},
+						"recovery": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Local cache failure tested; full candidate ledger/session restart untested."
+						},
+						"resilience": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "External search outages, throttling and disk saturation not exercised in host."
+						}
+					}
+				},
+				"maintainability": {
+					"criteria": {
+						"clarity": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E04", "E05"],
+							"rationale": "Source-to-command-to-report paths traced and documented; implemented vs host responsibilities explicit."
+						},
+						"change": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02", "E06"],
+							"rationale": "Changes stay in grokbot and have regression cases plus unchanged real-data counts."
+						},
+						"debt": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E04"],
+							"rationale": "Standalone standard-library helpers; common row contract reused by validation and grouping, no new framework."
+						}
+					}
+				},
+				"common_components": {
+					"criteria": {
+						"duplication": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E04"],
+							"rationale": "Shared disposition and candidate identity prevents validator/coverage drift on important states."
+						},
+						"reuse": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E04", "E05"],
+							"rationale": "Uses standard JSON/hash/path/atomic file operations; external search is left to existing agent tools, not duplicated."
+						},
+						"abstraction": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E04"],
+							"rationale": "Small deterministic functions represent IO and accounting concepts; no scenario-specific classifier or provider factory."
+						}
+					}
+				},
+				"testing": {
+					"criteria": {
+						"risk_coverage": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Live model extraction, prompt injection and holdout workflow require behavioral execution."
+						},
+						"quality": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02"],
+							"rationale": "Meaningful negative tests cover reproduced failures and atomic publication fault, rather than checking prompt wording.",
+							"countercheck": "Existing valid/legacy paths and failure-preserving checks also pass; actual archive totals remain unchanged. No semantic or live-model guarantee."
+						},
+						"automation": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E08"],
+							"rationale": "Documented repeatable unittest and Skill validation commands; tests isolate files with cleanup. Live agent evaluation remains separate."
+						}
+					}
+				},
+				"supply_chain": {
+					"criteria": {
+						"dependencies": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "No third-party Python packages; Python runtime maintenance/update process not assessed."
+						},
+						"build_release": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Local folder verified, but real transfer/install/update in Grok untested."
+						},
+						"license": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Original-source rights metadata explicitly unverified; no broad distribution-rights audit."
+						}
+					}
+				},
+				"performance": {
+					"criteria": {
+						"budget": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "No representative long-running host cost/latency/storage measurements."
+						},
+						"hot_path": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Historical small archive tested; large source snapshots and growth not benchmarked."
+						},
+						"measurement": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Unit timings are not representative operational performance evidence."
+						}
+					}
+				},
+				"operability": {
+					"criteria": {
+						"signals": {
+							"status": "assessed",
+							"value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E02", "E03", "E05"],
+							"rationale": "Structured errors, explicit legacy profile, first_output count/validation and cache states are observable; no claim of live job status."
+						},
+						"lifecycle": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Native installation, update and restart in Grok not executed."
+						},
+						"interaction": {
+							"status": "unknown",
+							"value": null,
+							"unknown_reason": "Target user/agent end-to-end workflow not observed; local CLI exercised only."
+						}
+					}
+				}
+			}
+		}
+	}
+}
