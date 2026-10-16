@@ -24,9 +24,14 @@
 		"pack:local": "bun scripts/pack.ts",
 		"eval:extraction": "bun eval/extraction/main.ts",
 		"eval:decision": "bun eval/decision/main.ts",
-		"eval:cache-latency": "bun eval/scenarios/cache-latency/main.ts"
+		"eval:cache-latency": "bun eval/scenarios/cache-latency/main.ts",
+		"seed:world": "bun eval/seed/main.ts",
+		"example:seed-luna": "bun examples/seed-luna/main.ts",
+		"example:seed-compare": "bun examples/seed-answer-comparison/main.ts",
+		"example:multi-source": "bun examples/multi-source-comparison/main.ts"
 	},
 	"devDependencies": {
+		"@openai/codex-sdk": "0.163.0",
 		"@types/bun": "1.3.14",
 		"@types/node": "25.9.3",
 		"eumenes-memory": "file:./vendor/eumenes-memory",

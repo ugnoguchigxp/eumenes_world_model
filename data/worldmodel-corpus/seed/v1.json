@@ -1,0 +1,170 @@
+{
+	"schemaVersion": 1,
+	"seedId": "grok-984-v1",
+	"scope": "local-noncommercial-research",
+	"rows": 984,
+	"collections": [
+		{
+			"collection": "2026-10-15-grok-batch10",
+			"rows": 96,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "5e837539f7e8bcead98b7df840c1ca3e54bf6f6a1f532b843d8112289bcff682",
+					"bytes": 288611
+				},
+				"manifest.json": {
+					"sha256": "0d5bee94eaa21730b44fb69591b97146526e11be98e262eea01acbe4028426cc",
+					"bytes": 1181
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch11",
+			"rows": 93,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "16c7f0653e629ae5079b19b1d348428d0cc867e924cf74cb5d2dc7f6eeb33d06",
+					"bytes": 273640
+				},
+				"manifest.json": {
+					"sha256": "2b1eeabc2780a3924f0d3c1b3c2d650d3db64da5c6a955e5d2cb3ae976964f63",
+					"bytes": 1181
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch1rev1-batch2",
+			"rows": 35,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "04c79a2113af0398d62f039ca2c0014772fed23ae8968a62f2aea9d7dff3ba3c",
+					"bytes": 132302
+				},
+				"manifest.json": {
+					"sha256": "e9c8bc9658f1566c3f1d4534ecc3ee34617870007e622ee03fd9fe0c701eca1d",
+					"bytes": 1972
+				},
+				"reviews.jsonl": {
+					"sha256": "534a8d574dcde74fccaa6d82e28f7466a0251f2225dccb5a881ea9efa6b53d21",
+					"bytes": 25168
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch3",
+			"rows": 82,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "e34291c96712d3c87256dcd6e7ee84a2d06143eee6510315657b2656effb1573",
+					"bytes": 266102
+				},
+				"manifest.json": {
+					"sha256": "ccd5abb09a362ba772f26a1b87849031025b503b65114bb55a7495ce433966c9",
+					"bytes": 44914
+				},
+				"reviews.jsonl": {
+					"sha256": "78b1163c20206df7ff8699535438b25aa19511de6976a661f881498ee375853c",
+					"bytes": 64075
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch4",
+			"rows": 95,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "789bed4147ef9e98cba1d4be0913d2a32e358a7eb11d48ec29c54216e23e7026",
+					"bytes": 306927
+				},
+				"manifest.json": {
+					"sha256": "cac2768023f17f64b535aa6002a280710d4201e084f4af68fdb6f504c1d0d07c",
+					"bytes": 1177
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch5",
+			"rows": 97,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "418ea62a609bd3410f3698e2088061b507181837eefee34f4c51aac37f9c69e6",
+					"bytes": 366076
+				},
+				"manifest.json": {
+					"sha256": "1db252eaafd1223d4f2e9d23ad5041088e1f60205956d4b34e3a52788f5a7053",
+					"bytes": 1177
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch6",
+			"rows": 93,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "65c4ee8f69c9af6e6fe817c0cec921f9b9a83c4183570337fe9de818aff95a49",
+					"bytes": 275812
+				},
+				"manifest.json": {
+					"sha256": "0f9e2a80dcd9f69d2433d4f73f9c1ac5c6ab0f3e38e1ad4a0ba6db94c62f6704",
+					"bytes": 1177
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch7",
+			"rows": 85,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "efb8aa51a3ce31a771f4af7e6a51835758614e0fd7ece1a01158ccec4398bc05",
+					"bytes": 250450
+				},
+				"manifest.json": {
+					"sha256": "f76fa25c7dd9655777c5ecbf163ea48c547dd1ee31d419a6dce4464f1f0f6758",
+					"bytes": 1177
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch8",
+			"rows": 94,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "e227944a74205fea4726b1afb45d9bb8e52c464927e45c85a68284991fe45ec6",
+					"bytes": 283963
+				},
+				"manifest.json": {
+					"sha256": "00d399bd75bdd0f7085184873fb3f8ebdc59d15cb8f78cc00042c9be487ba6da",
+					"bytes": 1177
+				}
+			}
+		},
+		{
+			"collection": "2026-10-15-grok-batch9",
+			"rows": 95,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "50b6744bf85b98abf5d9296bb9ece4aa557502d836244d8fa2ebc4eb21d460fd",
+					"bytes": 282464
+				},
+				"manifest.json": {
+					"sha256": "d1da07f217ee75687192e33f10fac80ad4378311681061c9175c90e33c68a5ac",
+					"bytes": 1177
+				}
+			}
+		},
+		{
+			"collection": "2026-10-16-grok-batch12",
+			"rows": 119,
+			"files": {
+				"accepted.jsonl": {
+					"sha256": "828ae5717c51a3a6612b1399811b818608838331f1067acc2f750b242a3a1c38",
+					"bytes": 351833
+				},
+				"manifest.json": {
+					"sha256": "97c65ff16e676ed11b7d707622bed47996fcd416d054d6e3076c9c39a4d2ccc4",
+					"bytes": 1183
+				}
+			}
+		}
+	]
+}

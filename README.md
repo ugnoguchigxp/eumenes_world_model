@@ -1,6 +1,6 @@
 # Eumenes WorldModel
 
-SAAAのPersonal Worldを継承する、独立開発用のWorldModelプロジェクト。P0（構造準備）に加えて、P1（純粋規則）とP2（本体のSQLite永続化）を実装済みです。Eumenesとの結合（P3以降）、実Memory登録、journalの耐久性、実モデルは未実装・未受入です。
+SAAAのPersonal Worldを継承する、独立開発用のWorldModelプロジェクト。P0（構造準備）に加えて、P1（純粋規則）とP2（本体のSQLite永続化）を実装済みです。Eumenesとの結合（P3以降）、実Memory登録、journalの耐久性、実モデルの正式受入は未完了です。Codex SDKのLunaを使う独立Exampleでは、実資料から候補を抽出して保存する試験ができます。
 
 推奨構成は、TypeScriptの独立パッケージをEumenesへ組み込み、EumenesのSQLite単一Writer・queue・推論接続を使う方式です。対象・状態・条件・因果・相関・依存を根拠付きで管理し、目標との関係、変更の影響、判断に足りない証拠をエージェントへ返します。
 
@@ -9,6 +9,9 @@ SAAAのPersonal Worldを継承する、独立開発用のWorldModelプロジェ�
 - [プロジェクト構造](spec/project-structure.md) — 配置と依存方向
 - [SQLite単体試験と単一Writerへの接続](spec/sqlite-testing.md) — 本体が借りる接続と試験用DBの区別
 - [準備状況と検証結果](spec/preparation-status.md)
+- [実資料984件のseedとローカル試験](eval/seed/README.md) — `bun run seed:world`で投入・再投入・抽出準備を確認
+- [Codex SDK / Lunaでseedを抽出するExample](examples/seed-luna/README.md) — `bun run example:seed-luna`で実モデルから候補保存までを試験
+- [WorldModelの実験場](examples/README.md) — seedの有無とWorldModelの整理結果による回答の比較など
 - [WorldModelの構造とEumenesへの接続設計](spec/world-model-design.md)
 - [現行ソースとの対応と調査上の制約](spec/source-inspection.md)
 - [SAAAの全体コンセプト](https://chatgpt.com/space/page_9fc5877949748191b556705128f6a2f5)

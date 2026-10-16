@@ -1,0 +1,88 @@
+{
+	"sourceRun": "artifacts/multi-source-comparison/2026-10-16T03-50-30.270Z-7aaf0b74",
+	"reportSha256": "0ad7f0ef1039490b13e9c638e4ba29bb3a8d62c6cf2e906c5e29b0d5a7731950",
+	"question": {
+		"id": "D04",
+		"packet": "deploy",
+		"asOf": 1792108800000,
+		"question": "現在、本番配信を許可できるか。",
+		"observations": [
+			{
+				"observationId": "obs-signed",
+				"key": "signed",
+				"value": {
+					"kind": "boolean",
+					"value": true
+				},
+				"observedAt": 1792108800000,
+				"version": "v1",
+				"priority": 1
+			},
+			{
+				"observationId": "obs-canary",
+				"key": "canary",
+				"value": {
+					"kind": "number",
+					"value": 0.7,
+					"unit": "percent"
+				},
+				"observedAt": 1792108800000,
+				"version": "v1",
+				"priority": 1
+			},
+			{
+				"observationId": "obs-rollback",
+				"key": "rollback",
+				"value": {
+					"kind": "boolean",
+					"value": true
+				},
+				"observedAt": 1792108800000,
+				"version": "v1",
+				"priority": 1
+			},
+			{
+				"observationId": "obs-region",
+				"key": "region",
+				"value": {
+					"kind": "string",
+					"value": "JP"
+				},
+				"observedAt": 1792108800000,
+				"version": "v1",
+				"priority": 1
+			},
+			{
+				"observationId": "obs-latency",
+				"key": "latency",
+				"value": {
+					"kind": "number",
+					"value": 250,
+					"unit": "ms"
+				},
+				"observedAt": 1792108800000,
+				"version": "v1",
+				"priority": 1
+			}
+		],
+		"expected": {
+			"decision": "hold",
+			"governingSources": ["D2"],
+			"reason": "NOTの対象の凍結状態が不明。未観測をfalseにしない。"
+		}
+	},
+	"answer": {
+		"decision": "hold",
+		"governingSources": ["D2"],
+		"explanation": "10月16日時点ではD2が有効で、D3は10月20日施行のため適用されません。署名済み、カナリア条件または復旧手順承認、凍結状態、地域を含む条件を評価すると、freeze=falseは確認できますが、他の必要条件の評価が提示されておらず、許可を確定できません。",
+		"assessments": [
+			{
+				"sourceId": "D2",
+				"result": "unknown",
+				"assertionId": "D2:claim:0",
+				"overrideReason": "提示された条件評価は観測のない状態としている一方、freeze=falseの観測があり、条件式ではその値を評価すべきです。"
+			}
+		]
+	},
+	"review": "freeze is absent; the condition literal false is not an observation. Other inputs are supplied. Decision hold remains correct."
+}

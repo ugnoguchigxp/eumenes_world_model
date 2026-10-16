@@ -1,0 +1,39 @@
+{
+	"parentReportDigest": "67579c05d252b98ede01ecf9bfcc293b8488849bbc905dfce36d4f081be0206d",
+	"description": "凍結した回答のうち、資料なしで具体値を確認できないと正しく述べた3回答。誤答扱いを防ぐ採点器の回帰確認。回答を再生成した別実行には適用しない。",
+	"checks": [
+		{
+			"questionId": "M01",
+			"repeat": 1,
+			"arm": "no-seed",
+			"expected": {
+				"accuracy": 2,
+				"completeness": 0,
+				"scope": 2,
+				"calibration": 2
+			}
+		},
+		{
+			"questionId": "F01",
+			"repeat": 0,
+			"arm": "no-seed",
+			"expected": {
+				"accuracy": 2,
+				"completeness": 0,
+				"scope": 2,
+				"calibration": 2
+			}
+		},
+		{
+			"questionId": "F01",
+			"repeat": 1,
+			"arm": "no-seed",
+			"expected": {
+				"accuracy": 2,
+				"completeness": 0,
+				"scope": 2,
+				"calibration": 2
+			}
+		}
+	]
+}

@@ -1,0 +1,44 @@
+{
+	"baselineRun": "artifacts/multi-source-comparison/2026-10-16T03-24-55.222Z-6d3f8ec2",
+	"reportDigest": "63f935b0060429343f65fd5f3035e99fa48691bc581611467d006922a5940c06",
+	"cases": [
+		{
+			"questionId": "O02",
+			"repeat": 0,
+			"answer": {
+				"decision": "allow",
+				"governingSources": ["O1", "O2"],
+				"explanation": "本番ではO1が適用されます。承認は真、バックアップ実行中ではないことも真で、CPU観測は1時間を1ミリ秒超えて古いため不明です。ヘルスチェック失敗は偽なので、条件（CPU 90%以上またはヘルスチェック失敗）は不明となり、全条件が確定しないため許可判定は保留です。"
+			},
+			"expected": {
+				"decision": "hold",
+				"governingSources": ["O1", "O2"],
+				"reason": "CPUは1時間を超え古い。healthFailed=falseと合わせ判定不能。"
+			},
+			"nativeEvaluation": {
+				"assertionId": "O1:claim:0",
+				"result": "unknown",
+				"reasons": ["STALE_OBSERVATION"]
+			}
+		},
+		{
+			"questionId": "O03",
+			"repeat": 0,
+			"answer": {
+				"decision": "deny",
+				"governingSources": ["O1", "O2"],
+				"explanation": "O1では本番の緊急再起動に署名承認、ヘルスチェック失敗またはCPU利用率90%以上、バックアップ実行中でないことが必要です。観測値は有効期間内で、承認とヘルスチェック失敗は真ですが、バックアップ実行中でない条件は偽（backup=trueが必要条件のfalseと不一致）なので、許可できません。O3は検証環境のみの規則です。"
+			},
+			"expected": {
+				"decision": "allow",
+				"governingSources": ["O1", "O2"],
+				"reason": "ORのhealthFailed=trueでCPU欠落を補える。他要件は全て満たす。"
+			},
+			"nativeEvaluation": {
+				"assertionId": "O1:claim:0",
+				"result": "satisfied",
+				"reasons": []
+			}
+		}
+	]
+}
