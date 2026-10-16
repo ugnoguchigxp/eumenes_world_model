@@ -1,0 +1,498 @@
+[
+	{
+		"question": {
+			"packet": "drone-school",
+			"id": "DS02",
+			"asOf": 1795132800000,
+			"question": "この状況で架空飛行訓練場の出発を許可できるか。",
+			"observations": [
+				{
+					"observationId": "sector",
+					"key": "sector",
+					"value": {
+						"kind": "string",
+						"value": "north"
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "instructor",
+					"key": "instructor",
+					"value": {
+						"kind": "boolean",
+						"value": true
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "battery",
+					"key": "battery",
+					"value": {
+						"kind": "number",
+						"value": 48,
+						"unit": "percent"
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "locked",
+					"key": "locked",
+					"value": {
+						"kind": "boolean",
+						"value": false
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				}
+			],
+			"expected": {
+				"decision": "deny",
+				"governingSources": ["DS2"],
+				"reason": "施行時刻ちょうどから55%以上が必要。"
+			},
+			"expectedAssessments": {
+				"DS2": "violated"
+			},
+			"category": "effective-boundary",
+			"suite": "regression",
+			"retiredOnlySources": ["DS1"]
+		},
+		"context": {
+			"sources": [
+				{
+					"id": "DS1",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DS1",
+						"revision": "v1",
+						"digest": "sha256:2d0b1c8ab4f82ca7c2453e6cfaeb4244ea37267db286a3e526c5c80f5dfc7ebe"
+					},
+					"text": "{\"id\":\"DS1\",\"statement\":\"2026年11月1日00:00 UTC施行。north区域での出発の必要十分条件は、教官承認あり、充電率45%以上、機体がロック中でないこと。\",\"authority\":\"担当委員会の正式決定\",\"published\":\"2026-11-01T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DS2",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DS2",
+						"revision": "v1",
+						"digest": "sha256:b53246968ac792ecb570edee04ab702b7390e5b2325e6b2eb808c26a9d36adbf"
+					},
+					"text": "{\"id\":\"DS2\",\"statement\":\"2026年11月20日00:00 UTC施行し、同時点でDS1を撤回して置換する。north区域での出発の必要十分条件は、教官承認あり、充電率55%以上、機体がロック中でないこと。施行前はDS1を使う。\",\"authority\":\"担当委員会の正式決定\",\"published\":\"2026-11-05T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DS3",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DS3",
+						"revision": "v1",
+						"digest": "sha256:965c2b5a6aff875b007645eb0c9964a1ce4ba654a86331330519bc686213a339"
+					},
+					"text": "{\"id\":\"DS3\",\"statement\":\"未承認の提案。充電率20%以上なら出発させたい。正式規程を変更する権限はなく、施行時刻もない。\",\"authority\":\"学生の提案・未承認\",\"published\":\"2026-11-10T00:00:00.000Z\"}"
+				}
+			],
+			"observationKeys": {
+				"sector": "区域 string north/south",
+				"instructor": "教官承認 boolean",
+				"battery": "充電率 number percent",
+				"locked": "機体ロック中 boolean"
+			},
+			"derivedView": {
+				"slice": {
+					"contractVersion": 1,
+					"sliceVersion": 1,
+					"principal": "world-seed-test",
+					"scopeKey": "local-noncommercial-research",
+					"asOf": 1795132800000,
+					"goalRef": null,
+					"status": "ready",
+					"reasonCodes": [],
+					"scopeEpoch": 4,
+					"policyRevision": "multi-source-policy-v1",
+					"forgetEpoch": "multi-source-forget-v1",
+					"restoreEpoch": "multi-source-restore-v1",
+					"interpretationVersion": "ledger-v1",
+					"budget": {
+						"maxBytes": 8192,
+						"usedBytes": 2883
+					},
+					"completeness": {
+						"complete": true,
+						"omittedUnits": 0
+					},
+					"assertionVersions": [
+						{
+							"id": "DS2:claim:0",
+							"revision": 1,
+							"lifecycle": "candidate"
+						},
+						{
+							"id": "DS3:claim:0",
+							"revision": 1,
+							"lifecycle": "candidate"
+						}
+					],
+					"sourceVersions": [
+						{
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DS2",
+							"revision": "v1",
+							"digest": "sha256:b53246968ac792ecb570edee04ab702b7390e5b2325e6b2eb808c26a9d36adbf"
+						},
+						{
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DS3",
+							"revision": "v1",
+							"digest": "sha256:965c2b5a6aff875b007645eb0c9964a1ce4ba654a86331330519bc686213a339"
+						}
+					],
+					"units": [
+						{
+							"assertionId": "DS2:claim:0",
+							"revision": 1,
+							"stance": "hypothesis",
+							"status": "candidate",
+							"origin": "model_hypothesis",
+							"freshness": "unknown",
+							"conclusion": {
+								"subjectId": "drone-school",
+								"predicate": "source_claim",
+								"payload": {
+									"kind": "value",
+									"value": {
+										"kind": "string",
+										"value": "担当委員会の正式決定によれば、2026年11月20日00:00 UTCにDS1を撤回して置換する。施行前はDS1を使い、施行後のnorth区域での出発の必要十分条件は、教官承認があり、充電率が55%以上で、機体がロック中でないこと。"
+									}
+								}
+							},
+							"condition": {
+								"kind": "expression",
+								"expression": {
+									"kind": "all",
+									"items": [
+										{
+											"kind": "compare",
+											"key": "sector",
+											"op": "eq",
+											"value": {
+												"kind": "string",
+												"value": "north"
+											}
+										},
+										{
+											"kind": "compare",
+											"key": "instructor",
+											"op": "eq",
+											"value": {
+												"kind": "boolean",
+												"value": true
+											}
+										},
+										{
+											"kind": "compare",
+											"key": "battery",
+											"op": "gte",
+											"value": {
+												"kind": "number",
+												"value": 55,
+												"unit": "percent"
+											}
+										},
+										{
+											"kind": "compare",
+											"key": "locked",
+											"op": "eq",
+											"value": {
+												"kind": "boolean",
+												"value": false
+											}
+										}
+									]
+								}
+							},
+							"refutations": [],
+							"sources": [
+								{
+									"namespace": "multi-source-v1",
+									"kind": "synthetic-document",
+									"id": "DS2",
+									"revision": "v1",
+									"digest": "sha256:b53246968ac792ecb570edee04ab702b7390e5b2325e6b2eb808c26a9d36adbf"
+								}
+							],
+							"validTime": {
+								"kind": "period",
+								"precision": "exact",
+								"original": "2026年11月20日00:00 UTC施行し、同時点でDS1を撤回して置換する。north区域での出発の必要十分条件は、教官承認あり、充電率55%以上、機体がロック中でないこと。施行前はDS1を使う。",
+								"start": {
+									"earliest": 1795132800000,
+									"latest": 1795132800000
+								}
+							}
+						},
+						{
+							"assertionId": "DS3:claim:0",
+							"revision": 1,
+							"stance": "hypothesis",
+							"status": "candidate",
+							"origin": "model_hypothesis",
+							"freshness": "unknown",
+							"conclusion": {
+								"subjectId": "drone-school",
+								"predicate": "source_claim",
+								"payload": {
+									"kind": "value",
+									"value": {
+										"kind": "string",
+										"value": "学生の未承認の提案では、充電率20%以上なら出発させたいとしている。正式規程を変更する権限はなく、施行時刻も示されていないため、正式規程として確定した条件や施行日は示していない。"
+									}
+								}
+							},
+							"condition": {
+								"kind": "expression",
+								"expression": {
+									"kind": "compare",
+									"key": "battery",
+									"op": "gte",
+									"value": {
+										"kind": "number",
+										"value": 20,
+										"unit": "percent"
+									}
+								}
+							},
+							"refutations": [],
+							"sources": [
+								{
+									"namespace": "multi-source-v1",
+									"kind": "synthetic-document",
+									"id": "DS3",
+									"revision": "v1",
+									"digest": "sha256:965c2b5a6aff875b007645eb0c9964a1ce4ba654a86331330519bc686213a339"
+								}
+							]
+						}
+					],
+					"digest": "sha256:73e72196a2a337b3060365c8adac04efcace2e67ed082cc4da8455b0d63c6713"
+				},
+				"evaluations": [
+					{
+						"assertionId": "DS2:claim:0",
+						"result": "violated",
+						"reasons": []
+					},
+					{
+						"assertionId": "DS3:claim:0",
+						"result": "satisfied",
+						"reasons": []
+					}
+				]
+			}
+		},
+		"baseline": "{\"governingSources\":[\"DS1\",\"DS2\"],\"assessments\":[{\"sourceId\":\"DS2\",\"result\":\"violated\",\"assertionId\":\"DS2:claim:0\",\"overrideReason\":null}],\"explanation\":\"DS2は2026年11月20日00:00 UTCに施行され、DS1を置換する。必要条件の充電率55%以上に対し、観測値は48%で、条件評価は違反。したがって出発は許可できない。\",\"decision\":\"deny\"}",
+		"operative": "{\"governingSources\":[\"DS2\"],\"assessments\":[{\"sourceId\":\"DS2\",\"result\":\"violated\",\"assertionId\":\"DS2:claim:0\",\"overrideReason\":null}],\"explanation\":\"DS2はasOf時点で有効な出発条件で、観測された充電率48%は必要値55%以上を満たさないため、条件評価はviolated。DS3は未承認の提案で、適用規程ではない。\",\"decision\":\"deny\"}"
+	},
+	{
+		"question": {
+			"id": "SP02",
+			"packet": "specimen-room",
+			"asOf": 1797206400000,
+			"question": "この状況で架空標本室の開扉を許可できるか。",
+			"observations": [
+				{
+					"observationId": "badge",
+					"key": "badge",
+					"value": {
+						"kind": "boolean",
+						"value": true
+					},
+					"observedAt": 1797206400000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "humidity",
+					"key": "humidity",
+					"value": {
+						"kind": "number",
+						"value": 8,
+						"unit": "percent"
+					},
+					"observedAt": 1797206400000,
+					"version": "v1",
+					"priority": 1
+				}
+			],
+			"expected": {
+				"decision": "deny",
+				"governingSources": ["SP7", "SP2"],
+				"reason": "permission-ended-policy-retained"
+			},
+			"expectedAssessments": {
+				"SP7": "violated"
+			},
+			"retiredOnlySources": [],
+			"category": "permission-ended-policy-retained",
+			"suite": "unseen"
+		},
+		"context": {
+			"sources": [
+				{
+					"id": "SP2",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "SP2",
+						"revision": "v1",
+						"digest": "sha256:dc7a0f506a9e4afd09d3f51b8ec27e9a64847e8b2ee50c8f2276c45fd2d1ada7"
+					},
+					"text": "{\"id\":\"SP2\",\"statement\":\"2026年12月1日施行。許可章: 開扉の必要十分条件は入室証ありかつ湿度10 percent以下。観測章: 観測は基準時刻以前かつ1時間以内（境界含む）のものを使う。同一項目ではpriority最大を採用し、同順位で異なる値、古い値、未来の値、欠落は不明とする。これは観測方針で、操作の許可条件ではない。\",\"authority\":\"管理委員会の正式決定\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+				},
+				{
+					"id": "SP7",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "SP7",
+						"revision": "v1",
+						"digest": "sha256:ede0ddf617c28802c4764931981789729e49535439d4cac16cb39ecb574fb32d"
+					},
+					"text": "{\"id\":\"SP7\",\"statement\":\"2026年12月14日00:00 UTC施行。SP2の許可章だけを撤回・置換し、開扉の必要十分条件を入室証ありかつ湿度7 percent以下とする。SP2の観測章はそのまま有効で開扉判断に適用する。施行前はSP2の許可章を使う。\",\"authority\":\"管理委員会の正式決定\",\"published\":\"2026-12-04T00:00:00.000Z\"}"
+				}
+			],
+			"observationKeys": {
+				"badge": "入室証あり boolean",
+				"humidity": "湿度 number percent"
+			},
+			"derivedView": {
+				"slice": {
+					"contractVersion": 1,
+					"sliceVersion": 1,
+					"principal": "world-seed-test",
+					"scopeKey": "local-noncommercial-research",
+					"asOf": 1797206400000,
+					"goalRef": null,
+					"status": "ready",
+					"reasonCodes": [],
+					"scopeEpoch": 3,
+					"policyRevision": "multi-source-policy-v1",
+					"forgetEpoch": "multi-source-forget-v1",
+					"restoreEpoch": "multi-source-restore-v1",
+					"interpretationVersion": "ledger-v1",
+					"budget": {
+						"maxBytes": 8192,
+						"usedBytes": 1681
+					},
+					"completeness": {
+						"complete": true,
+						"omittedUnits": 0
+					},
+					"assertionVersions": [
+						{
+							"id": "SP7:claim:0",
+							"revision": 1,
+							"lifecycle": "candidate"
+						}
+					],
+					"sourceVersions": [
+						{
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "SP7",
+							"revision": "v1",
+							"digest": "sha256:ede0ddf617c28802c4764931981789729e49535439d4cac16cb39ecb574fb32d"
+						}
+					],
+					"units": [
+						{
+							"assertionId": "SP7:claim:0",
+							"revision": 1,
+							"stance": "hypothesis",
+							"status": "candidate",
+							"origin": "model_hypothesis",
+							"freshness": "unknown",
+							"conclusion": {
+								"subjectId": "specimen-room",
+								"predicate": "source_claim",
+								"payload": {
+									"kind": "value",
+									"value": {
+										"kind": "string",
+										"value": "管理委員会の正式決定によれば、2026年12月14日00:00 UTC施行で、SP2の許可章だけを撤回・置換し、開扉の必要十分条件を入室証があり、かつ湿度が7 percent以下であるとする。SP2の観測章は有効のまま開扉判断に適用され、施行前はSP2の許可章を使う。"
+									}
+								}
+							},
+							"condition": {
+								"kind": "expression",
+								"expression": {
+									"kind": "all",
+									"items": [
+										{
+											"kind": "compare",
+											"key": "badge",
+											"op": "eq",
+											"value": {
+												"kind": "boolean",
+												"value": true
+											}
+										},
+										{
+											"kind": "compare",
+											"key": "humidity",
+											"op": "lte",
+											"value": {
+												"kind": "number",
+												"value": 7,
+												"unit": "percent"
+											}
+										}
+									]
+								}
+							},
+							"refutations": [],
+							"sources": [
+								{
+									"namespace": "multi-source-v1",
+									"kind": "synthetic-document",
+									"id": "SP7",
+									"revision": "v1",
+									"digest": "sha256:ede0ddf617c28802c4764931981789729e49535439d4cac16cb39ecb574fb32d"
+								}
+							],
+							"validTime": {
+								"kind": "period",
+								"precision": "exact",
+								"original": "2026年12月14日00:00 UTC施行。SP2の許可章だけを撤回・置換し、開扉の必要十分条件を入室証ありかつ湿度7 percent以下とする。SP2の観測章はそのまま有効で開扉判断に適用する。施行前はSP2の許可章を使う。",
+								"start": {
+									"earliest": 1797206400000,
+									"latest": 1797206400000
+								}
+							}
+						}
+					],
+					"digest": "sha256:28ae64b17a8dc4a7eb849d651dc0094aa7aa5dbf2de92e2dad9cdc4e227c955a"
+				},
+				"evaluations": [
+					{
+						"assertionId": "SP7:claim:0",
+						"result": "violated",
+						"reasons": []
+					}
+				]
+			}
+		},
+		"baseline": "{\"governingSources\":[\"SP2\",\"SP7\"],\"assessments\":[{\"sourceId\":\"SP7\",\"result\":\"violated\",\"assertionId\":\"SP7:claim:0\",\"overrideReason\":null}],\"explanation\":\"SP7は基準時刻に施行済みで、SP2の許可章を置換している。入室証の観測値はtrueで条件を満たすが、湿度の観測値8 percentはSP7の上限7 percentを超える。条件全体の計算結果はviolatedである。SP2の観測方針も適用される。\",\"decision\":\"deny\"}",
+		"operative": "{\"governingSources\":[\"SP2\",\"SP7\"],\"assessments\":[{\"sourceId\":\"SP7\",\"result\":\"violated\",\"assertionId\":\"SP7:claim:0\",\"overrideReason\":null}],\"explanation\":\"SP7はasOf時点で施行され、SP2の許可章を置換している。SP2の観測章は引き続き適用されるため、両文書を観測方針の根拠に含める。入室証の観測値はtrueで条件を満たすが、湿度の観測値8 percentはSP7の上限7 percent以下を満たさず、提示された条件評価はviolated。よって開扉は許可できない。\",\"decision\":\"deny\"}"
+	}
+]
