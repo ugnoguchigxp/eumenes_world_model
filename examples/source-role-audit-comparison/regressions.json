@@ -1,0 +1,868 @@
+{
+	"cases": [
+		{
+			"question": {
+				"id": "SR01",
+				"packet": "depot-turntable",
+				"asOf": 1798675200000,
+				"question": "この状況で架空車庫転車台の起動を許可できるか。今回の判断と根拠を説明してください。",
+				"observations": [
+					{
+						"observationId": "side",
+						"key": "side",
+						"value": {
+							"kind": "string",
+							"value": "west"
+						},
+						"observedAt": 1798675200000,
+						"version": "v1",
+						"priority": 1
+					},
+					{
+						"observationId": "locked",
+						"key": "locked",
+						"value": {
+							"kind": "boolean",
+							"value": true
+						},
+						"observedAt": 1798675200000,
+						"version": "v1",
+						"priority": 1
+					}
+				],
+				"expected": {
+					"decision": "hold",
+					"governingSources": ["DT8"],
+					"reason": "other-scope-unknown"
+				},
+				"expectedAssessments": {
+					"DT8": "unknown"
+				},
+				"retiredOnlySources": ["DT5"],
+				"category": "other-scope-unknown",
+				"suite": "regression"
+			},
+			"context": {
+				"sources": [
+					{
+						"id": "DT5",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DT5",
+							"revision": "v1",
+							"digest": "sha256:76f14a913ce79716273869292f7825b7da5d7056baa731dc3e35ec782c906d86"
+						},
+						"text": "{\"id\":\"DT5\",\"statement\":\"2026年12月1日00:00 UTC施行。east区画の起動の必要十分条件は固定確認済みかつ速度6 m/s以下。west区画には適用しない。\",\"authority\":\"設備管理会の正式規程\",\"published\":\"2026-11-25T00:00:00Z\"}"
+					},
+					{
+						"id": "DT8",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DT8",
+							"revision": "v1",
+							"digest": "sha256:d944abef6225609137cdf6cc14eff57dc941d67b5e2f3dd6f33d4def5da10f03"
+						},
+						"text": "{\"id\":\"DT8\",\"statement\":\"2026年12月1日00:00 UTC施行。west区画の起動の必要十分条件は固定確認済みかつ速度9 m/s以下。east区画には適用しない。\",\"authority\":\"設備管理会の正式規程\",\"published\":\"2026-11-26T00:00:00Z\"}"
+					},
+					{
+						"id": "DT2",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DT2",
+							"revision": "v1",
+							"digest": "sha256:317af0da63440cffb53f8b44d6b01bece0e2622496f3b1ddaa14a408fa85c020"
+						},
+						"text": "{\"id\":\"DT2\",\"statement\":\"2026年12月30日23:59:59.500 UTCにDT5だけを撤回して置換する。east区画の起動の必要十分条件は固定確認済みかつ速度4 m/s以下。west区画のDT8は変更しない。\",\"authority\":\"設備管理会の正式規程\",\"published\":\"2026-12-04T00:00:00Z\"}"
+					}
+				],
+				"observationKeys": {
+					"side": "区画 string east/west",
+					"locked": "固定確認済み boolean",
+					"speed": "速度 number m/s"
+				},
+				"derivedView": {
+					"slice": {
+						"contractVersion": 1,
+						"sliceVersion": 1,
+						"principal": "world-seed-test",
+						"scopeKey": "local-noncommercial-research",
+						"asOf": 1798675200000,
+						"goalRef": null,
+						"status": "ready",
+						"reasonCodes": [],
+						"scopeEpoch": 4,
+						"policyRevision": "multi-source-policy-v1",
+						"forgetEpoch": "multi-source-forget-v1",
+						"restoreEpoch": "multi-source-restore-v1",
+						"interpretationVersion": "ledger-v1",
+						"budget": {
+							"maxBytes": 8192,
+							"usedBytes": 3123
+						},
+						"completeness": {
+							"complete": true,
+							"omittedUnits": 0
+						},
+						"assertionVersions": [
+							{
+								"id": "DT2:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							},
+							{
+								"id": "DT8:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							}
+						],
+						"sourceVersions": [
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "DT2",
+								"revision": "v1",
+								"digest": "sha256:317af0da63440cffb53f8b44d6b01bece0e2622496f3b1ddaa14a408fa85c020"
+							},
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "DT8",
+								"revision": "v1",
+								"digest": "sha256:d944abef6225609137cdf6cc14eff57dc941d67b5e2f3dd6f33d4def5da10f03"
+							}
+						],
+						"units": [
+							{
+								"assertionId": "DT2:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "depot-turntable",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "設備管理会の正式規程は、2026年12月30日23:59:59.500 UTCにDT5だけを撤回して置換し、east区画の起動について固定確認済みかつ速度4 m/s以下を必要十分条件と定め、west区画のDT8は変更しないと述べている。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "side",
+												"op": "eq",
+												"value": {
+													"kind": "string",
+													"value": "east"
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "locked",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "speed",
+												"op": "lte",
+												"value": {
+													"kind": "number",
+													"value": 4,
+													"unit": "m/s"
+												}
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "DT2",
+										"revision": "v1",
+										"digest": "sha256:317af0da63440cffb53f8b44d6b01bece0e2622496f3b1ddaa14a408fa85c020"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月30日23:59:59.500 UTCにDT5だけを撤回して置換する。east区画の起動の必要十分条件は固定確認済みかつ速度4 m/s以下。west区画のDT8は変更しない。",
+									"start": {
+										"earliest": 1798675199500,
+										"latest": 1798675199500
+									}
+								}
+							},
+							{
+								"assertionId": "DT8:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "depot-turntable",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "設備管理会の正式規程は、west区画の起動について、固定確認済みかつ速度9 m/s以下を必要十分条件と定め、east区画には適用しないと述べている。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "side",
+												"op": "eq",
+												"value": {
+													"kind": "string",
+													"value": "west"
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "locked",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "speed",
+												"op": "lte",
+												"value": {
+													"kind": "number",
+													"value": 9,
+													"unit": "m/s"
+												}
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "DT8",
+										"revision": "v1",
+										"digest": "sha256:d944abef6225609137cdf6cc14eff57dc941d67b5e2f3dd6f33d4def5da10f03"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月1日00:00 UTC施行。west区画の起動の必要十分条件は固定確認済みかつ速度9 m/s以下。east区画には適用しない。",
+									"start": {
+										"earliest": 1796083200000,
+										"latest": 1796083200000
+									}
+								}
+							}
+						],
+						"digest": "sha256:e5a21b8bbae73ef8a9a64e635d3e95be1baa3ea1c8dc9096f818ffc7310f89f2"
+					},
+					"evaluations": [
+						{
+							"assertionId": "DT2:claim:0",
+							"result": "violated",
+							"reasons": []
+						},
+						{
+							"assertionId": "DT8:claim:0",
+							"result": "unknown",
+							"reasons": ["NO_OBSERVATION"]
+						}
+					]
+				}
+			},
+			"seedRaw": "{\"governingSources\":[\"DT8\",\"DT2\"],\"assessments\":[{\"sourceId\":\"DT8\",\"result\":\"unknown\",\"assertionId\":\"DT8:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象はwest区画です。DT8が適用され、固定確認済みかつ速度9 m/s以下が必要十分条件です。固定確認済みは観測されていますが、速度の観測がなく条件評価はunknownのため、許可の可否は判断できません。DT2はDT5を撤回して置換し、west区画のDT8は変更しないと定めています。\",\"decision\":\"hold\"}",
+			"origin": {
+				"experiment": "validity-audit-comparison",
+				"questionId": "DT04",
+				"repeat": 0,
+				"arm": "baseline"
+			},
+			"expectedInvalid": true
+		},
+		{
+			"question": {
+				"id": "SR02",
+				"packet": "depot-turntable",
+				"asOf": 1798675200000,
+				"question": "この状況で架空車庫転車台の起動を許可できるか。今回の判断と根拠を説明してください。",
+				"observations": [
+					{
+						"observationId": "side",
+						"key": "side",
+						"value": {
+							"kind": "string",
+							"value": "west"
+						},
+						"observedAt": 1798675200000,
+						"version": "v1",
+						"priority": 1
+					},
+					{
+						"observationId": "locked",
+						"key": "locked",
+						"value": {
+							"kind": "boolean",
+							"value": true
+						},
+						"observedAt": 1798675200000,
+						"version": "v1",
+						"priority": 1
+					}
+				],
+				"expected": {
+					"decision": "hold",
+					"governingSources": ["DT8"],
+					"reason": "other-scope-unknown"
+				},
+				"expectedAssessments": {
+					"DT8": "unknown"
+				},
+				"retiredOnlySources": ["DT5"],
+				"category": "other-scope-unknown",
+				"suite": "regression"
+			},
+			"context": {
+				"sources": [
+					{
+						"id": "DT5",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DT5",
+							"revision": "v1",
+							"digest": "sha256:76f14a913ce79716273869292f7825b7da5d7056baa731dc3e35ec782c906d86"
+						},
+						"text": "{\"id\":\"DT5\",\"statement\":\"2026年12月1日00:00 UTC施行。east区画の起動の必要十分条件は固定確認済みかつ速度6 m/s以下。west区画には適用しない。\",\"authority\":\"設備管理会の正式規程\",\"published\":\"2026-11-25T00:00:00Z\"}"
+					},
+					{
+						"id": "DT8",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DT8",
+							"revision": "v1",
+							"digest": "sha256:d944abef6225609137cdf6cc14eff57dc941d67b5e2f3dd6f33d4def5da10f03"
+						},
+						"text": "{\"id\":\"DT8\",\"statement\":\"2026年12月1日00:00 UTC施行。west区画の起動の必要十分条件は固定確認済みかつ速度9 m/s以下。east区画には適用しない。\",\"authority\":\"設備管理会の正式規程\",\"published\":\"2026-11-26T00:00:00Z\"}"
+					},
+					{
+						"id": "DT2",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DT2",
+							"revision": "v1",
+							"digest": "sha256:317af0da63440cffb53f8b44d6b01bece0e2622496f3b1ddaa14a408fa85c020"
+						},
+						"text": "{\"id\":\"DT2\",\"statement\":\"2026年12月30日23:59:59.500 UTCにDT5だけを撤回して置換する。east区画の起動の必要十分条件は固定確認済みかつ速度4 m/s以下。west区画のDT8は変更しない。\",\"authority\":\"設備管理会の正式規程\",\"published\":\"2026-12-04T00:00:00Z\"}"
+					}
+				],
+				"observationKeys": {
+					"side": "区画 string east/west",
+					"locked": "固定確認済み boolean",
+					"speed": "速度 number m/s"
+				},
+				"derivedView": {
+					"slice": {
+						"contractVersion": 1,
+						"sliceVersion": 1,
+						"principal": "world-seed-test",
+						"scopeKey": "local-noncommercial-research",
+						"asOf": 1798675200000,
+						"goalRef": null,
+						"status": "ready",
+						"reasonCodes": [],
+						"scopeEpoch": 4,
+						"policyRevision": "multi-source-policy-v1",
+						"forgetEpoch": "multi-source-forget-v1",
+						"restoreEpoch": "multi-source-restore-v1",
+						"interpretationVersion": "ledger-v1",
+						"budget": {
+							"maxBytes": 8192,
+							"usedBytes": 3123
+						},
+						"completeness": {
+							"complete": true,
+							"omittedUnits": 0
+						},
+						"assertionVersions": [
+							{
+								"id": "DT2:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							},
+							{
+								"id": "DT8:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							}
+						],
+						"sourceVersions": [
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "DT2",
+								"revision": "v1",
+								"digest": "sha256:317af0da63440cffb53f8b44d6b01bece0e2622496f3b1ddaa14a408fa85c020"
+							},
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "DT8",
+								"revision": "v1",
+								"digest": "sha256:d944abef6225609137cdf6cc14eff57dc941d67b5e2f3dd6f33d4def5da10f03"
+							}
+						],
+						"units": [
+							{
+								"assertionId": "DT2:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "depot-turntable",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "設備管理会の正式規程は、2026年12月30日23:59:59.500 UTCにDT5だけを撤回して置換し、east区画の起動について固定確認済みかつ速度4 m/s以下を必要十分条件と定め、west区画のDT8は変更しないと述べている。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "side",
+												"op": "eq",
+												"value": {
+													"kind": "string",
+													"value": "east"
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "locked",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "speed",
+												"op": "lte",
+												"value": {
+													"kind": "number",
+													"value": 4,
+													"unit": "m/s"
+												}
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "DT2",
+										"revision": "v1",
+										"digest": "sha256:317af0da63440cffb53f8b44d6b01bece0e2622496f3b1ddaa14a408fa85c020"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月30日23:59:59.500 UTCにDT5だけを撤回して置換する。east区画の起動の必要十分条件は固定確認済みかつ速度4 m/s以下。west区画のDT8は変更しない。",
+									"start": {
+										"earliest": 1798675199500,
+										"latest": 1798675199500
+									}
+								}
+							},
+							{
+								"assertionId": "DT8:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "depot-turntable",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "設備管理会の正式規程は、west区画の起動について、固定確認済みかつ速度9 m/s以下を必要十分条件と定め、east区画には適用しないと述べている。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "side",
+												"op": "eq",
+												"value": {
+													"kind": "string",
+													"value": "west"
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "locked",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "speed",
+												"op": "lte",
+												"value": {
+													"kind": "number",
+													"value": 9,
+													"unit": "m/s"
+												}
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "DT8",
+										"revision": "v1",
+										"digest": "sha256:d944abef6225609137cdf6cc14eff57dc941d67b5e2f3dd6f33d4def5da10f03"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月1日00:00 UTC施行。west区画の起動の必要十分条件は固定確認済みかつ速度9 m/s以下。east区画には適用しない。",
+									"start": {
+										"earliest": 1796083200000,
+										"latest": 1796083200000
+									}
+								}
+							}
+						],
+						"digest": "sha256:e5a21b8bbae73ef8a9a64e635d3e95be1baa3ea1c8dc9096f818ffc7310f89f2"
+					},
+					"evaluations": [
+						{
+							"assertionId": "DT2:claim:0",
+							"result": "violated",
+							"reasons": []
+						},
+						{
+							"assertionId": "DT8:claim:0",
+							"result": "unknown",
+							"reasons": ["NO_OBSERVATION"]
+						}
+					]
+				}
+			},
+			"seedRaw": "{\"governingSources\":[\"DT8\"],\"assessments\":[{\"sourceId\":\"DT8\",\"result\":\"unknown\",\"assertionId\":\"DT8:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象はwest区画で、適用される現行規程はDT8です。固定確認済みは観測値trueですが、速度の観測はなく、DT8の条件評価はunknownです。したがって起動の可否は判断できません。\",\"decision\":\"hold\"}",
+			"origin": {
+				"experiment": "validity-audit-comparison",
+				"questionId": "DT04",
+				"repeat": 1,
+				"arm": "baseline"
+			},
+			"expectedInvalid": false
+		},
+		{
+			"question": {
+				"id": "SR03",
+				"packet": "reservoir-valve",
+				"asOf": 1797400800000,
+				"question": "この状況で架空貯水槽の弁操作を許可できるか。従来の扱いと今回の判断の関係も説明してください。",
+				"observations": [
+					{
+						"observationId": "authorized",
+						"key": "authorized",
+						"value": {
+							"kind": "boolean",
+							"value": true
+						},
+						"observedAt": 1797400800000,
+						"version": "v1",
+						"priority": 1
+					}
+				],
+				"expected": {
+					"decision": "hold",
+					"governingSources": ["RV2", "RV6"],
+					"reason": "retained-policy-unknown"
+				},
+				"expectedAssessments": {
+					"RV2": "unknown"
+				},
+				"retiredOnlySources": [],
+				"category": "retained-policy-unknown",
+				"suite": "regression"
+			},
+			"context": {
+				"sources": [
+					{
+						"id": "RV6",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "RV6",
+							"revision": "v1",
+							"digest": "sha256:1be0dd425891b532474134ddadf4f3fc591d9850156947fd2bba05412e6b853d"
+						},
+						"text": "{\"id\":\"RV6\",\"statement\":\"2026年12月1日00:00 UTC施行。許可章: 弁操作の必要十分条件は操作証ありかつ圧力14 kPa以下。観測章: 観測は基準時刻以前かつ1時間以内（境界含む）のものを使う。同一項目ではpriority最大を採用し、同順位で異なる値、古い値、未来の値、欠落は不明とする。観測方針は許可条件を追加しない。\",\"authority\":\"運営評議会の正式規程\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+					},
+					{
+						"id": "RV2",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "RV2",
+							"revision": "v1",
+							"digest": "sha256:1c7f4e84ffa23f14a53686603a8529a928c62e5fd8e13eec4ff37b9df6796921"
+						},
+						"text": "{\"id\":\"RV2\",\"statement\":\"2026年12月12日06:00 UTC施行。RV6の許可章だけを撤回し置換する。弁操作の必要十分条件は操作証ありかつ圧力10 kPa以下。RV6の観測章は引き続きこの判断に適用する。\",\"authority\":\"運営評議会の正式規程\",\"published\":\"2026-12-03T00:00:00.000Z\"}"
+					},
+					{
+						"id": "RV8",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "RV8",
+							"revision": "v1",
+							"digest": "sha256:7b251222fb33800d0e11bdf1be03e716c5bf09374adb14e1b6d3c6ebfb2e3030"
+						},
+						"text": "{\"id\":\"RV8\",\"statement\":\"点検記録には、12月5日に旧上限14 kPaで弁操作を実施したと記されている。現行の許可条件や観測方針を変更するものではない。\",\"authority\":\"点検担当者の過去作業記録\",\"published\":\"2026-12-13T00:00:00.000Z\"}"
+					}
+				],
+				"observationKeys": {
+					"authorized": "操作証あり boolean",
+					"pressure": "圧力 number kPa"
+				},
+				"derivedView": {
+					"slice": {
+						"contractVersion": 1,
+						"sliceVersion": 1,
+						"principal": "world-seed-test",
+						"scopeKey": "local-noncommercial-research",
+						"asOf": 1797400800000,
+						"goalRef": null,
+						"status": "ready",
+						"reasonCodes": [],
+						"scopeEpoch": 4,
+						"policyRevision": "multi-source-policy-v1",
+						"forgetEpoch": "multi-source-forget-v1",
+						"restoreEpoch": "multi-source-restore-v1",
+						"interpretationVersion": "ledger-v1",
+						"budget": {
+							"maxBytes": 8192,
+							"usedBytes": 2540
+						},
+						"completeness": {
+							"complete": true,
+							"omittedUnits": 0
+						},
+						"assertionVersions": [
+							{
+								"id": "RV2:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							},
+							{
+								"id": "RV8:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							}
+						],
+						"sourceVersions": [
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "RV2",
+								"revision": "v1",
+								"digest": "sha256:1c7f4e84ffa23f14a53686603a8529a928c62e5fd8e13eec4ff37b9df6796921"
+							},
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "RV8",
+								"revision": "v1",
+								"digest": "sha256:7b251222fb33800d0e11bdf1be03e716c5bf09374adb14e1b6d3c6ebfb2e3030"
+							}
+						],
+						"units": [
+							{
+								"assertionId": "RV2:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "reservoir-valve",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "運営評議会の正式規程は、2026年12月12日06:00 UTC施行として、RV6の許可章を撤回して置換し、操作証があり、かつ圧力が10 kPa以下であることを弁操作の必要十分条件と述べている。RV6の観測章は引き続き適用するとしている。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "authorized",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "pressure",
+												"op": "lte",
+												"value": {
+													"kind": "number",
+													"value": 10,
+													"unit": "kPa"
+												}
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "RV2",
+										"revision": "v1",
+										"digest": "sha256:1c7f4e84ffa23f14a53686603a8529a928c62e5fd8e13eec4ff37b9df6796921"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月12日06:00 UTC施行。RV6の許可章だけを撤回し置換する。弁操作の必要十分条件は操作証ありかつ圧力10 kPa以下。RV6の観測章は引き続きこの判断に適用する。",
+									"start": {
+										"earliest": 1797055200000,
+										"latest": 1797055200000
+									}
+								}
+							},
+							{
+								"assertionId": "RV8:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "model_hypothesis",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "reservoir-valve",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "点検担当者の過去作業記録には、12月5日に旧上限14 kPaで弁操作を実施したと記されている。この記録は現行の許可条件や観測方針を変更するものではない。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "unspecified"
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "RV8",
+										"revision": "v1",
+										"digest": "sha256:7b251222fb33800d0e11bdf1be03e716c5bf09374adb14e1b6d3c6ebfb2e3030"
+									}
+								]
+							}
+						],
+						"digest": "sha256:fe19eb4f152fe17e799eb14fcf07313b2c97c126acc6ce95cb25cbf28d75bd31"
+					},
+					"evaluations": [
+						{
+							"assertionId": "RV2:claim:0",
+							"result": "unknown",
+							"reasons": ["NO_OBSERVATION"]
+						},
+						{
+							"assertionId": "RV8:claim:0",
+							"result": "unknown",
+							"reasons": ["UNSPECIFIED_CONDITION"]
+						}
+					]
+				}
+			},
+			"seedRaw": "{\"governingSources\":[\"RV6\",\"RV2\"],\"assessments\":[{\"sourceId\":\"RV2\",\"result\":\"unknown\",\"assertionId\":\"RV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"RV2はRV6の許可章を置き換え、操作証ありかつ圧力10 kPa以下を条件とし、観測方針はRV6から引き継ぐ。操作証ありは観測値trueで条件を満たすが、圧力値の観測はなく、条件全体の計算結果はunknown。RV8は旧上限での過去作業記録であり、現行条件を変えない。よって許可は判断できない。\",\"decision\":\"hold\"}",
+			"origin": {
+				"experiment": "validity-audit-comparison",
+				"questionId": "VT05",
+				"repeat": 0,
+				"arm": "baseline"
+			},
+			"expectedInvalid": false
+		}
+	]
+}
