@@ -1,0 +1,478 @@
+[
+	{
+		"mode": "source-only",
+		"question": {
+			"id": "FC03",
+			"packet": "studio-access",
+			"asOf": 1797465600000,
+			"question": "この状況で架空制作室への入場を許可できるか。",
+			"observations": [
+				{
+					"observationId": "registered",
+					"key": "registered",
+					"value": {
+						"kind": "boolean",
+						"value": true
+					},
+					"observedAt": 1797465600000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "badge",
+					"key": "badge",
+					"value": {
+						"kind": "boolean",
+						"value": true
+					},
+					"observedAt": 1797465600000,
+					"version": "v1",
+					"priority": 1
+				}
+			],
+			"expected": {
+				"decision": "allow",
+				"governingSources": ["DK3", "DK6", "DK1"],
+				"reason": "FC03"
+			},
+			"expectedAssessments": {
+				"DK3": "satisfied",
+				"DK6": "satisfied"
+			},
+			"category": "new-fallback-question"
+		},
+		"context": {
+			"sources": [
+				{
+					"id": "DK3",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DK3",
+						"revision": "v1",
+						"digest": "sha256:4879ce5e4ae295fa031724ef26eaf20317b6e747e4fd7a899c65f151e0e498d7"
+					},
+					"text": "{\"id\":\"DK3\",\"statement\":\"2026年12月1日施行。制作室への入場の必要十分条件は登録済みかつ認証札あり。\",\"authority\":\"施設管理委員会の正式決定\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DK6",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DK6",
+						"revision": "v1",
+						"digest": "sha256:4df85aa2869b757504085e0dd52b48816689aeea7303c3c21766d857e653363b"
+					},
+					"text": "{\"id\":\"DK6\",\"statement\":\"2026年12月2日施行。制作室への入場の必要十分条件は登録済みかつ（認証札ありまたは引率者あり）。DK3と同格で双方有効、撤回・置換・優先順位の指定はない。\",\"authority\":\"施設管理委員会の正式決定\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DK1",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DK1",
+						"revision": "v1",
+						"digest": "sha256:697434e77a7fe1f4aa560c2a5cb0d182b9ea063aa860dea2ac8d864a6529372b"
+					},
+					"text": "{\"id\":\"DK1\",\"statement\":\"2026年12月1日施行。観測は基準時刻以前かつ1時間以内（境界を含む）を使い、同じ項目ではpriority最大を採用する。同順位で値が違う場合、古い値、未来の値、欠落は不明。これは観測の扱いだけを定め、入場の許可条件は定めない。\",\"authority\":\"施設管理委員会の正式決定\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+				}
+			],
+			"observationKeys": {
+				"registered": "登録済み boolean",
+				"badge": "認証札あり boolean",
+				"escort": "引率者あり boolean"
+			},
+			"derivedView": null
+		},
+		"raw": "{\"governingSources\":[\"DK3\",\"DK6\",\"DK1\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"satisfied\",\"assertionId\":null,\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"unknown\",\"assertionId\":null,\"overrideReason\":null}],\"explanation\":\"登録済みと認証札ありは基準時刻の観測でともにtrue。DK3の必要十分条件は満たされる。DK6では引率者の観測がなく条件を判定できないため、両ルールを合わせた許可判断は保留。\",\"decision\":\"hold\"}"
+	},
+	{
+		"mode": "source-only",
+		"question": {
+			"id": "FC04",
+			"packet": "studio-access",
+			"asOf": 1797465600000,
+			"question": "この状況で架空制作室への入場を許可できるか。",
+			"observations": [
+				{
+					"observationId": "registered",
+					"key": "registered",
+					"value": {
+						"kind": "boolean",
+						"value": true
+					},
+					"observedAt": 1797465600000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "escort",
+					"key": "escort",
+					"value": {
+						"kind": "boolean",
+						"value": false
+					},
+					"observedAt": 1797465600000,
+					"version": "v1",
+					"priority": 1
+				}
+			],
+			"expected": {
+				"decision": "hold",
+				"governingSources": ["DK3", "DK6", "DK1"],
+				"reason": "FC04"
+			},
+			"expectedAssessments": {
+				"DK3": "unknown",
+				"DK6": "unknown"
+			},
+			"category": "new-fallback-question"
+		},
+		"context": {
+			"sources": [
+				{
+					"id": "DK3",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DK3",
+						"revision": "v1",
+						"digest": "sha256:4879ce5e4ae295fa031724ef26eaf20317b6e747e4fd7a899c65f151e0e498d7"
+					},
+					"text": "{\"id\":\"DK3\",\"statement\":\"2026年12月1日施行。制作室への入場の必要十分条件は登録済みかつ認証札あり。\",\"authority\":\"施設管理委員会の正式決定\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DK6",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DK6",
+						"revision": "v1",
+						"digest": "sha256:4df85aa2869b757504085e0dd52b48816689aeea7303c3c21766d857e653363b"
+					},
+					"text": "{\"id\":\"DK6\",\"statement\":\"2026年12月2日施行。制作室への入場の必要十分条件は登録済みかつ（認証札ありまたは引率者あり）。DK3と同格で双方有効、撤回・置換・優先順位の指定はない。\",\"authority\":\"施設管理委員会の正式決定\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DK1",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DK1",
+						"revision": "v1",
+						"digest": "sha256:697434e77a7fe1f4aa560c2a5cb0d182b9ea063aa860dea2ac8d864a6529372b"
+					},
+					"text": "{\"id\":\"DK1\",\"statement\":\"2026年12月1日施行。観測は基準時刻以前かつ1時間以内（境界を含む）を使い、同じ項目ではpriority最大を採用する。同順位で値が違う場合、古い値、未来の値、欠落は不明。これは観測の扱いだけを定め、入場の許可条件は定めない。\",\"authority\":\"施設管理委員会の正式決定\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+				}
+			],
+			"observationKeys": {
+				"registered": "登録済み boolean",
+				"badge": "認証札あり boolean",
+				"escort": "引率者あり boolean"
+			},
+			"derivedView": null
+		},
+		"raw": "{\"governingSources\":[\"DK3\",\"DK6\",\"DK1\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"unknown\",\"assertionId\":null,\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"satisfied\",\"assertionId\":null,\"overrideReason\":null}],\"explanation\":\"DK3は登録済みかつ認証札ありを要求する。登録済みはtrueと観測されているが、認証札の観測はなく、結果は不明。DK6は登録済みかつ（認証札ありまたは引率者あり）を要求する。登録済みはtrue、引率者ありはfalseと観測されており、認証札の観測がないため条件の成否は不明。訂正：認証札が欠落しているのでDK6も不明となる。DK1は観測の扱いを定める測定方針である。\",\"decision\":\"hold\"}"
+	},
+	{
+		"mode": "reextract",
+		"question": {
+			"packet": "drone-school",
+			"id": "DS02",
+			"asOf": 1795132800000,
+			"question": "この状況で架空飛行訓練場の出発を許可できるか。",
+			"observations": [
+				{
+					"observationId": "sector",
+					"key": "sector",
+					"value": {
+						"kind": "string",
+						"value": "north"
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "instructor",
+					"key": "instructor",
+					"value": {
+						"kind": "boolean",
+						"value": true
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "battery",
+					"key": "battery",
+					"value": {
+						"kind": "number",
+						"value": 48,
+						"unit": "percent"
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				},
+				{
+					"observationId": "locked",
+					"key": "locked",
+					"value": {
+						"kind": "boolean",
+						"value": false
+					},
+					"observedAt": 1795132800000,
+					"version": "v1",
+					"priority": 1
+				}
+			],
+			"expected": {
+				"decision": "deny",
+				"governingSources": ["DS2"],
+				"reason": "施行時刻ちょうどから55%以上が必要。"
+			},
+			"expectedAssessments": {
+				"DS2": "violated"
+			},
+			"category": "effective-boundary"
+		},
+		"context": {
+			"sources": [
+				{
+					"id": "DS1",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DS1",
+						"revision": "v1",
+						"digest": "sha256:2d0b1c8ab4f82ca7c2453e6cfaeb4244ea37267db286a3e526c5c80f5dfc7ebe"
+					},
+					"text": "{\"id\":\"DS1\",\"statement\":\"2026年11月1日00:00 UTC施行。north区域での出発の必要十分条件は、教官承認あり、充電率45%以上、機体がロック中でないこと。\",\"authority\":\"担当委員会の正式決定\",\"published\":\"2026-11-01T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DS2",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DS2",
+						"revision": "v1",
+						"digest": "sha256:b53246968ac792ecb570edee04ab702b7390e5b2325e6b2eb808c26a9d36adbf"
+					},
+					"text": "{\"id\":\"DS2\",\"statement\":\"2026年11月20日00:00 UTC施行し、同時点でDS1を撤回して置換する。north区域での出発の必要十分条件は、教官承認あり、充電率55%以上、機体がロック中でないこと。施行前はDS1を使う。\",\"authority\":\"担当委員会の正式決定\",\"published\":\"2026-11-05T00:00:00.000Z\"}"
+				},
+				{
+					"id": "DS3",
+					"ref": {
+						"namespace": "multi-source-v1",
+						"kind": "synthetic-document",
+						"id": "DS3",
+						"revision": "v1",
+						"digest": "sha256:965c2b5a6aff875b007645eb0c9964a1ce4ba654a86331330519bc686213a339"
+					},
+					"text": "{\"id\":\"DS3\",\"statement\":\"未承認の提案。充電率20%以上なら出発させたい。正式規程を変更する権限はなく、施行時刻もない。\",\"authority\":\"学生の提案・未承認\",\"published\":\"2026-11-10T00:00:00.000Z\"}"
+				}
+			],
+			"observationKeys": {
+				"sector": "区域 string north/south",
+				"instructor": "教官承認 boolean",
+				"battery": "充電率 number percent",
+				"locked": "機体ロック中 boolean"
+			},
+			"derivedView": {
+				"slice": {
+					"contractVersion": 1,
+					"sliceVersion": 1,
+					"principal": "world-seed-test",
+					"scopeKey": "local-noncommercial-research",
+					"asOf": 1795132800000,
+					"goalRef": null,
+					"status": "ready",
+					"reasonCodes": [],
+					"scopeEpoch": 4,
+					"policyRevision": "multi-source-policy-v1",
+					"forgetEpoch": "multi-source-forget-v1",
+					"restoreEpoch": "multi-source-restore-v1",
+					"interpretationVersion": "ledger-v1",
+					"budget": {
+						"maxBytes": 8192,
+						"usedBytes": 2883
+					},
+					"completeness": {
+						"complete": true,
+						"omittedUnits": 0
+					},
+					"assertionVersions": [
+						{
+							"id": "DS2:claim:0",
+							"revision": 1,
+							"lifecycle": "candidate"
+						},
+						{
+							"id": "DS3:claim:0",
+							"revision": 1,
+							"lifecycle": "candidate"
+						}
+					],
+					"sourceVersions": [
+						{
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DS2",
+							"revision": "v1",
+							"digest": "sha256:b53246968ac792ecb570edee04ab702b7390e5b2325e6b2eb808c26a9d36adbf"
+						},
+						{
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "DS3",
+							"revision": "v1",
+							"digest": "sha256:965c2b5a6aff875b007645eb0c9964a1ce4ba654a86331330519bc686213a339"
+						}
+					],
+					"units": [
+						{
+							"assertionId": "DS2:claim:0",
+							"revision": 1,
+							"stance": "hypothesis",
+							"status": "candidate",
+							"origin": "model_hypothesis",
+							"freshness": "unknown",
+							"conclusion": {
+								"subjectId": "drone-school",
+								"predicate": "source_claim",
+								"payload": {
+									"kind": "value",
+									"value": {
+										"kind": "string",
+										"value": "担当委員会の正式決定によれば、2026年11月20日00:00 UTCにDS1を撤回して置換する。施行前はDS1を使い、施行後のnorth区域での出発の必要十分条件は、教官承認があり、充電率が55%以上で、機体がロック中でないこと。"
+									}
+								}
+							},
+							"condition": {
+								"kind": "expression",
+								"expression": {
+									"kind": "all",
+									"items": [
+										{
+											"kind": "compare",
+											"key": "sector",
+											"op": "eq",
+											"value": {
+												"kind": "string",
+												"value": "north"
+											}
+										},
+										{
+											"kind": "compare",
+											"key": "instructor",
+											"op": "eq",
+											"value": {
+												"kind": "boolean",
+												"value": true
+											}
+										},
+										{
+											"kind": "compare",
+											"key": "battery",
+											"op": "gte",
+											"value": {
+												"kind": "number",
+												"value": 55,
+												"unit": "percent"
+											}
+										},
+										{
+											"kind": "compare",
+											"key": "locked",
+											"op": "eq",
+											"value": {
+												"kind": "boolean",
+												"value": false
+											}
+										}
+									]
+								}
+							},
+							"refutations": [],
+							"sources": [
+								{
+									"namespace": "multi-source-v1",
+									"kind": "synthetic-document",
+									"id": "DS2",
+									"revision": "v1",
+									"digest": "sha256:b53246968ac792ecb570edee04ab702b7390e5b2325e6b2eb808c26a9d36adbf"
+								}
+							],
+							"validTime": {
+								"kind": "period",
+								"precision": "exact",
+								"original": "2026年11月20日00:00 UTC施行し、同時点でDS1を撤回して置換する。north区域での出発の必要十分条件は、教官承認あり、充電率55%以上、機体がロック中でないこと。施行前はDS1を使う。",
+								"start": {
+									"earliest": 1795132800000,
+									"latest": 1795132800000
+								}
+							}
+						},
+						{
+							"assertionId": "DS3:claim:0",
+							"revision": 1,
+							"stance": "hypothesis",
+							"status": "candidate",
+							"origin": "model_hypothesis",
+							"freshness": "unknown",
+							"conclusion": {
+								"subjectId": "drone-school",
+								"predicate": "source_claim",
+								"payload": {
+									"kind": "value",
+									"value": {
+										"kind": "string",
+										"value": "学生の未承認の提案では、充電率20%以上なら出発させたいとしている。正式規程を変更する権限はなく、施行時刻も示されていないため、正式規程として確定した条件や施行日は示していない。"
+									}
+								}
+							},
+							"condition": {
+								"kind": "expression",
+								"expression": {
+									"kind": "compare",
+									"key": "battery",
+									"op": "gte",
+									"value": {
+										"kind": "number",
+										"value": 20,
+										"unit": "percent"
+									}
+								}
+							},
+							"refutations": [],
+							"sources": [
+								{
+									"namespace": "multi-source-v1",
+									"kind": "synthetic-document",
+									"id": "DS3",
+									"revision": "v1",
+									"digest": "sha256:965c2b5a6aff875b007645eb0c9964a1ce4ba654a86331330519bc686213a339"
+								}
+							]
+						}
+					],
+					"digest": "sha256:73e72196a2a337b3060365c8adac04efcace2e67ed082cc4da8455b0d63c6713"
+				},
+				"evaluations": [
+					{
+						"assertionId": "DS2:claim:0",
+						"result": "violated",
+						"reasons": []
+					},
+					{
+						"assertionId": "DS3:claim:0",
+						"result": "satisfied",
+						"reasons": []
+					}
+				]
+			}
+		},
+		"raw": "{\"governingSources\":[\"DS1\",\"DS2\"],\"assessments\":[{\"sourceId\":\"DS2\",\"result\":\"violated\",\"assertionId\":\"DS2:claim:0\",\"overrideReason\":null}],\"explanation\":\"2026年11月20日00:00 UTCにDS2が施行され、DS1を置換します。DS2の必要条件は教官承認あり、充電率55%以上、ロック中でないことです。教官承認ありとロック中でないことは観測されていますが、充電率は48%で55%以上という条件を満たさないため、許可できません。DS3は未承認の提案です。\",\"decision\":\"deny\"}"
+	}
+]
