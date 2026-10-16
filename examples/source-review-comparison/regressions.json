@@ -1,0 +1,695 @@
+{
+	"cases": [
+		{
+			"question": {
+				"id": "KR07",
+				"packet": "night-projection",
+				"asOf": 1797964199999,
+				"question": "この状況で架空星像上映室の投影開始を許可できるか。従来の扱いと今回の判断の関係も説明してください。",
+				"observations": [
+					{
+						"observationId": "registered",
+						"key": "registered",
+						"value": {
+							"kind": "boolean",
+							"value": true
+						},
+						"observedAt": 1797964199999,
+						"version": "v1",
+						"priority": 1
+					},
+					{
+						"observationId": "dark",
+						"key": "dark",
+						"value": {
+							"kind": "boolean",
+							"value": false
+						},
+						"observedAt": 1797964199999,
+						"version": "v1",
+						"priority": 1
+					},
+					{
+						"observationId": "curtain",
+						"key": "curtain",
+						"value": {
+							"kind": "boolean",
+							"value": true
+						},
+						"observedAt": 1797964199999,
+						"version": "v1",
+						"priority": 1
+					}
+				],
+				"expected": {
+					"decision": "allow",
+					"governingSources": ["NP4", "NP8"],
+					"reason": "or-before-effect"
+				},
+				"expectedAssessments": {
+					"NP4": "satisfied"
+				},
+				"retiredOnlySources": [],
+				"category": "or-before-effect",
+				"suite": "regression"
+			},
+			"context": {
+				"sources": [
+					{
+						"id": "NP4",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "NP4",
+							"revision": "v1",
+							"digest": "sha256:2a07ebb75433ddf12981caf865d4e53687be1c75b69b2b442c6636c4747a8a0b"
+						},
+						"text": "{\"id\":\"NP4\",\"statement\":\"2026年12月1日00:00 UTC施行。投影開始を許すのは、登録済みで、暗室状態または遮光幕ありの少なくとも一方が成り立つ場合に限り、その条件を満たせば許可する。観測はNP8による。\",\"authority\":\"施設評議会の正式規程\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+					},
+					{
+						"id": "NP1",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "NP1",
+							"revision": "v1",
+							"digest": "sha256:5c3e328251bd2a6f050f7acc826d9a05a97621c2f54bd66b10c9f38a0d80520f"
+						},
+						"text": "{\"id\":\"NP1\",\"statement\":\"公表日と施行日は異なる。2026年12月22日18:30 UTCに効力を生じ、その時刻にNP4を撤回して置換する。投影開始の必要十分条件は登録済み、暗室状態、遮光幕ありの全て。NP8の観測方針は存続する。それまではNP4が有効。\",\"authority\":\"施設評議会の正式規程\",\"published\":\"2026-12-07T00:00:00.000Z\"}"
+					},
+					{
+						"id": "NP8",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "NP8",
+							"revision": "v1",
+							"digest": "sha256:b205a1581b0b113ec241402c4757596346cdcdb15f70bae4c053344be9f3c623"
+						},
+						"text": "{\"id\":\"NP8\",\"statement\":\"2026年12月1日00:00 UTC施行。投影開始判断の観測方針。観測は基準時刻以前かつ1時間以内（境界含む）のものを使う。同一項目ではpriority最大を採用し、同順位で異なる値、古い値、未来の値、欠落は不明とする。観測方針は許可条件を追加しない。\",\"authority\":\"施設評議会の正式規程\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+					},
+					{
+						"id": "NP7",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "NP7",
+							"revision": "v1",
+							"digest": "sha256:5b86565426aa4c99364e3bf862a5aa4ad4917e61f052f14868435a8d333c83de"
+						},
+						"text": "{\"id\":\"NP7\",\"statement\":\"運用日誌には12月9日に遮光幕のみで上映したと記録されている。これは当時の記録であり、許可条件や観測方針を制定・改訂する文書ではない。\",\"authority\":\"上映係の運用日誌\",\"published\":\"2026-12-10T00:00:00.000Z\"}"
+					}
+				],
+				"observationKeys": {
+					"registered": "登録済み boolean",
+					"dark": "暗室状態 boolean",
+					"curtain": "遮光幕あり boolean"
+				},
+				"derivedView": {
+					"slice": {
+						"contractVersion": 1,
+						"sliceVersion": 1,
+						"principal": "world-seed-test",
+						"scopeKey": "local-noncommercial-research",
+						"asOf": 1797964199999,
+						"goalRef": null,
+						"status": "ready",
+						"reasonCodes": [],
+						"scopeEpoch": 4,
+						"policyRevision": "multi-source-policy-v1",
+						"forgetEpoch": "multi-source-forget-v1",
+						"restoreEpoch": "multi-source-restore-v1",
+						"interpretationVersion": "ledger-v1",
+						"budget": {
+							"maxBytes": 8192,
+							"usedBytes": 6025
+						},
+						"completeness": {
+							"complete": true,
+							"omittedUnits": 0
+						},
+						"assertionVersions": [
+							{
+								"id": "NP1:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							},
+							{
+								"id": "NP4:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							},
+							{
+								"id": "NP7:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							},
+							{
+								"id": "NP8:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							}
+						],
+						"sourceVersions": [
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "NP1",
+								"revision": "v1",
+								"digest": "sha256:5c3e328251bd2a6f050f7acc826d9a05a97621c2f54bd66b10c9f38a0d80520f"
+							},
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "NP4",
+								"revision": "v1",
+								"digest": "sha256:2a07ebb75433ddf12981caf865d4e53687be1c75b69b2b442c6636c4747a8a0b"
+							},
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "NP7",
+								"revision": "v1",
+								"digest": "sha256:5b86565426aa4c99364e3bf862a5aa4ad4917e61f052f14868435a8d333c83de"
+							},
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "NP8",
+								"revision": "v1",
+								"digest": "sha256:b205a1581b0b113ec241402c4757596346cdcdb15f70bae4c053344be9f3c623"
+							}
+						],
+						"units": [
+							{
+								"assertionId": "NP1:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "night-projection",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "施設評議会の正式規程は、2026年12月22日18:30 UTCに効力を生じる時点でNP4を撤回して置換し、それ以降の投影開始の必要十分条件を登録済み・暗室状態・遮光幕ありの全てと定めている。NP8の観測方針は存続し、それまではNP4が有効である。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "registered",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "dark",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "curtain",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "NP1",
+										"revision": "v1",
+										"digest": "sha256:5c3e328251bd2a6f050f7acc826d9a05a97621c2f54bd66b10c9f38a0d80520f"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "公表日と施行日は異なる。2026年12月22日18:30 UTCに効力を生じ、その時刻にNP4を撤回して置換する。投影開始の必要十分条件は登録済み、暗室状態、遮光幕ありの全て。NP8の観測方針は存続する。それまではNP4が有効。",
+									"start": {
+										"earliest": 1797964200000,
+										"latest": 1797964200000
+									}
+								}
+							},
+							{
+								"assertionId": "NP4:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "night-projection",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "施設評議会の正式規程は、2026年12月1日00:00 UTC施行で、投影開始を許す必要十分条件を「登録済みで、暗室状態または遮光幕ありの少なくとも一方が成り立つこと」と定め、観測はNP8によるとしている。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "registered",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "any",
+												"items": [
+													{
+														"kind": "compare",
+														"key": "dark",
+														"op": "eq",
+														"value": {
+															"kind": "boolean",
+															"value": true
+														}
+													},
+													{
+														"kind": "compare",
+														"key": "curtain",
+														"op": "eq",
+														"value": {
+															"kind": "boolean",
+															"value": true
+														}
+													}
+												]
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "NP4",
+										"revision": "v1",
+										"digest": "sha256:2a07ebb75433ddf12981caf865d4e53687be1c75b69b2b442c6636c4747a8a0b"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月1日00:00 UTC施行。投影開始を許すのは、登録済みで、暗室状態または遮光幕ありの少なくとも一方が成り立つ場合に限り、その条件を満たせば許可する。観測はNP8による。",
+									"start": {
+										"earliest": 1796083200000,
+										"latest": 1796083200000
+									},
+									"end": {
+										"earliest": 1797964200000,
+										"latest": 1797964200000
+									}
+								}
+							},
+							{
+								"assertionId": "NP7:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "model_hypothesis",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "night-projection",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "上映係の運用日誌は、12月9日に遮光幕のみで上映したと記録している。この記録は当時の記録であり、許可条件または観測方針を制定・改訂する文書ではない。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "unspecified"
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "NP7",
+										"revision": "v1",
+										"digest": "sha256:5b86565426aa4c99364e3bf862a5aa4ad4917e61f052f14868435a8d333c83de"
+									}
+								]
+							},
+							{
+								"assertionId": "NP8:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "night-projection",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "施設評議会の正式規程は、2026年12月1日00:00 UTC施行の投影開始判断の観測方針として、基準時刻以前かつ1時間以内（境界を含む）の観測を用い、同一項目ではpriority最大を採用し、同順位で値が異なる場合・古い値・未来の値・欠落は不明とする。また、この方針は許可条件を追加しない。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "unspecified"
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "NP8",
+										"revision": "v1",
+										"digest": "sha256:b205a1581b0b113ec241402c4757596346cdcdb15f70bae4c053344be9f3c623"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月1日00:00 UTC施行。投影開始判断の観測方針。観測は基準時刻以前かつ1時間以内（境界含む）のものを使う。同一項目ではpriority最大を採用し、同順位で異なる値、古い値、未来の値、欠落は不明とする。観測方針は許可条件を追加しない。",
+									"start": {
+										"earliest": 1796083200000,
+										"latest": 1796083200000
+									}
+								}
+							}
+						],
+						"digest": "sha256:63875809eb4fb6e792472daccd0a4b8f3c49ad1aa80a10ddfc8b0eedd923887b"
+					},
+					"evaluations": [
+						{
+							"assertionId": "NP1:claim:0",
+							"result": "violated",
+							"reasons": ["CLAIM_NOT_VALID"]
+						},
+						{
+							"assertionId": "NP4:claim:0",
+							"result": "satisfied",
+							"reasons": []
+						},
+						{
+							"assertionId": "NP7:claim:0",
+							"result": "unknown",
+							"reasons": ["UNSPECIFIED_CONDITION"]
+						},
+						{
+							"assertionId": "NP8:claim:0",
+							"result": "unknown",
+							"reasons": ["UNSPECIFIED_CONDITION"]
+						}
+					]
+				}
+			},
+			"seedRaw": "{\"assessments\":[{\"sourceId\":\"NP1\",\"result\":\"violated\",\"assertionId\":\"NP1:claim:0\",\"overrideReason\":null}],\"governingSources\":[\"NP1\",\"NP8\"],\"explanation\":\"基準時刻はNP1の施行時刻以後で、NP4は置換済み。NP1は登録済み・暗室状態・遮光幕ありの全てを要求する。計算結果はNP1についてviolatedで、暗室状態=trueの条件が観測値falseと一致しないため、投影開始は許可できない。NP8は観測方針として適用される。NP7の運用記録は許可条件を定めない。\",\"decision\":\"deny\"}",
+			"origin": {
+				"experiment": "artifacts/instruction-order-factorial/2026-10-16T07-23-38.730Z-dffc963e",
+				"questionId": "NP01",
+				"repeat": 0,
+				"arm": "order"
+			},
+			"expectedCorrect": false
+		},
+		{
+			"question": {
+				"id": "KR08",
+				"packet": "reservoir-valve",
+				"asOf": 1797400800000,
+				"question": "この状況で架空貯水槽の弁操作を許可できるか。従来の扱いと今回の判断の関係も説明してください。",
+				"observations": [
+					{
+						"observationId": "authorized",
+						"key": "authorized",
+						"value": {
+							"kind": "boolean",
+							"value": true
+						},
+						"observedAt": 1797400800000,
+						"version": "v1",
+						"priority": 1
+					}
+				],
+				"expected": {
+					"decision": "hold",
+					"governingSources": ["RV2", "RV6"],
+					"reason": "retained-policy-unknown"
+				},
+				"expectedAssessments": {
+					"RV2": "unknown"
+				},
+				"retiredOnlySources": [],
+				"category": "retained-policy-unknown",
+				"suite": "regression"
+			},
+			"context": {
+				"sources": [
+					{
+						"id": "RV6",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "RV6",
+							"revision": "v1",
+							"digest": "sha256:1be0dd425891b532474134ddadf4f3fc591d9850156947fd2bba05412e6b853d"
+						},
+						"text": "{\"id\":\"RV6\",\"statement\":\"2026年12月1日00:00 UTC施行。許可章: 弁操作の必要十分条件は操作証ありかつ圧力14 kPa以下。観測章: 観測は基準時刻以前かつ1時間以内（境界含む）のものを使う。同一項目ではpriority最大を採用し、同順位で異なる値、古い値、未来の値、欠落は不明とする。観測方針は許可条件を追加しない。\",\"authority\":\"運営評議会の正式規程\",\"published\":\"2026-12-01T00:00:00.000Z\"}"
+					},
+					{
+						"id": "RV2",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "RV2",
+							"revision": "v1",
+							"digest": "sha256:1c7f4e84ffa23f14a53686603a8529a928c62e5fd8e13eec4ff37b9df6796921"
+						},
+						"text": "{\"id\":\"RV2\",\"statement\":\"2026年12月12日06:00 UTC施行。RV6の許可章だけを撤回し置換する。弁操作の必要十分条件は操作証ありかつ圧力10 kPa以下。RV6の観測章は引き続きこの判断に適用する。\",\"authority\":\"運営評議会の正式規程\",\"published\":\"2026-12-03T00:00:00.000Z\"}"
+					},
+					{
+						"id": "RV8",
+						"ref": {
+							"namespace": "multi-source-v1",
+							"kind": "synthetic-document",
+							"id": "RV8",
+							"revision": "v1",
+							"digest": "sha256:7b251222fb33800d0e11bdf1be03e716c5bf09374adb14e1b6d3c6ebfb2e3030"
+						},
+						"text": "{\"id\":\"RV8\",\"statement\":\"点検記録には、12月5日に旧上限14 kPaで弁操作を実施したと記されている。現行の許可条件や観測方針を変更するものではない。\",\"authority\":\"点検担当者の過去作業記録\",\"published\":\"2026-12-13T00:00:00.000Z\"}"
+					}
+				],
+				"observationKeys": {
+					"authorized": "操作証あり boolean",
+					"pressure": "圧力 number kPa"
+				},
+				"derivedView": {
+					"slice": {
+						"contractVersion": 1,
+						"sliceVersion": 1,
+						"principal": "world-seed-test",
+						"scopeKey": "local-noncommercial-research",
+						"asOf": 1797400800000,
+						"goalRef": null,
+						"status": "ready",
+						"reasonCodes": [],
+						"scopeEpoch": 4,
+						"policyRevision": "multi-source-policy-v1",
+						"forgetEpoch": "multi-source-forget-v1",
+						"restoreEpoch": "multi-source-restore-v1",
+						"interpretationVersion": "ledger-v1",
+						"budget": {
+							"maxBytes": 8192,
+							"usedBytes": 2540
+						},
+						"completeness": {
+							"complete": true,
+							"omittedUnits": 0
+						},
+						"assertionVersions": [
+							{
+								"id": "RV2:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							},
+							{
+								"id": "RV8:claim:0",
+								"revision": 1,
+								"lifecycle": "candidate"
+							}
+						],
+						"sourceVersions": [
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "RV2",
+								"revision": "v1",
+								"digest": "sha256:1c7f4e84ffa23f14a53686603a8529a928c62e5fd8e13eec4ff37b9df6796921"
+							},
+							{
+								"namespace": "multi-source-v1",
+								"kind": "synthetic-document",
+								"id": "RV8",
+								"revision": "v1",
+								"digest": "sha256:7b251222fb33800d0e11bdf1be03e716c5bf09374adb14e1b6d3c6ebfb2e3030"
+							}
+						],
+						"units": [
+							{
+								"assertionId": "RV2:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "document_claim",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "reservoir-valve",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "運営評議会の正式規程は、2026年12月12日06:00 UTC施行として、RV6の許可章を撤回して置換し、操作証があり、かつ圧力が10 kPa以下であることを弁操作の必要十分条件と述べている。RV6の観測章は引き続き適用するとしている。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "expression",
+									"expression": {
+										"kind": "all",
+										"items": [
+											{
+												"kind": "compare",
+												"key": "authorized",
+												"op": "eq",
+												"value": {
+													"kind": "boolean",
+													"value": true
+												}
+											},
+											{
+												"kind": "compare",
+												"key": "pressure",
+												"op": "lte",
+												"value": {
+													"kind": "number",
+													"value": 10,
+													"unit": "kPa"
+												}
+											}
+										]
+									}
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "RV2",
+										"revision": "v1",
+										"digest": "sha256:1c7f4e84ffa23f14a53686603a8529a928c62e5fd8e13eec4ff37b9df6796921"
+									}
+								],
+								"validTime": {
+									"kind": "period",
+									"precision": "exact",
+									"original": "2026年12月12日06:00 UTC施行。RV6の許可章だけを撤回し置換する。弁操作の必要十分条件は操作証ありかつ圧力10 kPa以下。RV6の観測章は引き続きこの判断に適用する。",
+									"start": {
+										"earliest": 1797055200000,
+										"latest": 1797055200000
+									}
+								}
+							},
+							{
+								"assertionId": "RV8:claim:0",
+								"revision": 1,
+								"stance": "hypothesis",
+								"status": "candidate",
+								"origin": "model_hypothesis",
+								"freshness": "unknown",
+								"conclusion": {
+									"subjectId": "reservoir-valve",
+									"predicate": "source_claim",
+									"payload": {
+										"kind": "value",
+										"value": {
+											"kind": "string",
+											"value": "点検担当者の過去作業記録には、12月5日に旧上限14 kPaで弁操作を実施したと記されている。この記録は現行の許可条件や観測方針を変更するものではない。"
+										}
+									}
+								},
+								"condition": {
+									"kind": "unspecified"
+								},
+								"refutations": [],
+								"sources": [
+									{
+										"namespace": "multi-source-v1",
+										"kind": "synthetic-document",
+										"id": "RV8",
+										"revision": "v1",
+										"digest": "sha256:7b251222fb33800d0e11bdf1be03e716c5bf09374adb14e1b6d3c6ebfb2e3030"
+									}
+								]
+							}
+						],
+						"digest": "sha256:fe19eb4f152fe17e799eb14fcf07313b2c97c126acc6ce95cb25cbf28d75bd31"
+					},
+					"evaluations": [
+						{
+							"assertionId": "RV2:claim:0",
+							"result": "unknown",
+							"reasons": ["NO_OBSERVATION"]
+						},
+						{
+							"assertionId": "RV8:claim:0",
+							"result": "unknown",
+							"reasons": ["UNSPECIFIED_CONDITION"]
+						}
+					]
+				}
+			},
+			"seedRaw": "{\"governingSources\":[\"RV6\",\"RV2\"],\"assessments\":[{\"sourceId\":\"RV2\",\"result\":\"unknown\",\"assertionId\":\"RV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"RV2はRV6の許可章を置き換え、操作証ありかつ圧力10 kPa以下を条件とし、観測方針はRV6から引き継ぐ。操作証ありは観測値trueで条件を満たすが、圧力値の観測はなく、条件全体の計算結果はunknown。RV8は旧上限での過去作業記録であり、現行条件を変えない。よって許可は判断できない。\",\"decision\":\"hold\"}",
+			"origin": {
+				"experiment": "artifacts/instruction-order-factorial/2026-10-16T07-23-38.730Z-dffc963e",
+				"questionId": "RV03",
+				"repeat": 0,
+				"arm": "baseline"
+			},
+			"expectedCorrect": true
+		}
+	]
+}
