@@ -9,6 +9,7 @@
 | [seed-answer-comparison](seed-answer-comparison/README.md) | 資料なし／資料全文／同じ資料＋WorldModelの整理結果を比較 | `bun run example:seed-compare --extraction-run <抽出Exampleの実行先>` |
 | [multi-source-comparison](multi-source-comparison/README.md) | 複数資料の矛盾・訂正・施行日・三値条件を、全文／全文＋WorldModelで比較 | `bun run example:multi-source` |
 | [linked-answer-holdout](linked-answer-holdout/README.md) | 新規8資料群・32問で、規程と計算を分離した回答／対応付けた回答を比較 | 固定コードから実行する手順は実験READMEを参照 |
+| [source-role-comparison](source-role-comparison/README.md) | v5／資料の役割を明示する形式を比較。新形式は悪化したため不採用 | 固定コードから実行する手順は実験READMEを参照 |
 
 モデル不要の984件の投入・再投入試験は、[eval/seed](../eval/seed/README.md) が担当する。
 `bun run seed:world` で実行できる。

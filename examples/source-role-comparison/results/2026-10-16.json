@@ -1,0 +1,3973 @@
+{
+	"version": "source-role-v1",
+	"runId": "2026-10-16T05-03-31.643Z-4a3ad05c",
+	"baselineCommit": "17033513bf49",
+	"decision": "retain-v5; role variant not adopted",
+	"reason": "Unseen primary tied 24/24 and regression primary fell from 8/8 to 6/8; predeclared adoption gate not met.",
+	"model": "gpt-6-luna",
+	"reasoningEffort": "medium",
+	"runtime": {
+		"bun": "1.4.3",
+		"sdk": "0.163.0"
+	},
+	"protocolSha256": "f5adbffcd83c0bf975c0b947da42ab745b331ddeef59c5d94f8c57d212e3b9eb",
+	"design": {
+		"repeats": 2,
+		"concurrency": 2,
+		"plannedExtractions": 4,
+		"plannedAnswers": 64,
+		"contrast": "Frozen v5 versus single source record with LLM-selected role and optional permission assessment. Identical v5 inputs. Instruction/output-contract bundle; no host semantic classification.",
+		"primary": "First response: decision + governing source set + permission-source assessment set/results + existing grounding audit, against frozen oracles. Report regression and unseen separately, including all failures.",
+		"secondary": [
+			"false allow",
+			"decision",
+			"source set",
+			"assessment source set/results",
+			"candidate-only role labels",
+			"explanation review",
+			"usage and latency"
+		],
+		"adoption": "Retain as a preferred candidate only if unseen primary paired wins exceed losses, no new false allow, and no loss in decision correctness or regression primary score. Ties mean no demonstrated benefit. Do not promote to shared baseline automatically.",
+		"budget": "At most 4 extraction and 64 answer calls, 120 seconds each. No application retries or fallback. First failures cached; resume does not resample them. SDK transport reconnects are separate.",
+		"limits": "Synthetic role-focused set by the same author/reviewer, not independent human or real-work acceptance. Repetitions and same-packet questions are correlated. Existing regression contexts are frozen; unseen extraction failures stay failures. No prompt or oracle tuning after live execution."
+	},
+	"summary": {
+		"all": {
+			"byArm": {
+				"baseline": {
+					"planned": 32,
+					"answered": 32,
+					"failed": 0,
+					"primaryCorrect": 32,
+					"decisionCorrect": 32,
+					"sourcesCorrect": 32,
+					"assessmentsCorrect": 32,
+					"groundingPassed": 32,
+					"falseAllow": 0,
+					"roleLabelsCorrect": null,
+					"inputTokens": 460943,
+					"outputTokens": 6314,
+					"meanAnsweredLatencyMs": 8596.136423187498
+				},
+				"roles": {
+					"planned": 32,
+					"answered": 32,
+					"failed": 0,
+					"primaryCorrect": 30,
+					"decisionCorrect": 32,
+					"sourcesCorrect": 31,
+					"assessmentsCorrect": 31,
+					"groundingPassed": 32,
+					"falseAllow": 0,
+					"roleLabelsCorrect": 27,
+					"inputTokens": 463194,
+					"outputTokens": 6812,
+					"meanAnsweredLatencyMs": 8737.8700455625
+				}
+			},
+			"pairs": {
+				"better": 0,
+				"worse": 2,
+				"bothCorrect": 30,
+				"bothWrong": 0,
+				"unanswered": 0
+			}
+		},
+		"regression": {
+			"byArm": {
+				"baseline": {
+					"planned": 8,
+					"answered": 8,
+					"failed": 0,
+					"primaryCorrect": 8,
+					"decisionCorrect": 8,
+					"sourcesCorrect": 8,
+					"assessmentsCorrect": 8,
+					"groundingPassed": 8,
+					"falseAllow": 0,
+					"roleLabelsCorrect": null,
+					"inputTokens": 116574,
+					"outputTokens": 1594,
+					"meanAnsweredLatencyMs": 8832.513296874995
+				},
+				"roles": {
+					"planned": 8,
+					"answered": 8,
+					"failed": 0,
+					"primaryCorrect": 6,
+					"decisionCorrect": 8,
+					"sourcesCorrect": 7,
+					"assessmentsCorrect": 7,
+					"groundingPassed": 8,
+					"falseAllow": 0,
+					"roleLabelsCorrect": 4,
+					"inputTokens": 117894,
+					"outputTokens": 1880,
+					"meanAnsweredLatencyMs": 8563.029557124999
+				}
+			},
+			"pairs": {
+				"better": 0,
+				"worse": 2,
+				"bothCorrect": 6,
+				"bothWrong": 0,
+				"unanswered": 0
+			}
+		},
+		"unseen": {
+			"byArm": {
+				"baseline": {
+					"planned": 24,
+					"answered": 24,
+					"failed": 0,
+					"primaryCorrect": 24,
+					"decisionCorrect": 24,
+					"sourcesCorrect": 24,
+					"assessmentsCorrect": 24,
+					"groundingPassed": 24,
+					"falseAllow": 0,
+					"roleLabelsCorrect": null,
+					"inputTokens": 344369,
+					"outputTokens": 4720,
+					"meanAnsweredLatencyMs": 8517.34413195833
+				},
+				"roles": {
+					"planned": 24,
+					"answered": 24,
+					"failed": 0,
+					"primaryCorrect": 24,
+					"decisionCorrect": 24,
+					"sourcesCorrect": 24,
+					"assessmentsCorrect": 24,
+					"groundingPassed": 24,
+					"falseAllow": 0,
+					"roleLabelsCorrect": 23,
+					"inputTokens": 345300,
+					"outputTokens": 4932,
+					"meanAnsweredLatencyMs": 8796.150208375
+				}
+			},
+			"pairs": {
+				"better": 0,
+				"worse": 0,
+				"bothCorrect": 24,
+				"bothWrong": 0,
+				"unanswered": 0
+			}
+		},
+		"byPacket": {
+			"operations": {
+				"byArm": {
+					"baseline": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 2,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 2,
+						"assessmentsCorrect": 2,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 29030,
+						"outputTokens": 410,
+						"meanAnsweredLatencyMs": 8853.287103999988
+					},
+					"roles": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 1,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 2,
+						"assessmentsCorrect": 1,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 0,
+						"inputTokens": 29360,
+						"outputTokens": 407,
+						"meanAnsweredLatencyMs": 7242.554020500003
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 1,
+					"bothCorrect": 1,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			},
+			"archive-copy": {
+				"byArm": {
+					"baseline": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 2,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 2,
+						"assessmentsCorrect": 2,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 29328,
+						"outputTokens": 578,
+						"meanAnsweredLatencyMs": 8484.289103499992
+					},
+					"roles": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 2,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 2,
+						"assessmentsCorrect": 2,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 1,
+						"inputTokens": 29658,
+						"outputTokens": 390,
+						"meanAnsweredLatencyMs": 8893.787103999999
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 0,
+					"bothCorrect": 2,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			},
+			"catalog-publish": {
+				"byArm": {
+					"baseline": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 2,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 2,
+						"assessmentsCorrect": 2,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 28922,
+						"outputTokens": 302,
+						"meanAnsweredLatencyMs": 7680.913188000006
+					},
+					"roles": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 1,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 1,
+						"assessmentsCorrect": 2,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 1,
+						"inputTokens": 29252,
+						"outputTokens": 700,
+						"meanAnsweredLatencyMs": 10702.582229
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 1,
+					"bothCorrect": 1,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			},
+			"ferry-gate": {
+				"byArm": {
+					"baseline": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 2,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 2,
+						"assessmentsCorrect": 2,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 29294,
+						"outputTokens": 304,
+						"meanAnsweredLatencyMs": 10311.563791999994
+					},
+					"roles": {
+						"planned": 2,
+						"answered": 2,
+						"failed": 0,
+						"primaryCorrect": 2,
+						"decisionCorrect": 2,
+						"sourcesCorrect": 2,
+						"assessmentsCorrect": 2,
+						"groundingPassed": 2,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 2,
+						"inputTokens": 29624,
+						"outputTokens": 383,
+						"meanAnsweredLatencyMs": 7413.194874999994
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 0,
+					"bothCorrect": 2,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			},
+			"airlock": {
+				"byArm": {
+					"baseline": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 88146,
+						"outputTokens": 1204,
+						"meanAnsweredLatencyMs": 8370.985361
+					},
+					"roles": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 5,
+						"inputTokens": 89136,
+						"outputTokens": 1407,
+						"meanAnsweredLatencyMs": 9045.075291499996
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 0,
+					"bothCorrect": 6,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			},
+			"mixed-vault": {
+				"byArm": {
+					"baseline": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 84664,
+						"outputTokens": 880,
+						"meanAnsweredLatencyMs": 7608.707374999995
+					},
+					"roles": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 6,
+						"inputTokens": 85654,
+						"outputTokens": 1227,
+						"meanAnsweredLatencyMs": 8418.563847333337
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 0,
+					"bothCorrect": 6,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			},
+			"press-control": {
+				"byArm": {
+					"baseline": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 83210,
+						"outputTokens": 1000,
+						"meanAnsweredLatencyMs": 8592.295673666662
+					},
+					"roles": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 6,
+						"inputTokens": 84200,
+						"outputTokens": 1003,
+						"meanAnsweredLatencyMs": 8987.514576666668
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 0,
+					"bothCorrect": 6,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			},
+			"studio-access": {
+				"byArm": {
+					"baseline": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": null,
+						"inputTokens": 88349,
+						"outputTokens": 1636,
+						"meanAnsweredLatencyMs": 9497.388118166666
+					},
+					"roles": {
+						"planned": 6,
+						"answered": 6,
+						"failed": 0,
+						"primaryCorrect": 6,
+						"decisionCorrect": 6,
+						"sourcesCorrect": 6,
+						"assessmentsCorrect": 6,
+						"groundingPassed": 6,
+						"falseAllow": 0,
+						"roleLabelsCorrect": 6,
+						"inputTokens": 86310,
+						"outputTokens": 1295,
+						"meanAnsweredLatencyMs": 8733.447118000006
+					}
+				},
+				"pairs": {
+					"better": 0,
+					"worse": 0,
+					"bothCorrect": 6,
+					"bothWrong": 0,
+					"unanswered": 0
+				}
+			}
+		}
+	},
+	"extractions": [
+		{
+			"packetId": "airlock",
+			"status": "prepared",
+			"inputTokens": 12370,
+			"outputTokens": 1079,
+			"latencyMs": 15525.184791000001,
+			"raw": "{\"documents\":[{\"documentId\":\"AX9\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"airlock\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定によれば、2026年12月1日施行。alpha区画の開放の必要十分条件は、担当承認があり、粒子濃度が12 count以下または代替装置が稼働し、閉鎖命令がないこと。beta区画には適用しない。\"}},\"quote\":{\"utteranceId\":\"AX9\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"expression\",\"expression\":{\"kind\":\"all\",\"items\":[{\"kind\":\"compare\",\"key\":\"zone\",\"op\":\"eq\",\"value\":{\"kind\":\"string\",\"value\":\"alpha\"}},{\"kind\":\"compare\",\"key\":\"approved\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"any\",\"items\":[{\"kind\":\"compare\",\"key\":\"level\",\"op\":\"lte\",\"value\":{\"kind\":\"number\",\"value\":12,\"unit\":\"count\"}},{\"kind\":\"compare\",\"key\":\"backup\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}}]},{\"kind\":\"compare\",\"key\":\"locked\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":false}}]}}}],\"validFrom\":\"2026-12-01T00:00:00.000Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]},{\"documentId\":\"AX1\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"airlock\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定によれば、2026年12月1日施行。この文書が定めるのは開放条件ではなく観測の扱いである。基準時刻以前かつ1時間以内（境界を含む）の観測を使い、同じ項目ではpriority最大を採用する。同順位で値が異なる場合、古い値、未来の値、欠落は不明とする。\"}},\"quote\":{\"utteranceId\":\"AX1\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"unspecified\"}}],\"validFrom\":\"2026-12-01T00:00:00.000Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]},{\"documentId\":\"AX4\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"airlock\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定によれば、2026年12月1日施行。beta区画の開放は、担当承認があり粒子濃度が3 count以下の場合に限り、その場合は許可する。alpha区画には適用しない。\"}},\"quote\":{\"utteranceId\":\"AX4\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"expression\",\"expression\":{\"kind\":\"all\",\"items\":[{\"kind\":\"compare\",\"key\":\"zone\",\"op\":\"eq\",\"value\":{\"kind\":\"string\",\"value\":\"beta\"}},{\"kind\":\"compare\",\"key\":\"approved\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"compare\",\"key\":\"level\",\"op\":\"lte\",\"value\":{\"kind\":\"number\",\"value\":3,\"unit\":\"count\"}}]}}}],\"validFrom\":\"2026-12-01T00:00:00.000Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]}]}"
+		},
+		{
+			"packetId": "mixed-vault",
+			"status": "prepared",
+			"inputTokens": 15245,
+			"outputTokens": 821,
+			"latencyMs": 13262.946208000001,
+			"raw": "{\"documents\":[{\"documentId\":\"BV2\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"mixed-vault\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定として、2026年12月1日施行。u室からの持出しの必要十分条件は、検品済み、かつ証明書ありまたは立会人あり、かつ隔離中でないこと。同文書の観測章は、基準時刻以前かつ1時間以内（境界を含む）の観測を用い、同一項目はpriority最大を採用し、同順位で値が異なる場合、古い値、未来の値または欠落は不明とする。v室には適用しない。\"}},\"quote\":{\"utteranceId\":\"BV2\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"expression\",\"expression\":{\"kind\":\"all\",\"items\":[{\"kind\":\"compare\",\"key\":\"hall\",\"op\":\"eq\",\"value\":{\"kind\":\"string\",\"value\":\"u\"}},{\"kind\":\"compare\",\"key\":\"ready\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"any\",\"items\":[{\"kind\":\"compare\",\"key\":\"certificate\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"compare\",\"key\":\"witness\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}}]},{\"kind\":\"compare\",\"key\":\"quarantine\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":false}}]}}}],\"validFrom\":\"2026-12-01T00:00:00Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]},{\"documentId\":\"BV8\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"mixed-vault\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定として、2026年12月1日施行。v室では、検品済みかつ証明書ありの場合に限り許可し、u室には適用しない。\"}},\"quote\":{\"utteranceId\":\"BV8\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"expression\",\"expression\":{\"kind\":\"all\",\"items\":[{\"kind\":\"compare\",\"key\":\"hall\",\"op\":\"eq\",\"value\":{\"kind\":\"string\",\"value\":\"v\"}},{\"kind\":\"compare\",\"key\":\"ready\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"compare\",\"key\":\"certificate\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}}]}}}],\"validFrom\":\"2026-12-01T00:00:00Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]}]}"
+		},
+		{
+			"packetId": "press-control",
+			"status": "prepared",
+			"inputTokens": 15255,
+			"outputTokens": 556,
+			"latencyMs": 8706.140292,
+			"raw": "{\"documents\":[{\"documentId\":\"CZ7\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"press-control\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定によれば、装置始動の必要十分条件は、操作講習修了、かつ（装置温度が22 C以下または手動冷却が稼働）、かつ停止命令がないことである。2026年12月1日施行。\"}},\"quote\":{\"utteranceId\":\"CZ7\",\"pointer\":\"/statement\"},\"modality\":\"reported\",\"condition\":{\"kind\":\"expression\",\"expression\":{\"kind\":\"all\",\"items\":[{\"kind\":\"compare\",\"key\":\"trained\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"any\",\"items\":[{\"kind\":\"compare\",\"key\":\"temperature\",\"op\":\"lte\",\"value\":{\"kind\":\"number\",\"value\":22,\"unit\":\"C\"}},{\"kind\":\"compare\",\"key\":\"manual\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}}]},{\"kind\":\"compare\",\"key\":\"stopped\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":false}}]}}}],\"validFrom\":\"2026-12-01T00:00:00.000Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]},{\"documentId\":\"CZ5\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"press-control\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定は、観測に基準時刻以前かつ1時間以内（境界を含む）のものを用い、同じ項目ではpriority最大を採用し、同順位で値が異なる場合は古い値、未来の値および欠落を不明とする。別件の監査業務は監査記録に署名がある場合に限り監査完了とするが、監査完了は観測の採否や装置始動の追加条件ではない。この文書は始動の許可規程ではない。2026年12月1日施行。\"}},\"quote\":{\"utteranceId\":\"CZ5\",\"pointer\":\"/statement\"},\"modality\":\"reported\",\"condition\":{\"kind\":\"unspecified\"}}],\"validFrom\":\"2026-12-01T00:00:00.000Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]}]}"
+		},
+		{
+			"packetId": "studio-access",
+			"status": "prepared",
+			"inputTokens": 15328,
+			"outputTokens": 989,
+			"latencyMs": 11908.092208999995,
+			"raw": "{\"documents\":[{\"documentId\":\"DK3\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"studio-access\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定によれば、2026年12月1日施行の制作室への入場の必要十分条件は、登録済みかつ認証札ありである。\"}},\"quote\":{\"utteranceId\":\"DK3\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"expression\",\"expression\":{\"kind\":\"all\",\"items\":[{\"kind\":\"compare\",\"key\":\"registered\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"compare\",\"key\":\"badge\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}}]}}}],\"validFrom\":\"2026-12-01T00:00:00Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]},{\"documentId\":\"DK6\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"studio-access\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定によれば、2026年12月2日施行の制作室への入場の必要十分条件は、登録済みかつ（認証札ありまたは引率者あり）である。DK3と同格で双方有効とされ、撤回・置換・優先順位の指定はない。\"}},\"quote\":{\"utteranceId\":\"DK6\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"expression\",\"expression\":{\"kind\":\"all\",\"items\":[{\"kind\":\"compare\",\"key\":\"registered\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"any\",\"items\":[{\"kind\":\"compare\",\"key\":\"badge\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}},{\"kind\":\"compare\",\"key\":\"escort\",\"op\":\"eq\",\"value\":{\"kind\":\"boolean\",\"value\":true}}]}]}}}],\"validFrom\":\"2026-12-02T00:00:00Z\",\"validUntil\":null,\"contradicts\":[\"DK3\"],\"withdrawals\":[]},{\"documentId\":\"DK1\",\"candidates\":[{\"subject\":{\"kind\":\"id\",\"id\":\"studio-access\"},\"predicate\":\"source_claim\",\"payload\":{\"kind\":\"value\",\"value\":{\"kind\":\"string\",\"value\":\"施設管理委員会の正式決定は、観測について基準時刻以前かつ1時間以内（境界を含む）の値を使い、同じ項目ではpriority最大を採用すると定める。同順位で値が違う場合、古い値、未来の値、欠落は不明とする。この決定は観測の扱いだけを定め、入場の許可条件は定めない。\"}},\"quote\":{\"utteranceId\":\"DK1\",\"pointer\":\"/statement\"},\"modality\":\"asserted\",\"condition\":{\"kind\":\"unspecified\"}}],\"validFrom\":\"2026-12-01T00:00:00Z\",\"validUntil\":null,\"contradicts\":[],\"withdrawals\":[]}]}"
+		}
+	],
+	"answers": [
+		{
+			"questionId": "AC04",
+			"packet": "archive-copy",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AC1", "AC3"],
+					"explanation": "AC1はdigital媒体に適用される複写許可規程で、AC3は観測値の取扱規程として関連する。媒体はdigital、利用登録済み、公開停止中ではないことが観測されている。権利消滅はfalseと観測されているが、権利者同意の観測がないため、AC1の条件評価はunknown。許可を判断できない。",
+					"assessments": [
+						{
+							"sourceId": "AC1",
+							"result": "unknown",
+							"assertionId": "AC1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14664,
+			"outputTokens": 257,
+			"latencyMs": 9331.228040999995,
+			"raw": "{\"governingSources\":[\"AC1\",\"AC3\"],\"assessments\":[{\"sourceId\":\"AC1\",\"result\":\"unknown\",\"assertionId\":\"AC1:claim:0\",\"overrideReason\":null}],\"explanation\":\"AC1はdigital媒体に適用される複写許可規程で、AC3は観測値の取扱規程として関連する。媒体はdigital、利用登録済み、公開停止中ではないことが観測されている。権利消滅はfalseと観測されているが、権利者同意の観測がないため、AC1の条件評価はunknown。許可を判断できない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AC04",
+			"packet": "archive-copy",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AC1", "AC3"],
+					"explanation": "AC1はdigital複写の条件として、登録済み、権利消滅または権利者同意、公開停止中でないことを定める。登録済み・公開停止中でないことは観測され、権利消滅は観測値false。権利者同意の観測はなく、条件全体の計算結果はunknown。AC3は観測の取扱規程であり、複写の許可規則ではない。",
+					"assessments": [
+						{
+							"sourceId": "AC1",
+							"result": "unknown",
+							"assertionId": "AC1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"AC1": "permission_rule",
+					"AC3": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14829,
+			"outputTokens": 188,
+			"latencyMs": 11363.393499999998,
+			"raw": "{\"sources\":[{\"sourceId\":\"AC1\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"AC1:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"AC3\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"AC1はdigital複写の条件として、登録済み、権利消滅または権利者同意、公開停止中でないことを定める。登録済み・公開停止中でないことは観測され、権利消滅は観測値false。権利者同意の観測はなく、条件全体の計算結果はunknown。AC3は観測の取扱規程であり、複写の許可規則ではない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AX01",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "AX9はalpha区画に適用される開放条件を定める。担当承認、粒子濃度12 count以下、閉鎖命令なしが観測され、条件評価は満たされている。AX1は観測の扱いを定める関連測定方針であり、独立した許可規則ではない。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "satisfied",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14732,
+			"outputTokens": 147,
+			"latencyMs": 9813.55737499999,
+			"raw": "{\"governingSources\":[\"AX9\",\"AX1\"],\"assessments\":[{\"sourceId\":\"AX9\",\"result\":\"satisfied\",\"assertionId\":\"AX9:claim:0\",\"overrideReason\":null}],\"explanation\":\"AX9はalpha区画に適用される開放条件を定める。担当承認、粒子濃度12 count以下、閉鎖命令なしが観測され、条件評価は満たされている。AX1は観測の扱いを定める関連測定方針であり、独立した許可規則ではない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "AX01",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "AX9はalpha区画に適用される開放条件を定める規程で、その条件評価はsatisfied。観測値は区画alpha、担当承認あり、粒子濃度10 count、代替装置停止、閉鎖命令なしで、濃度条件を満たす。AX1は観測の扱いを定める補足資料であり、許可条件は定めない。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "satisfied",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"AX9": "permission_rule",
+					"AX1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14897,
+			"outputTokens": 173,
+			"latencyMs": 9490.740583000006,
+			"raw": "{\"sources\":[{\"sourceId\":\"AX9\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"AX9:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"AX1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"AX9はalpha区画に適用される開放条件を定める規程で、その条件評価はsatisfied。観測値は区画alpha、担当承認あり、粒子濃度10 count、代替装置停止、閉鎖命令なしで、濃度条件を満たす。AX1は観測の扱いを定める補足資料であり、許可条件は定めない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "AX02",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AX1", "AX9"],
+					"explanation": "alpha区画に適用される必要十分条件はAX9の規程です。担当承認ありと閉鎖命令なしは観測され、代替装置稼働はfalseと観測されています。粒子濃度の観測がなく、条件全体の計算結果はunknownのため、許可可否を確定できません。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "unknown",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14672,
+			"outputTokens": 260,
+			"latencyMs": 8267.925124999994,
+			"raw": "{\"governingSources\":[\"AX1\",\"AX9\"],\"assessments\":[{\"sourceId\":\"AX9\",\"result\":\"unknown\",\"assertionId\":\"AX9:claim:0\",\"overrideReason\":null}],\"explanation\":\"alpha区画に適用される必要十分条件はAX9の規程です。担当承認ありと閉鎖命令なしは観測され、代替装置稼働はfalseと観測されています。粒子濃度の観測がなく、条件全体の計算結果はunknownのため、許可可否を確定できません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AX02",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "AX9はalpha区画に適用される開放条件を定めている。区画alpha、担当承認あり、閉鎖命令なしは観測され、代替装置稼働はfalseと観測されている。粒子濃度の観測がなく、AX9の条件評価はunknownのため、許可を判断できない。AX1は観測の扱いを定める補足資料で、開放条件は定めていない。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "unknown",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"AX9": "permission_rule",
+					"AX1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14837,
+			"outputTokens": 305,
+			"latencyMs": 9055.634040999998,
+			"raw": "{\"sources\":[{\"sourceId\":\"AX9\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"AX9:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"AX1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"AX9はalpha区画に適用される開放条件を定めている。区画alpha、担当承認あり、閉鎖命令なしは観測され、代替装置稼働はfalseと観測されている。粒子濃度の観測がなく、AX9の条件評価はunknownのため、許可を判断できない。AX1は観測の扱いを定める補足資料で、開放条件は定めていない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AX03",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["AX1", "AX9"],
+					"explanation": "対象は観測されたalpha区画で、適用規程はAX9です。担当承認の条件は「あり」ですが、観測値はfalseのため条件全体は不成立です。粒子濃度は未観測ですが、代替装置の条件も不成立なので、計算済みの規程結果はviolatedです。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "violated",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14669,
+			"outputTokens": 144,
+			"latencyMs": 7309.185499999992,
+			"raw": "{\"governingSources\":[\"AX1\",\"AX9\"],\"assessments\":[{\"sourceId\":\"AX9\",\"result\":\"violated\",\"assertionId\":\"AX9:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象は観測されたalpha区画で、適用規程はAX9です。担当承認の条件は「あり」ですが、観測値はfalseのため条件全体は不成立です。粒子濃度は未観測ですが、代替装置の条件も不成立なので、計算済みの規程結果はviolatedです。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "AX03",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "対象はalpha区画で、AX9の適用範囲です。担当承認ありという条件に対し、観測値はfalseで、規則全体の評価はviolatedです。粒子濃度の観測はありませんが、代替装置稼働の観測値もfalseです。AX1は観測の扱いを定める文書で、開放条件は定めていません。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "violated",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"AX9": "permission_rule",
+					"AX1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14834,
+			"outputTokens": 173,
+			"latencyMs": 8052.554167000009,
+			"raw": "{\"sources\":[{\"sourceId\":\"AX9\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"AX9:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"AX1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"対象はalpha区画で、AX9の適用範囲です。担当承認ありという条件に対し、観測値はfalseで、規則全体の評価はviolatedです。粒子濃度の観測はありませんが、代替装置稼働の観測値もfalseです。AX1は観測の扱いを定める文書で、開放条件は定めていません。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "BV01",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["BV2"],
+					"explanation": "BV2は基準時刻に有効なu室の持出し規則です。検品済み、立会人あり、隔離中ではないことが観測され、条件評価はsatisfiedです。証明書の観測はありませんが、立会人ありの分岐で条件を満たしています。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "satisfied",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14092,
+			"outputTokens": 135,
+			"latencyMs": 6334.417207999999,
+			"raw": "{\"governingSources\":[\"BV2\"],\"assessments\":[{\"sourceId\":\"BV2\",\"result\":\"satisfied\",\"assertionId\":\"BV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"BV2は基準時刻に有効なu室の持出し規則です。検品済み、立会人あり、隔離中ではないことが観測され、条件評価はsatisfiedです。証明書の観測はありませんが、立会人ありの分岐で条件を満たしています。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "BV01",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["BV2"],
+					"explanation": "BV2はu室の持出し条件と観測の扱いを定める有効な規則。検品済みと隔離中でないことが観測され、証明書の観測はないが、立会人ありは観測されているため、規則の必要条件を満たす。BV8はv室に限る規則で、このu室の持出しには適用されない。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "satisfied",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"BV2": "permission_rule_and_support"
+				}
+			},
+			"inputTokens": 14257,
+			"outputTokens": 157,
+			"latencyMs": 6612.810041999997,
+			"raw": "{\"sources\":[{\"sourceId\":\"BV2\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"BV2:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}}],\"explanation\":\"BV2はu室の持出し条件と観測の扱いを定める有効な規則。検品済みと隔離中でないことが観測され、証明書の観測はないが、立会人ありは観測されているため、規則の必要条件を満たす。BV8はv室に限る規則で、このu室の持出しには適用されない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "BV02",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["BV2"],
+					"explanation": "BV2はu室に適用される。室がu、検品済み、証明書ありは観測され、条件の「証明書ありまたは立会人あり」は満たされている。一方、隔離中かどうかの観測がなく、条件全体の計算結果はunknownのため、許可可否を決められない。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "unknown",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14090,
+			"outputTokens": 223,
+			"latencyMs": 6972.251124999995,
+			"raw": "{\"governingSources\":[\"BV2\"],\"assessments\":[{\"sourceId\":\"BV2\",\"result\":\"unknown\",\"assertionId\":\"BV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"BV2はu室に適用される。室がu、検品済み、証明書ありは観測され、条件の「証明書ありまたは立会人あり」は満たされている。一方、隔離中かどうかの観測がなく、条件全体の計算結果はunknownのため、許可可否を決められない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "BV02",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["BV2"],
+					"explanation": "u室であること、検品済み、証明書あり、立会人なしが観測されています。BV2の条件では証明書ありの枝は満たされていますが、隔離中かどうかの観測がなく、条件全体の評価は不明です。したがって持出しの許可は判断できません。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "unknown",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"BV2": "permission_rule_and_support"
+				}
+			},
+			"inputTokens": 14255,
+			"outputTokens": 214,
+			"latencyMs": 7309.239415999997,
+			"raw": "{\"sources\":[{\"sourceId\":\"BV2\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"BV2:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}}],\"explanation\":\"u室であること、検品済み、証明書あり、立会人なしが観測されています。BV2の条件では証明書ありの枝は満たされていますが、隔離中かどうかの観測がなく、条件全体の評価は不明です。したがって持出しの許可は判断できません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "BV03",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["BV2"],
+					"explanation": "対象はu室なので、適用されるのはBV2です。検品済みと証明書ありは観測されていますが、隔離中もtrueと観測されており、必要条件「隔離中でない」を満たさないため、持出しは許可されません。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "violated",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14150,
+			"outputTokens": 129,
+			"latencyMs": 6470.981375000003,
+			"raw": "{\"governingSources\":[\"BV2\"],\"assessments\":[{\"sourceId\":\"BV2\",\"result\":\"violated\",\"assertionId\":\"BV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象はu室なので、適用されるのはBV2です。検品済みと証明書ありは観測されていますが、隔離中もtrueと観測されており、必要条件「隔離中でない」を満たさないため、持出しは許可されません。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "BV03",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["BV2"],
+					"explanation": "u室に適用されるBV2は、検品済み、証明書または立会人あり、かつ隔離中でないことを必要とする。検品済みと証明書ありは観測され、立会人なしでも証明書の条件を満たす。一方、隔離中は観測値がtrueで、条件の要求値falseを満たさない。提示された条件評価はviolated。BV8はv室にのみ適用されるため対象外。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "violated",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"BV2": "permission_rule_and_support"
+				}
+			},
+			"inputTokens": 14315,
+			"outputTokens": 249,
+			"latencyMs": 9144.462583,
+			"raw": "{\"sources\":[{\"sourceId\":\"BV2\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"BV2:claim:0\",\"result\":\"violated\",\"overrideReason\":null}}],\"explanation\":\"u室に適用されるBV2は、検品済み、証明書または立会人あり、かつ隔離中でないことを必要とする。検品済みと証明書ありは観測され、立会人なしでも証明書の条件を満たす。一方、隔離中は観測値がtrueで、条件の要求値falseを満たさない。提示された条件評価はviolated。BV8はv室にのみ適用されるため対象外。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "CP02",
+			"packet": "catalog-publish",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CP1"],
+					"explanation": "CP1はstable公開に、承認済み、個人情報を含まないか匿名化済み、かつ公開猶予中でも編集凍結中でもないことを要求する。stable、承認済み、個人情報なし、編集凍結中ではないことは観測されているが、公開猶予の観測がなく、条件全体の計算結果はunknown。",
+					"assessments": [
+						{
+							"sourceId": "CP1",
+							"result": "unknown",
+							"assertionId": "CP1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14461,
+			"outputTokens": 153,
+			"latencyMs": 8625.56708400001,
+			"raw": "{\"governingSources\":[\"CP1\"],\"assessments\":[{\"sourceId\":\"CP1\",\"result\":\"unknown\",\"assertionId\":\"CP1:claim:0\",\"overrideReason\":null}],\"explanation\":\"CP1はstable公開に、承認済み、個人情報を含まないか匿名化済み、かつ公開猶予中でも編集凍結中でもないことを要求する。stable、承認済み、個人情報なし、編集凍結中ではないことは観測されているが、公開猶予の観測がなく、条件全体の計算結果はunknown。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CP02",
+			"packet": "catalog-publish",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CP1"],
+					"explanation": "CP1はstable公開に適用される有効な許可規則です。個人情報を含むという観測値はfalse、編集凍結中という観測値もfalseですが、公開猶予中かどうかの観測はありません。条件全体の計算結果はunknownのため、公開可否を確定できません。",
+					"assessments": [
+						{
+							"sourceId": "CP1",
+							"result": "unknown",
+							"assertionId": "CP1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"CP1": "permission_rule"
+				}
+			},
+			"inputTokens": 14626,
+			"outputTokens": 307,
+			"latencyMs": 13232.782707999999,
+			"raw": "{\"sources\":[{\"sourceId\":\"CP1\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CP1:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}}],\"explanation\":\"CP1はstable公開に適用される有効な許可規則です。個人情報を含むという観測値はfalse、編集凍結中という観測値もfalseですが、公開猶予中かどうかの観測はありません。条件全体の計算結果はunknownのため、公開可否を確定できません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CZ01",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は始動の必要十分条件を定める適用中の許可規程で、条件評価はsatisfied。操作講習修了と停止命令なしが観測され、温度は22 C以下という条件を満たすため、手動冷却が稼働している必要はない。CZ5は観測の採否に関する適用中の測定方針であり、始動許可規程ではない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "satisfied",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 13889,
+			"outputTokens": 168,
+			"latencyMs": 6221.244208999997,
+			"raw": "{\"governingSources\":[\"CZ7\",\"CZ5\"],\"assessments\":[{\"sourceId\":\"CZ7\",\"result\":\"satisfied\",\"assertionId\":\"CZ7:claim:0\",\"overrideReason\":null}],\"explanation\":\"CZ7は始動の必要十分条件を定める適用中の許可規程で、条件評価はsatisfied。操作講習修了と停止命令なしが観測され、温度は22 C以下という条件を満たすため、手動冷却が稼働している必要はない。CZ5は観測の採否に関する適用中の測定方針であり、始動許可規程ではない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "CZ01",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は講習修了、温度22 C以下または手動冷却稼働、停止命令なしを始動の必要十分条件とする。観測値はそれぞれtrue、20 C、false、falseで、提示された計算結果は条件全体がsatisfied。CZ5は観測の扱いを支えるが、始動許可規程ではない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "satisfied",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"CZ7": "permission_rule",
+					"CZ5": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14054,
+			"outputTokens": 164,
+			"latencyMs": 8544.949292000005,
+			"raw": "{\"sources\":[{\"sourceId\":\"CZ7\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CZ7:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"CZ5\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"CZ7は講習修了、温度22 C以下または手動冷却稼働、停止命令なしを始動の必要十分条件とする。観測値はそれぞれtrue、20 C、false、falseで、提示された計算結果は条件全体がsatisfied。CZ5は観測の扱いを支えるが、始動許可規程ではない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "CZ02",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は始動を許す必要十分条件を定め、CZ5は現行の観測採用ルールとして関連するが、独立した許可規程ではない。操作講習修了と停止命令なしは条件を満たし、手動冷却稼働は観測値falseで条件を満たさない。装置温度の観測がなく、温度条件を確認できないため、全条件の結果はunknown。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "unknown",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 13827,
+			"outputTokens": 168,
+			"latencyMs": 6766.510167,
+			"raw": "{\"governingSources\":[\"CZ7\",\"CZ5\"],\"assessments\":[{\"sourceId\":\"CZ7\",\"result\":\"unknown\",\"assertionId\":\"CZ7:claim:0\",\"overrideReason\":null}],\"explanation\":\"CZ7は始動を許す必要十分条件を定め、CZ5は現行の観測採用ルールとして関連するが、独立した許可規程ではない。操作講習修了と停止命令なしは条件を満たし、手動冷却稼働は観測値falseで条件を満たさない。装置温度の観測がなく、温度条件を確認できないため、全条件の結果はunknown。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CZ02",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は講習修了、温度22 C以下または手動冷却稼働、停止命令なしを始動の必要十分条件とする。講習修了と停止命令なしは観測値がtrue/falseで条件を満たし、手動冷却稼働は観測値falseで条件を満たさない。温度の観測がなく、全条件の判定はunknown。CZ5は観測の扱いを補足するが、始動許可規程ではない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "unknown",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"CZ7": "permission_rule",
+					"CZ5": "supporting_evidence"
+				}
+			},
+			"inputTokens": 13992,
+			"outputTokens": 194,
+			"latencyMs": 6436.507417000015,
+			"raw": "{\"sources\":[{\"sourceId\":\"CZ7\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CZ7:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"CZ5\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"CZ7は講習修了、温度22 C以下または手動冷却稼働、停止命令なしを始動の必要十分条件とする。講習修了と停止命令なしは観測値がtrue/falseで条件を満たし、手動冷却稼働は観測値falseで条件を満たさない。温度の観測がなく、全条件の判定はunknown。CZ5は観測の扱いを補足するが、始動許可規程ではない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CZ03",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7の必要条件では操作講習修了がtrueである必要があるが、観測値はfalse。温度条件と停止命令条件は満たされているものの、全体の必要十分条件は満たされない。CZ5は観測の採用方法を定める関連文書で、始動の許可規程ではない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "violated",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 13889,
+			"outputTokens": 147,
+			"latencyMs": 7376.50225000002,
+			"raw": "{\"governingSources\":[\"CZ7\",\"CZ5\"],\"assessments\":[{\"sourceId\":\"CZ7\",\"result\":\"violated\",\"assertionId\":\"CZ7:claim:0\",\"overrideReason\":null}],\"explanation\":\"CZ7の必要条件では操作講習修了がtrueである必要があるが、観測値はfalse。温度条件と停止命令条件は満たされているものの、全体の必要十分条件は満たされない。CZ5は観測の採用方法を定める関連文書で、始動の許可規程ではない。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "CZ03",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は操作講習修了を必要条件とし、観測では修了はfalseです。温度条件と停止命令の条件は満たしますが、必要十分条件全体の評価はviolatedです。CZ5は観測の採否を定める補助資料で、始動条件ではありません。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "violated",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"CZ7": "permission_rule",
+					"CZ5": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14054,
+			"outputTokens": 148,
+			"latencyMs": 9402.439916999982,
+			"raw": "{\"sources\":[{\"sourceId\":\"CZ7\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CZ7:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"CZ5\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"CZ7は操作講習修了を必要条件とし、観測では修了はfalseです。温度条件と停止命令の条件は満たしますが、必要十分条件全体の評価はviolatedです。CZ5は観測の採否を定める補助資料で、始動条件ではありません。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "DK01",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "有効な入場条件は同格で双方有効とされています。登録済みは観測値 true、認証札ありは false、引率者ありは true です。DK3の必要条件「登録済みかつ認証札あり」は満たされず、DK6の必要十分条件「登録済みかつ（認証札ありまたは引率者あり）」は満たされます。判定が分かれるため、許可可否は保留です。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14220,
+			"outputTokens": 311,
+			"latencyMs": 7572.225959000003,
+			"raw": "{\"governingSources\":[\"DK3\",\"DK6\",\"DK1\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"violated\",\"assertionId\":\"DK3:claim:0\",\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"satisfied\",\"assertionId\":\"DK6:claim:0\",\"overrideReason\":null}],\"explanation\":\"有効な入場条件は同格で双方有効とされています。登録済みは観測値 true、認証札ありは false、引率者ありは true です。DK3の必要条件「登録済みかつ認証札あり」は満たされず、DK6の必要十分条件「登録済みかつ（認証札ありまたは引率者あり）」は満たされます。判定が分かれるため、許可可否は保留です。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "DK01",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "登録済みは観測値trueです。DK3は認証札ありをtrueと要求しますが、観測値はfalseのため条件に違反します。DK6は認証札ありまたは引率者ありを要求し、引率者ありの観測値がtrueなので条件を満たします。DK3とDK6は同格で双方有効なため、結論は規則間で食い違い、入場許可を決められません。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"DK3": "permission_rule",
+					"DK6": "permission_rule",
+					"DK1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14385,
+			"outputTokens": 219,
+			"latencyMs": 7478.414707999997,
+			"raw": "{\"sources\":[{\"sourceId\":\"DK3\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK3:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"DK6\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK6:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"DK1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"登録済みは観測値trueです。DK3は認証札ありをtrueと要求しますが、観測値はfalseのため条件に違反します。DK6は認証札ありまたは引率者ありを要求し、引率者ありの観測値がtrueなので条件を満たします。DK3とDK6は同格で双方有効なため、結論は規則間で食い違い、入場許可を決められません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "DK02",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "DK3とDK6は同格で、いずれも有効な入場条件です。登録済みと認証札ありはいずれもtrueと観測され、各条件の計算結果は満足です。引率者ありはfalseと観測されていますが、DK6では認証札ありの分岐が満たされています。DK1は観測の扱いを定める関連文書で、独立した入場条件ではありません。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "satisfied",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14220,
+			"outputTokens": 329,
+			"latencyMs": 9631.261333000002,
+			"raw": "{\"governingSources\":[\"DK3\",\"DK6\",\"DK1\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"satisfied\",\"assertionId\":\"DK3:claim:0\",\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"satisfied\",\"assertionId\":\"DK6:claim:0\",\"overrideReason\":null}],\"explanation\":\"DK3とDK6は同格で、いずれも有効な入場条件です。登録済みと認証札ありはいずれもtrueと観測され、各条件の計算結果は満足です。引率者ありはfalseと観測されていますが、DK6では認証札ありの分岐が満たされています。DK1は観測の扱いを定める関連文書で、独立した入場条件ではありません。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "DK02",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "DK3とDK6はいずれも有効な入場条件を定め、同格で優先順位はありません。両条件の計算結果は満たされているため、入場を許可できます。DK1は観測の扱いを定める補足資料です。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "satisfied",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"DK3": "permission_rule",
+					"DK6": "permission_rule",
+					"DK1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14385,
+			"outputTokens": 177,
+			"latencyMs": 7369.536166999984,
+			"raw": "{\"sources\":[{\"sourceId\":\"DK3\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK3:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"DK6\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK6:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"DK1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"DK3とDK6はいずれも有効な入場条件を定め、同格で優先順位はありません。両条件の計算結果は満たされているため、入場を許可できます。DK1は観測の扱いを定める補足資料です。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "DK03",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "DK3とDK6はいずれも有効な入場条件です。登録済みは両ルールで必要値がtrueですが、観測値はfalseです。DK6では引率者ありの観測値がtrueでも、登録済みの条件を満たしません。両ルールの計算結果がviolatedのため、入場は許可できません。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "violated",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14220,
+			"outputTokens": 267,
+			"latencyMs": 10113.598416000023,
+			"raw": "{\"governingSources\":[\"DK3\",\"DK6\",\"DK1\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"violated\",\"assertionId\":\"DK3:claim:0\",\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"violated\",\"assertionId\":\"DK6:claim:0\",\"overrideReason\":null}],\"explanation\":\"DK3とDK6はいずれも有効な入場条件です。登録済みは両ルールで必要値がtrueですが、観測値はfalseです。DK6では引率者ありの観測値がtrueでも、登録済みの条件を満たしません。両ルールの計算結果がviolatedのため、入場は許可できません。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "DK03",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "有効な同格の入場規則はDK3とDK6。登録済みの観測値はfalseで、両規則の必須条件「登録済み」は満たされない。認証札ありはfalse、引率者ありはtrueだが、DK6も登録を必要とするため、両規則の評価結果はいずれもviolated。DK1は観測の扱いを定める補助資料であり、入場許可規則ではない。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "violated",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"DK3": "permission_rule",
+					"DK6": "permission_rule",
+					"DK1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14385,
+			"outputTokens": 223,
+			"latencyMs": 7725.781125000009,
+			"raw": "{\"sources\":[{\"sourceId\":\"DK3\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK3:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"DK6\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK6:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"DK1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"有効な同格の入場規則はDK3とDK6。登録済みの観測値はfalseで、両規則の必須条件「登録済み」は満たされない。認証札ありはfalse、引率者ありはtrueだが、DK6も登録を必要とするため、両規則の評価結果はいずれもviolated。DK1は観測の扱いを定める補助資料であり、入場許可規則ではない。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "FG02",
+			"packet": "ferry-gate",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["FG1", "FG2"],
+					"explanation": "FG1はcedar桟橋に適用される通過許可の必要十分条件を定め、FG2は観測の取扱規程として関連する。観測された桟橋はcedar、積載量は7.5 tonne、扉は閉、点検中はfalseで、FG1の条件評価はsatisfied。",
+					"assessments": [
+						{
+							"sourceId": "FG1",
+							"result": "satisfied",
+							"assertionId": "FG1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14647,
+			"outputTokens": 143,
+			"latencyMs": 8665.223416999987,
+			"raw": "{\"governingSources\":[\"FG1\",\"FG2\"],\"assessments\":[{\"sourceId\":\"FG1\",\"result\":\"satisfied\",\"assertionId\":\"FG1:claim:0\",\"overrideReason\":null}],\"explanation\":\"FG1はcedar桟橋に適用される通過許可の必要十分条件を定め、FG2は観測の取扱規程として関連する。観測された桟橋はcedar、積載量は7.5 tonne、扉は閉、点検中はfalseで、FG1の条件評価はsatisfied。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "FG02",
+			"packet": "ferry-gate",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["FG1", "FG2"],
+					"explanation": "FG1はcedar桟橋に適用され、観測された桟橋はcedar、積載量は7.5 tonne、防護扉は閉、点検中はfalseです。条件評価はsatisfiedです。FG2は観測値の取扱規程であり、許可規程ではありません。",
+					"assessments": [
+						{
+							"sourceId": "FG1",
+							"result": "satisfied",
+							"assertionId": "FG1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"FG1": "permission_rule",
+					"FG2": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14812,
+			"outputTokens": 148,
+			"latencyMs": 6272.906042000002,
+			"raw": "{\"sources\":[{\"sourceId\":\"FG1\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"FG1:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"FG2\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"FG1はcedar桟橋に適用され、観測された桟橋はcedar、積載量は7.5 tonne、防護扉は閉、点検中はfalseです。条件評価はsatisfiedです。FG2は観測値の取扱規程であり、許可規程ではありません。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "O04",
+			"packet": "operations",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["O1", "O2"],
+					"explanation": "O1は、本番環境での緊急再起動に署名承認、CPU利用率90%以上またはヘルスチェック失敗、バックアップ実行中でないことを求める必要十分条件です。環境、承認、CPU、ヘルスチェック失敗は条件を満たすと計算されていますが、バックアップの観測はなく、O2に基づく計算結果は不明です。したがって許可可否は判断できません。",
+					"assessments": [
+						{
+							"sourceId": "O1",
+							"result": "unknown",
+							"assertionId": "O1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14515,
+			"outputTokens": 236,
+			"latencyMs": 11102.388500000001,
+			"raw": "{\"governingSources\":[\"O1\",\"O2\"],\"assessments\":[{\"sourceId\":\"O1\",\"result\":\"unknown\",\"assertionId\":\"O1:claim:0\",\"overrideReason\":null}],\"explanation\":\"O1は、本番環境での緊急再起動に署名承認、CPU利用率90%以上またはヘルスチェック失敗、バックアップ実行中でないことを求める必要十分条件です。環境、承認、CPU、ヘルスチェック失敗は条件を満たすと計算されていますが、バックアップの観測はなく、O2に基づく計算結果は不明です。したがって許可可否は判断できません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "O04",
+			"packet": "operations",
+			"suite": "regression",
+			"repeat": 0,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["O1", "O2"],
+					"explanation": "O1は、本番での緊急再起動に署名承認、CPUが90%以上またはヘルスチェック失敗、かつバックアップ実行中でないことを求める許可規則。環境・承認・CPU・ヘルスチェックの観測は各条件を満たすが、バックアップ実行中でないことを確認する観測がなく、全体の計算結果はunknown。O2は観測値の有効性と欠落時の扱いを定める。",
+					"assessments": [
+						{
+							"sourceId": "O1",
+							"result": "unknown",
+							"assertionId": "O1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": false,
+				"declaredRoles": {
+					"O1": "permission_rule_and_support",
+					"O2": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14680,
+			"outputTokens": 198,
+			"latencyMs": 7287.948083000003,
+			"raw": "{\"sources\":[{\"sourceId\":\"O1\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"O1:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"O2\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"O1は、本番での緊急再起動に署名承認、CPUが90%以上またはヘルスチェック失敗、かつバックアップ実行中でないことを求める許可規則。環境・承認・CPU・ヘルスチェックの観測は各条件を満たすが、バックアップ実行中でないことを確認する観測がなく、全体の計算結果はunknown。O2は観測値の有効性と欠落時の扱いを定める。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AC04",
+			"packet": "archive-copy",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AC1", "AC3"],
+					"explanation": "AC1はdigital媒体の複写に適用される許可規則です。利用登録済み、公開停止中でないこと、権利消滅または権利者同意を求めています。観測では権利消滅がfalseですが、権利者同意の観測がなく、計算結果はunknownのため許可を判断できません。AC3は観測値の取扱規程であり、独立した許可規則ではありません。",
+					"assessments": [
+						{
+							"sourceId": "AC1",
+							"result": "unknown",
+							"assertionId": "AC1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14664,
+			"outputTokens": 321,
+			"latencyMs": 7637.350165999989,
+			"raw": "{\"governingSources\":[\"AC1\",\"AC3\"],\"assessments\":[{\"sourceId\":\"AC1\",\"result\":\"unknown\",\"assertionId\":\"AC1:claim:0\",\"overrideReason\":null}],\"explanation\":\"AC1はdigital媒体の複写に適用される許可規則です。利用登録済み、公開停止中でないこと、権利消滅または権利者同意を求めています。観測では権利消滅がfalseですが、権利者同意の観測がなく、計算結果はunknownのため許可を判断できません。AC3は観測値の取扱規程であり、独立した許可規則ではありません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AC04",
+			"packet": "archive-copy",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AC1", "AC3"],
+					"explanation": "AC1が適用するdigital複写の許可条件は、登録済み、権利消滅または権利者同意、公開停止中でないこと。媒体digital、登録済み、公開停止中でないことは観測され、権利消滅はfalseと観測されていますが、権利者同意の観測がなく、計算結果はunknownです。AC3は観測の取扱規程で、複写の許可規則ではありません。許可可否は確定できません。",
+					"assessments": [
+						{
+							"sourceId": "AC1",
+							"result": "unknown",
+							"assertionId": "AC1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": false,
+				"declaredRoles": {
+					"AC1": "permission_rule_and_support",
+					"AC3": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14829,
+			"outputTokens": 202,
+			"latencyMs": 6424.180708,
+			"raw": "{\"sources\":[{\"sourceId\":\"AC1\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"AC1:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"AC3\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"AC1が適用するdigital複写の許可条件は、登録済み、権利消滅または権利者同意、公開停止中でないこと。媒体digital、登録済み、公開停止中でないことは観測され、権利消滅はfalseと観測されていますが、権利者同意の観測がなく、計算結果はunknownです。AC3は観測の取扱規程で、複写の許可規則ではありません。許可可否は確定できません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AX01",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["AX1", "AX9"],
+					"explanation": "alpha区画に適用される許可条件はAX9です。観測値は担当承認あり、粒子濃度10 count、代替装置停止、閉鎖命令なしで、条件評価はsatisfiedです。AX1は観測の扱いを定める関連文書で、許可条件は定めません。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "satisfied",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14732,
+			"outputTokens": 244,
+			"latencyMs": 9007.788874999998,
+			"raw": "{\"governingSources\":[\"AX1\",\"AX9\"],\"assessments\":[{\"sourceId\":\"AX9\",\"result\":\"satisfied\",\"assertionId\":\"AX9:claim:0\",\"overrideReason\":null}],\"explanation\":\"alpha区画に適用される許可条件はAX9です。観測値は担当承認あり、粒子濃度10 count、代替装置停止、閉鎖命令なしで、条件評価はsatisfiedです。AX1は観測の扱いを定める関連文書で、許可条件は定めません。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "AX01",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "AX9はalpha区画の開放条件を定める有効な規則です。区画alpha、担当承認あり、粒子濃度10 count（12 count以下）、閉鎖命令なしが観測され、条件評価はsatisfiedです。AX1は観測の扱いを定める補足資料で、開放条件は定めません。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "satisfied",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"AX9": "permission_rule",
+					"AX1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14897,
+			"outputTokens": 160,
+			"latencyMs": 8156.362124999985,
+			"raw": "{\"sources\":[{\"sourceId\":\"AX9\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"AX9:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"AX1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"AX9はalpha区画の開放条件を定める有効な規則です。区画alpha、担当承認あり、粒子濃度10 count（12 count以下）、閉鎖命令なしが観測され、条件評価はsatisfiedです。AX1は観測の扱いを定める補足資料で、開放条件は定めません。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "AX02",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "対象はalphaで、適用される許可規則はAX9です。担当承認あり、閉鎖命令なし、代替装置稼働なしは観測されていますが、必要条件の一つである粒子濃度の観測がありません。AX9の条件評価はunknownのため、許可可否を決められません。AX1は観測の扱いを定める関連文書であり、独立した許可規則ではありません。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "unknown",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14672,
+			"outputTokens": 174,
+			"latencyMs": 8574.54233300002,
+			"raw": "{\"governingSources\":[\"AX9\",\"AX1\"],\"assessments\":[{\"sourceId\":\"AX9\",\"result\":\"unknown\",\"assertionId\":\"AX9:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象はalphaで、適用される許可規則はAX9です。担当承認あり、閉鎖命令なし、代替装置稼働なしは観測されていますが、必要条件の一つである粒子濃度の観測がありません。AX9の条件評価はunknownのため、許可可否を決められません。AX1は観測の扱いを定める関連文書であり、独立した許可規則ではありません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AX02",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "AX9はalpha区画の開放条件を定める有効な規則です。区画alpha、担当承認あり、閉鎖命令なしは観測されています。条件の一つである「粒子濃度12 count以下または代替装置稼働」のうち、代替装置は稼働していないと観測されていますが、粒子濃度の観測はありません。規則の条件評価はunknownのため、許可できるか判断できません。AX1は観測の扱いを補足しますが、開放条件は定めていません。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "unknown",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"AX9": "permission_rule",
+					"AX1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14837,
+			"outputTokens": 383,
+			"latencyMs": 10757.548624999996,
+			"raw": "{\"sources\":[{\"sourceId\":\"AX9\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"AX9:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"AX1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"AX9はalpha区画の開放条件を定める有効な規則です。区画alpha、担当承認あり、閉鎖命令なしは観測されています。条件の一つである「粒子濃度12 count以下または代替装置稼働」のうち、代替装置は稼働していないと観測されていますが、粒子濃度の観測はありません。規則の条件評価はunknownのため、許可できるか判断できません。AX1は観測の扱いを補足しますが、開放条件は定めていません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "AX03",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "対象はalpha区画で、開放条件を定めるAX9が適用されます。担当承認の条件はtrueですが、観測値はfalseで、条件全体の計算結果はviolatedです。したがって許可できません。AX1は観測の扱いを定める関連文書で、独立した許可規則ではありません。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "violated",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14669,
+			"outputTokens": 235,
+			"latencyMs": 7252.912958000001,
+			"raw": "{\"governingSources\":[\"AX9\",\"AX1\"],\"assessments\":[{\"sourceId\":\"AX9\",\"result\":\"violated\",\"assertionId\":\"AX9:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象はalpha区画で、開放条件を定めるAX9が適用されます。担当承認の条件はtrueですが、観測値はfalseで、条件全体の計算結果はviolatedです。したがって許可できません。AX1は観測の扱いを定める関連文書で、独立した許可規則ではありません。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "AX03",
+			"packet": "airlock",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["AX9", "AX1"],
+					"explanation": "AX9はalpha区画に適用される開放条件で、担当承認あり、粒子濃度12 count以下または代替装置稼働、閉鎖命令なしを求める。区画はalpha、閉鎖命令なしが観測されている一方、担当承認は観測値falseで、代替装置稼働もfalse。条件全体の評価はviolated。粒子濃度は未観測だが、評価結果は変わらない。AX1は観測の扱いのみを定める補足資料。",
+					"assessments": [
+						{
+							"sourceId": "AX9",
+							"result": "violated",
+							"assertionId": "AX9:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": false,
+				"declaredRoles": {
+					"AX9": "permission_rule_and_support",
+					"AX1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14834,
+			"outputTokens": 213,
+			"latencyMs": 8757.612207999977,
+			"raw": "{\"sources\":[{\"sourceId\":\"AX9\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"AX9:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"AX1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"AX9はalpha区画に適用される開放条件で、担当承認あり、粒子濃度12 count以下または代替装置稼働、閉鎖命令なしを求める。区画はalpha、閉鎖命令なしが観測されている一方、担当承認は観測値falseで、代替装置稼働もfalse。条件全体の評価はviolated。粒子濃度は未観測だが、評価結果は変わらない。AX1は観測の扱いのみを定める補足資料。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "BV01",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["BV2"],
+					"explanation": "適用されるBV2では、u室からの持出しに検品済み、証明書ありまたは立会人あり、隔離中でないことが必要です。検品済み、立会人あり、隔離中でないことが観測され、条件評価はsatisfiedです。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "satisfied",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14092,
+			"outputTokens": 131,
+			"latencyMs": 7754.6862919999985,
+			"raw": "{\"governingSources\":[\"BV2\"],\"assessments\":[{\"sourceId\":\"BV2\",\"result\":\"satisfied\",\"assertionId\":\"BV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"適用されるBV2では、u室からの持出しに検品済み、証明書ありまたは立会人あり、隔離中でないことが必要です。検品済み、立会人あり、隔離中でないことが観測され、条件評価はsatisfiedです。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "BV01",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["BV2"],
+					"explanation": "BV2はu室の持出しを、検品済み・（証明書ありまたは立会人あり）・隔離中でないことを条件に許可する。各条件のうち、立会人ありは観測され、証明書ありの観測はないが、条件評価ではORが成立し、全体の評価はsatisfied。BV8はv室にのみ適用されるため対象外。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "satisfied",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"BV2": "permission_rule_and_support"
+				}
+			},
+			"inputTokens": 14257,
+			"outputTokens": 158,
+			"latencyMs": 7884.325833999988,
+			"raw": "{\"sources\":[{\"sourceId\":\"BV2\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"BV2:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}}],\"explanation\":\"BV2はu室の持出しを、検品済み・（証明書ありまたは立会人あり）・隔離中でないことを条件に許可する。各条件のうち、立会人ありは観測され、証明書ありの観測はないが、条件評価ではORが成立し、全体の評価はsatisfied。BV8はv室にのみ適用されるため対象外。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "BV02",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["BV2"],
+					"explanation": "対象はu室で、現行規則BV2が適用される。検品済みと証明書ありは観測されており、立会人ありは観測値がfalse。隔離中かどうかの観測はなく、持出し条件全体の計算結果はunknownのため、許可を判断できない。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "unknown",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14090,
+			"outputTokens": 140,
+			"latencyMs": 10307.747082999966,
+			"raw": "{\"governingSources\":[\"BV2\"],\"assessments\":[{\"sourceId\":\"BV2\",\"result\":\"unknown\",\"assertionId\":\"BV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象はu室で、現行規則BV2が適用される。検品済みと証明書ありは観測されており、立会人ありは観測値がfalse。隔離中かどうかの観測はなく、持出し条件全体の計算結果はunknownのため、許可を判断できない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "BV02",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["BV2"],
+					"explanation": "BV2はu室に適用され、検品済み、証明書ありまたは立会人あり、かつ隔離中でないことを許可条件とする。観測ではu室、検品済み、証明書ありは真で、立会人ありは偽だが、証明書ありの条件は満たす。隔離中の観測がなく、提示された条件評価はunknownのため、許可を判断できない。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "unknown",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"BV2": "permission_rule_and_support"
+				}
+			},
+			"inputTokens": 14255,
+			"outputTokens": 213,
+			"latencyMs": 10339.459459000005,
+			"raw": "{\"sources\":[{\"sourceId\":\"BV2\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"BV2:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}}],\"explanation\":\"BV2はu室に適用され、検品済み、証明書ありまたは立会人あり、かつ隔離中でないことを許可条件とする。観測ではu室、検品済み、証明書ありは真で、立会人ありは偽だが、証明書ありの条件は満たす。隔離中の観測がなく、提示された条件評価はunknownのため、許可を判断できない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "BV03",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["BV2"],
+					"explanation": "対象はu室で、BV2が適用されます。検品済みと証明書ありは観測されていますが、隔離中もtrueと観測されており、条件の「隔離中でない」を満たさないため許可できません。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "violated",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14150,
+			"outputTokens": 122,
+			"latencyMs": 7812.161167000013,
+			"raw": "{\"governingSources\":[\"BV2\"],\"assessments\":[{\"sourceId\":\"BV2\",\"result\":\"violated\",\"assertionId\":\"BV2:claim:0\",\"overrideReason\":null}],\"explanation\":\"対象はu室で、BV2が適用されます。検品済みと証明書ありは観測されていますが、隔離中もtrueと観測されており、条件の「隔離中でない」を満たさないため許可できません。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "BV03",
+			"packet": "mixed-vault",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["BV2"],
+					"explanation": "BV2はu室の持出し条件として、検品済み、証明書ありまたは立会人あり、かつ隔離中でないことを定める。検品済みと証明書ありは観測値がtrueで、立会人ありはfalseだが、証明書ありの条件が満たされる。隔離中は観測値がtrueで、必要値falseに合わず、条件評価はviolated。",
+					"assessments": [
+						{
+							"sourceId": "BV2",
+							"result": "violated",
+							"assertionId": "BV2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"BV2": "permission_rule_and_support"
+				}
+			},
+			"inputTokens": 14315,
+			"outputTokens": 236,
+			"latencyMs": 9221.085750000027,
+			"raw": "{\"sources\":[{\"sourceId\":\"BV2\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"BV2:claim:0\",\"result\":\"violated\",\"overrideReason\":null}}],\"explanation\":\"BV2はu室の持出し条件として、検品済み、証明書ありまたは立会人あり、かつ隔離中でないことを定める。検品済みと証明書ありは観測値がtrueで、立会人ありはfalseだが、証明書ありの条件が満たされる。隔離中は観測値がtrueで、必要値falseに合わず、条件評価はviolated。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "CP02",
+			"packet": "catalog-publish",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CP1"],
+					"explanation": "公開先はstableで、承認済みかつ個人情報を含まないことが観測されています。規程上必要な「公開猶予中でも編集凍結中でもない」条件は、編集凍結中でないことは観測されていますが、公開猶予の観測がありません。提供された条件評価はunknownのため、許可を確定できません。",
+					"assessments": [
+						{
+							"sourceId": "CP1",
+							"result": "unknown",
+							"assertionId": "CP1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14461,
+			"outputTokens": 149,
+			"latencyMs": 6736.2592920000025,
+			"raw": "{\"governingSources\":[\"CP1\"],\"assessments\":[{\"sourceId\":\"CP1\",\"result\":\"unknown\",\"assertionId\":\"CP1:claim:0\",\"overrideReason\":null}],\"explanation\":\"公開先はstableで、承認済みかつ個人情報を含まないことが観測されています。規程上必要な「公開猶予中でも編集凍結中でもない」条件は、編集凍結中でないことは観測されていますが、公開猶予の観測がありません。提供された条件評価はunknownのため、許可を確定できません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CP02",
+			"packet": "catalog-publish",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CP1", "CP3"],
+					"explanation": "CP1は現行のstable公開規則です。承認済みと個人情報を含まないことは観測され、条件を満たしています。編集凍結中ではないことも観測されていますが、公開猶予中かどうかの観測がなく、提供された条件評価はunknownです。CP3は決裁権のない寄稿者の希望を記した資料で、公開許可の根拠にはなりません。",
+					"assessments": [
+						{
+							"sourceId": "CP1",
+							"result": "unknown",
+							"assertionId": "CP1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": false,
+				"jointCorrect": false,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": false,
+				"roleLabelsCorrect": false,
+				"declaredRoles": {
+					"CP1": "permission_rule",
+					"CP3": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14626,
+			"outputTokens": 393,
+			"latencyMs": 8172.3817500000005,
+			"raw": "{\"sources\":[{\"sourceId\":\"CP1\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CP1:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"CP3\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"CP1は現行のstable公開規則です。承認済みと個人情報を含まないことは観測され、条件を満たしています。編集凍結中ではないことも観測されていますが、公開猶予中かどうかの観測がなく、提供された条件評価はunknownです。CP3は決裁権のない寄稿者の希望を記した資料で、公開許可の根拠にはなりません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CZ01",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "有効な始動規程はCZ7で、講習修了、温度が22 C以下または手動冷却稼働、停止命令なしを求める。観測では講習修了はtrue、温度は20 C、手動冷却はfalse、停止命令ありはfalseで、条件全体の計算結果はsatisfied。CZ5は観測の採用基準を定める関連文書だが、始動許可規程ではなく追加条件でもない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "satisfied",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 13889,
+			"outputTokens": 181,
+			"latencyMs": 9454.379707999993,
+			"raw": "{\"governingSources\":[\"CZ7\",\"CZ5\"],\"assessments\":[{\"sourceId\":\"CZ7\",\"result\":\"satisfied\",\"assertionId\":\"CZ7:claim:0\",\"overrideReason\":null}],\"explanation\":\"有効な始動規程はCZ7で、講習修了、温度が22 C以下または手動冷却稼働、停止命令なしを求める。観測では講習修了はtrue、温度は20 C、手動冷却はfalse、停止命令ありはfalseで、条件全体の計算結果はsatisfied。CZ5は観測の採用基準を定める関連文書だが、始動許可規程ではなく追加条件でもない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "CZ01",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7の始動条件は満たされている。講習修了と停止命令がないことは観測され、装置温度20 Cは必要値22 C以下を満たすため、冷却稼働の観測がfalseでも条件全体は成立する。CZ5は観測の扱いを補足するが、始動条件は定めていない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "satisfied",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"CZ7": "permission_rule",
+					"CZ5": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14054,
+			"outputTokens": 164,
+			"latencyMs": 9352.947624999972,
+			"raw": "{\"sources\":[{\"sourceId\":\"CZ7\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CZ7:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"CZ5\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"CZ7の始動条件は満たされている。講習修了と停止命令がないことは観測され、装置温度20 Cは必要値22 C以下を満たすため、冷却稼働の観測がfalseでも条件全体は成立する。CZ5は観測の扱いを補足するが、始動条件は定めていない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "CZ02",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は2026年12月1日施行の始動許可規程で、講習修了と停止命令なしは条件を満たす。手動冷却は観測値がfalseで条件を満たさず、温度観測はないため、冷却条件の選言を判定できない。CZ5は観測の採否に関する関連文書だが、独立した許可規程ではない。したがって始動許可は決められない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "unknown",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 13827,
+			"outputTokens": 179,
+			"latencyMs": 12136.240208000003,
+			"raw": "{\"governingSources\":[\"CZ7\",\"CZ5\"],\"assessments\":[{\"sourceId\":\"CZ7\",\"result\":\"unknown\",\"assertionId\":\"CZ7:claim:0\",\"overrideReason\":null}],\"explanation\":\"CZ7は2026年12月1日施行の始動許可規程で、講習修了と停止命令なしは条件を満たす。手動冷却は観測値がfalseで条件を満たさず、温度観測はないため、冷却条件の選言を判定できない。CZ5は観測の採否に関する関連文書だが、独立した許可規程ではない。したがって始動許可は決められない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CZ02",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は講習修了、（温度22°C以下または手動冷却稼働）、停止命令なしを始動の必要十分条件とする。講習修了と停止命令なしは観測され、手動冷却稼働は観測値がfalse。温度の観測がなく、条件全体の評価はunknown。CZ5は観測の扱いを補足するが、始動許可規程ではない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "unknown",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"CZ7": "permission_rule",
+					"CZ5": "supporting_evidence"
+				}
+			},
+			"inputTokens": 13992,
+			"outputTokens": 179,
+			"latencyMs": 10210.133334000013,
+			"raw": "{\"sources\":[{\"sourceId\":\"CZ7\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CZ7:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"CZ5\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"CZ7は講習修了、（温度22°C以下または手動冷却稼働）、停止命令なしを始動の必要十分条件とする。講習修了と停止命令なしは観測され、手動冷却稼働は観測値がfalse。温度の観測がなく、条件全体の評価はunknown。CZ5は観測の扱いを補足するが、始動許可規程ではない。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "CZ03",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は装置始動の必要十分条件を定める現行規程。講習修了の観測値はfalseで、温度条件と停止命令なしの条件は満たされるが、全条件を満たさないため始動は許可されない。CZ5は観測の採用基準を定める関連文書で、始動許可規程ではない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "violated",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 13889,
+			"outputTokens": 157,
+			"latencyMs": 9598.897499999963,
+			"raw": "{\"governingSources\":[\"CZ7\",\"CZ5\"],\"assessments\":[{\"sourceId\":\"CZ7\",\"result\":\"violated\",\"assertionId\":\"CZ7:claim:0\",\"overrideReason\":null}],\"explanation\":\"CZ7は装置始動の必要十分条件を定める現行規程。講習修了の観測値はfalseで、温度条件と停止命令なしの条件は満たされるが、全条件を満たさないため始動は許可されない。CZ5は観測の採用基準を定める関連文書で、始動許可規程ではない。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "CZ03",
+			"packet": "press-control",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["CZ7", "CZ5"],
+					"explanation": "CZ7は講習修了を必須とし、その観測値はfalse。温度条件と停止命令の条件は満たすが、必要条件を一つ満たさないため始動は許可されない。CZ5は観測の採用方法を定める補助資料で、始動許可規程ではない。",
+					"assessments": [
+						{
+							"sourceId": "CZ7",
+							"result": "violated",
+							"assertionId": "CZ7:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"CZ7": "permission_rule",
+					"CZ5": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14054,
+			"outputTokens": 154,
+			"latencyMs": 9978.109875000024,
+			"raw": "{\"sources\":[{\"sourceId\":\"CZ7\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"CZ7:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"CZ5\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"CZ7は講習修了を必須とし、その観測値はfalse。温度条件と停止命令の条件は満たすが、必要条件を一つ満たさないため始動は許可されない。CZ5は観測の採用方法を定める補助資料で、始動許可規程ではない。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "DK01",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "DK3とDK6はいずれも有効な入場条件で、優先順位はありません。登録済みは観測値がtrueで、認証札ありはfalseです。DK3の条件は不成立、DK6の条件は認証札または引率者ありのうち引率者ありがtrueのため成立します。適用規則の結果が分かれるため、許可可否は決められません。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14220,
+			"outputTokens": 195,
+			"latencyMs": 9665.639084000024,
+			"raw": "{\"governingSources\":[\"DK3\",\"DK6\",\"DK1\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"violated\",\"assertionId\":\"DK3:claim:0\",\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"satisfied\",\"assertionId\":\"DK6:claim:0\",\"overrideReason\":null}],\"explanation\":\"DK3とDK6はいずれも有効な入場条件で、優先順位はありません。登録済みは観測値がtrueで、認証札ありはfalseです。DK3の条件は不成立、DK6の条件は認証札または引率者ありのうち引率者ありがtrueのため成立します。適用規則の結果が分かれるため、許可可否は決められません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "DK01",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "登録済みは観測値 true ですが、認証札ありは false です。DK3 は登録済みかつ認証札ありを要求し、条件は不成立。DK6 は認証札または引率者ありを求め、引率者ありは観測値 true のため条件を満たします。両規則は同格で有効なため、判定が一致せず入場可否は確定できません。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"DK3": "permission_rule",
+					"DK6": "permission_rule",
+					"DK1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14385,
+			"outputTokens": 213,
+			"latencyMs": 10819.690249999985,
+			"raw": "{\"sources\":[{\"sourceId\":\"DK3\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK3:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"DK6\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK6:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"DK1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"登録済みは観測値 true ですが、認証札ありは false です。DK3 は登録済みかつ認証札ありを要求し、条件は不成立。DK6 は認証札または引率者ありを求め、引率者ありは観測値 true のため条件を満たします。両規則は同格で有効なため、判定が一致せず入場可否は確定できません。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "DK02",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["DK1", "DK3", "DK6"],
+					"explanation": "DK1は観測の扱いを定める関連文書だが、独立した入場許可規則ではない。DK3とDK6は同格で双方有効とされ、優先順位の指定がないため両方を適用する。DK3の必要条件は「登録済みかつ認証札あり」で、DK6は「登録済みかつ（認証札ありまたは引率者あり）」。観測された登録済みと認証札ありはいずれもtrueで、両規則の条件評価は満たされている。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "satisfied",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 17263,
+			"outputTokens": 227,
+			"latencyMs": 9504.445041999978,
+			"raw": "{\"governingSources\":[\"DK1\",\"DK3\",\"DK6\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"satisfied\",\"assertionId\":\"DK3:claim:0\",\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"satisfied\",\"assertionId\":\"DK6:claim:0\",\"overrideReason\":null}],\"explanation\":\"DK1は観測の扱いを定める関連文書だが、独立した入場許可規則ではない。DK3とDK6は同格で双方有効とされ、優先順位の指定がないため両方を適用する。DK3の必要条件は「登録済みかつ認証札あり」で、DK6は「登録済みかつ（認証札ありまたは引率者あり）」。観測された登録済みと認証札ありはいずれもtrueで、両規則の条件評価は満たされている。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "DK02",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "DK3とDK6はいずれも現行の正式な入場条件で、撤回・置換・優先指定はありません。登録済みと認証札ありは観測され、引率者ありは観測値がfalseです。DK6は認証札ありでも条件を満たすため、両規則の評価結果はsatisfiedです。DK1は観測の扱いを定める補助資料です。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "satisfied",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "satisfied",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"DK3": "permission_rule",
+					"DK6": "permission_rule",
+					"DK1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14385,
+			"outputTokens": 210,
+			"latencyMs": 9392.143250000023,
+			"raw": "{\"sources\":[{\"sourceId\":\"DK3\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK3:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"DK6\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK6:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"DK1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"DK3とDK6はいずれも現行の正式な入場条件で、撤回・置換・優先指定はありません。登録済みと認証札ありは観測され、引率者ありは観測値がfalseです。DK6は認証札ありでも条件を満たすため、両規則の評価結果はsatisfiedです。DK1は観測の扱いを定める補助資料です。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "DK03",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "有効な入場条件はDK3とDK6の双方です。どちらも登録済みを要求しますが、登録済みの観測値はfalseのため、両条件とも違反です。認証札の観測値はfalse、引率者の観測値はtrueですが、登録済みの条件を満たしません。DK1は観測の扱いを定める文書です。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "violated",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14206,
+			"outputTokens": 307,
+			"latencyMs": 10497.158874999965,
+			"raw": "{\"governingSources\":[\"DK3\",\"DK6\",\"DK1\"],\"assessments\":[{\"sourceId\":\"DK3\",\"result\":\"violated\",\"assertionId\":\"DK3:claim:0\",\"overrideReason\":null},{\"sourceId\":\"DK6\",\"result\":\"violated\",\"assertionId\":\"DK6:claim:0\",\"overrideReason\":null}],\"explanation\":\"有効な入場条件はDK3とDK6の双方です。どちらも登録済みを要求しますが、登録済みの観測値はfalseのため、両条件とも違反です。認証札の観測値はfalse、引率者の観測値はtrueですが、登録済みの条件を満たしません。DK1は観測の扱いを定める文書です。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "DK03",
+			"packet": "studio-access",
+			"suite": "unseen",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "deny",
+					"governingSources": ["DK3", "DK6", "DK1"],
+					"explanation": "有効な入場条件を定めるDK3とDK6の双方で、登録済みが必要値trueに対し、観測値はfalseです。認証札はfalse、引率者はtrueと観測されていますが、DK6の条件全体も不成立と評価されています。観測の扱いを定めるDK1も参照しました。",
+					"assessments": [
+						{
+							"sourceId": "DK3",
+							"result": "violated",
+							"assertionId": "DK3:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "DK6",
+							"result": "violated",
+							"assertionId": "DK6:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"DK3": "permission_rule",
+					"DK6": "permission_rule",
+					"DK1": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14385,
+			"outputTokens": 253,
+			"latencyMs": 9615.11720800004,
+			"raw": "{\"sources\":[{\"sourceId\":\"DK3\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK3:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"DK6\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"DK6:claim:0\",\"result\":\"violated\",\"overrideReason\":null}},{\"sourceId\":\"DK1\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"有効な入場条件を定めるDK3とDK6の双方で、登録済みが必要値trueに対し、観測値はfalseです。認証札はfalse、引率者はtrueと観測されていますが、DK6の条件全体も不成立と評価されています。観測の扱いを定めるDK1も参照しました。\",\"decision\":\"deny\"}"
+		},
+		{
+			"questionId": "FG02",
+			"packet": "ferry-gate",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["FG1", "FG2"],
+					"explanation": "FG1は基準時刻に有効なcedar桟橋の許可規程です。観測された積載量7.5 tonne、防護扉が閉じていること、点検中ではないことに加え、桟橋はcedarであり、提示された条件評価はsatisfiedです。FG2は観測の取扱規程として関連しますが、独立した許可規程ではありません。",
+					"assessments": [
+						{
+							"sourceId": "FG1",
+							"result": "satisfied",
+							"assertionId": "FG1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14647,
+			"outputTokens": 161,
+			"latencyMs": 11957.904167,
+			"raw": "{\"governingSources\":[\"FG1\",\"FG2\"],\"assessments\":[{\"sourceId\":\"FG1\",\"result\":\"satisfied\",\"assertionId\":\"FG1:claim:0\",\"overrideReason\":null}],\"explanation\":\"FG1は基準時刻に有効なcedar桟橋の許可規程です。観測された積載量7.5 tonne、防護扉が閉じていること、点検中ではないことに加え、桟橋はcedarであり、提示された条件評価はsatisfiedです。FG2は観測の取扱規程として関連しますが、独立した許可規程ではありません。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "FG02",
+			"packet": "ferry-gate",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "allow",
+					"governingSources": ["FG1", "FG2"],
+					"explanation": "FG1はcedar桟橋の許可条件を積載量7.5 tonne以下、扉が閉、点検中でないことと定める。観測値はcedar、7.5 tonne、扉は閉（true）、点検中はfalseで、条件評価はsatisfied。FG2は観測値の取扱規程であり、許可規則ではない。",
+					"assessments": [
+						{
+							"sourceId": "FG1",
+							"result": "satisfied",
+							"assertionId": "FG1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": true,
+				"declaredRoles": {
+					"FG1": "permission_rule",
+					"FG2": "supporting_evidence"
+				}
+			},
+			"inputTokens": 14812,
+			"outputTokens": 235,
+			"latencyMs": 8553.483707999985,
+			"raw": "{\"sources\":[{\"sourceId\":\"FG1\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"FG1:claim:0\",\"result\":\"satisfied\",\"overrideReason\":null}},{\"sourceId\":\"FG2\",\"role\":\"supporting_evidence\",\"assessment\":null}],\"explanation\":\"FG1はcedar桟橋の許可条件を積載量7.5 tonne以下、扉が閉、点検中でないことと定める。観測値はcedar、7.5 tonne、扉は閉（true）、点検中はfalseで、条件評価はsatisfied。FG2は観測値の取扱規程であり、許可規則ではない。\",\"decision\":\"allow\"}"
+		},
+		{
+			"questionId": "O04",
+			"packet": "operations",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "baseline",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["O1", "O2"],
+					"explanation": "本番環境と署名承認、CPU利用率90%以上、ヘルスチェック失敗はそれぞれ観測され、条件を満たしています。ただし規程が求める「バックアップ実行中でないこと」を判定する観測がなく、O1の計算結果はunknownです。したがって許可を判断できません。O2は適用される観測値の有効性と不明の扱いを定める測定規則です。",
+					"assessments": [
+						{
+							"sourceId": "O1",
+							"result": "unknown",
+							"assertionId": "O1:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 1,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": true,
+				"primaryCorrect": true,
+				"roleLabelsCorrect": null
+			},
+			"inputTokens": 14515,
+			"outputTokens": 174,
+			"latencyMs": 6604.185707999975,
+			"raw": "{\"governingSources\":[\"O1\",\"O2\"],\"assessments\":[{\"sourceId\":\"O1\",\"result\":\"unknown\",\"assertionId\":\"O1:claim:0\",\"overrideReason\":null}],\"explanation\":\"本番環境と署名承認、CPU利用率90%以上、ヘルスチェック失敗はそれぞれ観測され、条件を満たしています。ただし規程が求める「バックアップ実行中でないこと」を判定する観測がなく、O1の計算結果はunknownです。したがって許可を判断できません。O2は適用される観測値の有効性と不明の扱いを定める測定規則です。\",\"decision\":\"hold\"}"
+		},
+		{
+			"questionId": "O04",
+			"packet": "operations",
+			"suite": "regression",
+			"repeat": 1,
+			"arm": "roles",
+			"status": "answered",
+			"score": {
+				"answer": {
+					"decision": "hold",
+					"governingSources": ["O1", "O2"],
+					"explanation": "O1は本番の緊急再起動を許可する必要十分条件を定める。環境、本番であること、署名承認、CPU 90%以上、ヘルスチェック失敗は観測され、条件を満たすが、バックアップ実行中でないことを示す観測がないため、全体の評価はunknown。O2は観測値の有効期間や優先順位などの取扱規則も定めるが、このunknownを解消しない。",
+					"assessments": [
+						{
+							"sourceId": "O1",
+							"result": "unknown",
+							"assertionId": "O1:claim:0",
+							"overrideReason": null
+						},
+						{
+							"sourceId": "O2",
+							"result": "unknown",
+							"assertionId": "O2:claim:0",
+							"overrideReason": null
+						}
+					]
+				},
+				"decisionCorrect": true,
+				"governingSourcesCorrect": true,
+				"jointCorrect": true,
+				"falseAllow": false,
+				"grounding": {
+					"comparedCalculations": 2,
+					"calculationMismatches": 0,
+					"decisionConsistent": true,
+					"overrides": [],
+					"issues": [],
+					"passed": true
+				},
+				"assessmentsCorrect": false,
+				"primaryCorrect": false,
+				"roleLabelsCorrect": false,
+				"declaredRoles": {
+					"O1": "permission_rule",
+					"O2": "permission_rule_and_support"
+				}
+			},
+			"inputTokens": 14680,
+			"outputTokens": 209,
+			"latencyMs": 7197.159958000004,
+			"raw": "{\"sources\":[{\"sourceId\":\"O1\",\"role\":\"permission_rule\",\"assessment\":{\"assertionId\":\"O1:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}},{\"sourceId\":\"O2\",\"role\":\"permission_rule_and_support\",\"assessment\":{\"assertionId\":\"O2:claim:0\",\"result\":\"unknown\",\"overrideReason\":null}}],\"explanation\":\"O1は本番の緊急再起動を許可する必要十分条件を定める。環境、本番であること、署名承認、CPU 90%以上、ヘルスチェック失敗は観測され、条件を満たすが、バックアップ実行中でないことを示す観測がないため、全体の評価はunknown。O2は観測値の有効期間や優先順位などの取扱規則も定めるが、このunknownを解消しない。\",\"decision\":\"hold\"}"
+		}
+	],
+	"review": {
+		"reviewer": "Codex implementing agent; not independent or blinded. No detected factual explanation errors is not proof of absence. Primary scores unchanged.",
+		"rows": [
+			{
+				"questionId": "AC04",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AC04",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX01",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX01",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX02",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX02",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX03",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX03",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV01",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV01",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV02",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV02",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV03",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV03",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CP02",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CP02",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ01",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ01",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ02",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ02",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ03",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ03",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK01",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK01",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK02",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK02",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK03",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK03",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "FG02",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "FG02",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "O04",
+				"repeat": 0,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "O04",
+				"repeat": 0,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": "O1は許可規程だがpermission_rule_and_supportと分類。判定や評価集合は正しい。"
+			},
+			{
+				"questionId": "AC04",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AC04",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": "AC1は許可規程だがpermission_rule_and_supportと分類。判定や評価集合は正しい。"
+			},
+			{
+				"questionId": "AX01",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX01",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX02",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX02",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX03",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "AX03",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": "AX9は許可規程だがpermission_rule_and_supportと分類。判定や評価集合は正しい。"
+			},
+			{
+				"questionId": "BV01",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV01",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV02",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV02",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV03",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "BV03",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CP02",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CP02",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": "決裁権のないCP3をsupporting_evidenceとして採用資料集合へ追加。説明は権限がないことを正しく述べるが、根拠集合が不一致。"
+			},
+			{
+				"questionId": "CZ01",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ01",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ02",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ02",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ03",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "CZ03",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK01",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK01",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK02",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK02",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK03",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "DK03",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "FG02",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "FG02",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "O04",
+				"repeat": 1,
+				"arm": "baseline",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": null
+			},
+			{
+				"questionId": "O04",
+				"repeat": 1,
+				"arm": "roles",
+				"explanationReviewed": true,
+				"factualExplanationErrorsObserved": false,
+				"semanticRecordIssue": "観測方針O2をpermission_rule_and_supportにし、許可規程の評価へ追加。自己整合監査は通るが期待する評価集合に不一致。"
+			}
+		]
+	},
+	"evidence": {
+		"codeFiles": 175,
+		"codeDrift": [],
+		"oracleKeysInRequests": [],
+		"pairedPrompts": 32,
+		"identicalPairedPrompts": 32,
+		"applicableCalculations": 19,
+		"calculationOracleMismatches": [],
+		"regressionContextsUnchanged": true,
+		"answersDecisionLast": 64,
+		"rawAnswers": 64,
+		"reportSha256": "43cd598085fb5bbd709d7032aec5ea012d2f4d09166a19567cf885542e3ff8f7",
+		"protocolSha256": "f5adbffcd83c0bf975c0b947da42ab745b331ddeef59c5d94f8c57d212e3b9eb"
+	},
+	"replay": {
+		"before": {
+			"report.json": "43cd598085fb5bbd709d7032aec5ea012d2f4d09166a19567cf885542e3ff8f7",
+			"events.jsonl": "a1b8b2c6b513bb6035837bc9abb66f818165c79be930bee96ca0aef98c3e0414"
+		},
+		"after": {
+			"report.json": "43cd598085fb5bbd709d7032aec5ea012d2f4d09166a19567cf885542e3ff8f7",
+			"events.jsonl": "a1b8b2c6b513bb6035837bc9abb66f818165c79be930bee96ca0aef98c3e0414"
+		},
+		"unchanged": true,
+		"exitCode": 0,
+		"noNewModelCalls": true,
+		"cacheOnly": true
+	},
+	"checks": {
+		"targetedTests": 6,
+		"targetedExpects": 104,
+		"fullTests": 871,
+		"fullExpects": 12325,
+		"failedTests": 0,
+		"buildPassed": true,
+		"newModelCalls": 68,
+		"automaticApplicationRetries": 0
+	}
+}

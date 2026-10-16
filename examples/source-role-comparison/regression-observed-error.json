@@ -1,0 +1,5 @@
+{
+	"origin": "multi-source-v5 / O04 / repeat 1 / world",
+	"sha256": "f20293fa93332fbbe969561d48ca99edb99e8bd37c071b1fbc49b023ed6c7047",
+	"response": "{\"governingSources\":[\"O1\",\"O2\"],\"assessments\":[{\"sourceId\":\"O1\",\"result\":\"unknown\",\"assertionId\":\"O1:claim:0\",\"overrideReason\":null},{\"sourceId\":\"O2\",\"result\":\"unknown\",\"assertionId\":\"O2:claim:0\",\"overrideReason\":null}],\"explanation\":\"O1は、本番環境で署名承認があり、CPUが90%以上またはヘルスチェック失敗で、バックアップ実行中でないことを必要十分条件とする。観測された環境、承認、CPU、ヘルスチェックは条件を満たすが、バックアップの観測がなく、O1の計算結果はunknown。O2は観測値の有効性等を定める測定方針で、独立した許可規則ではない。\",\"decision\":\"hold\"}"
+}
