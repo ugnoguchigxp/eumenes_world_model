@@ -26,7 +26,7 @@ bun run verify
 bun run build
 ```
 
-`verify`は整形、lint、型、domainの公開・依存境界、検証ツールとSQLite基盤の試験を実行します。`build`はこの小さな本体だけからJSと型宣言を`dist/`へ生成します。Bun 1.4.2で確認し、型・整形等の開発依存は隣接Memoryと同じ版へ固定しています。SAAA・Eumenes・Memoryのcheckoutや実モデルは実行に不要です。
+`verify`は整形、lint、型、domainの公開・依存境界、検証ツールとSQLite基盤の試験を実行します。`build`はこの小さな本体だけからJSと型宣言を`dist/`へ生成します。Bun 1.4.4を使用し、型・整形等の開発依存は隣接Memoryと同じ版へ固定しています。SAAA・Eumenes・Memoryのcheckoutや実モデルは実行に不要です。
 
 DB基盤だけを確認する場合は`bun run test:sqlite`を使います。既定は一時ファイル＋WAL＋単一writer＋readonly readerで、軽い試験用の`:memory:`モードもあります。本体はDBを開かず、ホストが渡す同期接続を利用する想定です。接続を開く処理は`test/support`に限定しています。
 

@@ -729,3 +729,9 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 再現: 新規呼出し0、61キャッシュ・91読出し（共有初回監査の重複参照を含む）でreport/events digest不変。228固定ファイル不変、1修正ペアはsourceRoleAudit以外同一、26新規回答はv5順序。全90セルの要求digest・分岐・費用・監査・採点・集計・採否、SQLite再構築と見逃しを回帰試験で再現。認証情報/SDK thread IDは保存しない。
 - 最終検証: 専用8件・790 assertions成功。測定再現試験の比較型注記だけ修正後、`bun run verify` **935 pass / 0 fail / 17,994 assertions / 70 files**、`bun run build`成功。実測コード・入力・期待値は不変。差分点検で担当外変更、資料IDによる意味選択、文言による規程分類なし。完了は比較・採否判断・記録の完了であり、対象外混入の解消ではない。
 - 詳細: [結果](../../examples/source-role-audit-comparison/results/2026-10-16.md)、[再現JSON](../../examples/source-role-audit-comparison/results/2026-10-16.json)。
+
+## 2026-10-26 Bun 1.4.4への更新
+
+- セキュリティ修正を含むBun 1.4.4に合わせ、`package.json`の`packageManager`を1.4.2から1.4.4へ更新し、READMEの使用版を同期。実行環境は着手時点ですでに1.4.4（38afee6c8）。
+- `bun install --frozen-lockfile`成功、lockfile差分なし。SQLite結合試験は21 pass / 0 fail、`bun run verify`は935 pass / 0 fail / 17,994 assertions / 70 files。整形・lint・型・境界検査と`bun run build`も成功。
+- 変更は実行版の指定・案内・本記録のみ。製品コードの意味判断・専用分岐の追加なし。既存の作業中差分と過去の測定環境の記録は維持。
