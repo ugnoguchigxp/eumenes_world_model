@@ -49,10 +49,11 @@ export type ProviderConfig = Readonly<
 /**
  * Who produced the outputs. Fixture results are never model results. `local`
  * is a self-declaration of the operator/host that supplied the provider; the
- * harness cannot verify it.
+ * harness cannot verify it. `remote` is a contrast measurement (P4-05.b):
+ * it is never acceptance-eligible, which stays local-only below.
  */
 export interface ProviderInfo {
-	readonly kind: "fixture" | "local";
+	readonly kind: "fixture" | "local" | "remote";
 	readonly modelId: string;
 	readonly modelVersion: string;
 	readonly config: ProviderConfig;
@@ -210,7 +211,8 @@ export interface RunReport {
 	} | null;
 	/**
 	 * Acceptance needs holdout + acceptance mode + a provider that declares
-	 * itself local. The declaration is not verified here.
+	 * itself local. A "remote" contrast run never qualifies. The declaration
+	 * is not verified here.
 	 */
 	readonly acceptance: {
 		readonly eligible: boolean;
