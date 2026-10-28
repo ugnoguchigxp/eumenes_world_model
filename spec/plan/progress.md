@@ -807,3 +807,15 @@ W1/W2/W5は観測した失効・提示・忘却の不足に対する必要最小
 - 維持した境界: forget本文を履歴から復活させない。無効生成を再投入しない。意味判断はLLM、コードは契約と数値計算。確率を持たない現行PredictionからBrierを算出しない。
 - 成果: 各実験の仮説、対照、対象・予算、測定、採否、保留条件、未実施の結果表。正式A46/A50の閾値やp5Acceptedを変更しない。
 - 実装・モデル実行・データ取得・結果の改善: 未実施。研究の効果は未測定。文書のローカルリンク71件（欠落0）、E01〜E10/N01〜N16の重複なし、票の対応とgit diff --checkを確認。コード試験は文書のみの変更のため省略。既存seed作業は保持。
+
+
+## P4-05.a〜c harness側の実装（2026年10月28日、実モデル未実施）
+
+統合計画[next-stage.md](next-stage.md)の最初の着手点P4-05.a〜cについて、この環境で実施できるharness側だけを実装した。実モデル接続・200件比較・正式受入は未実施であり、本記録はその代替ではない。
+
+- P4-05.a（N01）: `eval/extraction/supply.ts`を追加。各ケースの供給manifest（entity IDとrevision、entitySet名、供給数、上限なし＝null・打切りなし、Scope、dataset版、可視要求内容のsha256 digest）と供給分類（supplied / gold_not_supplied / intended_hold / ambiguous_supply）をrunnerのSampleRecordへ記録し、RunReportへ供給クラス別件数と「モデルに帰属する失敗数」（suppliedケースでstatus非okまたは評価不一致のみ）を追加した。既存フィールド・scoring・ext-threshold-v2の閾値意味は不変（追加のみ）。goldのsubject解決は、idは供給ID集合への包含、aliasはdisplayName/aliasesとの一致数（1＝supplied、0＝gold_not_supplied、2以上＝ambiguous_supply）で判定する。unresolved_subject / ambiguous_subjectの保留はintended_holdとし、それ以外の保留はreferenceのsubjectで分類する判断を注記した。
+- P4-05.b（N02のharness側）: `eval/extraction/providers.ts`にOpenAI互換chat-completions providerを追加。凍結した指示文（`EXTRACTION_INSTRUCTION`、版`eval-extract-instruction-1`）と可視要求JSONを送り、応答contentをそのままモデル出力として返す。非2xx・接続失敗・応答envelope不正はProviderUnavailableError、abortはランナーのtimeout機構へそのまま伝播する。ProviderInfo.kindへ`remote`（Luna対照用）を追加し、受入eligibleはLocalのみのまま不変であることを回帰試験で固定した。main.tsへ`--remote`を追加したが、endpointの既定値は持たず`--endpoint`と`--model-id`がなければ利用エラーで fail-closed とする。実endpointへの接続・配線は行っていない。
+- P4-05.c（N04の集計側）: `eval/extraction/compare.ts`に純粋関数`compareRuns`を追加。evaluationVersion / datasetVersion / splitが異なる報告同士は例外で拒否する。ケース対応の4分類（両方一致・Aのみ失敗・Bのみ失敗・両方失敗）、モデル別の失敗内訳（SampleStatus別、評価reason code別）、エスカレーション回収上限（goldを使う事後的な上限であることを明記）、実行時に検知可能なルートでの回収率と誤エスカレーション件数を分けて出す。routableの定義（status非ok、または評価にmismatch/violation codeが残るケース）はCaseEvaluationに残るフィールドからの近似であることをコード内に注記した。
+- 検証: 新規試験26件（supply 10件・providers 9件・compare 7件、fetchは全てfake、ネットワークなし）。`bun run verify` **976 pass / 0 fail / 18,823 assertions / 77 files**（従来950件から新規26件分増加）、`bun run build`成功。整形・lint・型・境界検査もverify内で成功。
+- 未実施（この環境の制約）: Local Providerとhost（MCP）がこの環境に無いため、LFM2.5 / Lunaの実モデル実行、dev100/holdout100の200件比較、N03/N04の実測値、A46の正式Local受入判定は一切行っていない。**正式受入は未実施**のままである。次に必要なのは、host側のLocal接続が使える環境でadapterの接続確認（各数件）を行い、指示/schema/予算を凍結してから本評価へ進むこと。
+- 変更範囲: eval/extraction/{supply,providers,compare}.ts（新規）、eval/extraction/{runner,scoring,main}.ts（追加のみ）、test/eval/{supply,providers,compare}.test.ts（新規）。凍結dataset（dataset.v2.jsonとdigest）、閾値、src本体は不変。作業ブランチ `work/next-stage-p405` へローカルcommitのみ、push未実施。
