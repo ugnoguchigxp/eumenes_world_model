@@ -394,6 +394,214 @@ describe("buildSlice", () => {
 		expect(slice.droppedClaims).toBeGreaterThan(0);
 		expect(slice.claimIds.length + slice.droppedClaims).toBe(2);
 	});
+
+	const chainEpisode: E04Episode = {
+		id: "ep-chain",
+		title: "APIの依存と担当",
+		entities: [
+			{ id: "ent-search", displayName: "検索API", aliases: [] },
+			{ id: "ent-analysis", displayName: "分析API", aliases: [] },
+			{ id: "ent-tanaka", displayName: "田中", aliases: [] },
+			{ id: "ent-room-b", displayName: "会議室B", aliases: [] },
+		],
+		sessions: [
+			{
+				id: "s1",
+				date: "2026-09-02",
+				utterances: [
+					{
+						id: "v1",
+						speaker: "佐藤",
+						text: "検索APIは分析APIに依存しています。",
+					},
+					{ id: "v2", speaker: "佐藤", text: "分析APIの担当は田中です。" },
+					{
+						id: "v3",
+						speaker: "佐藤",
+						text: "会議室Bの予約上限は8人です。",
+					},
+				],
+			},
+		],
+	};
+
+	const chainQuestion: E04Question = {
+		id: "ep-chain-q1",
+		episodeId: "ep-chain",
+		category: "multi-session",
+		question: "検索APIが依存しているAPIの担当者は誰ですか。",
+		gold: {
+			requiredGroups: [["田中"]],
+			forbidden: [],
+			holdExpected: false,
+			evidenceUtteranceIds: ["v1", "v2"],
+		},
+		oracleClaims: [
+			{
+				text: "検索APIは分析APIに依存している。",
+				evidenceUtteranceId: "v1",
+			},
+			{ text: "分析APIの担当は田中である。", evidenceUtteranceId: "v2" },
+		],
+	};
+
+	const chainClaims: E04ExtractionCandidate[] = [
+		{
+			subject: { kind: "id", id: "ent-search" },
+			predicate: "depends_on",
+			payload: {
+				kind: "relation",
+				relation: "depends_on",
+				object: { kind: "id", id: "ent-analysis" },
+			},
+			quote: { utteranceId: "v1", startByte: 0, endByte: 10 },
+			modality: "asserted",
+		},
+		{
+			subject: { kind: "id", id: "ent-analysis" },
+			predicate: "owner",
+			payload: {
+				kind: "value",
+				value: { kind: "entity", entityId: "ent-tanaka" },
+			},
+			quote: { utteranceId: "v2", startByte: 0, endByte: 10 },
+			modality: "asserted",
+		},
+		{
+			subject: { kind: "id", id: "ent-room-b" },
+			predicate: "capacity",
+			payload: {
+				kind: "value",
+				value: { kind: "number", value: 8, unit: "人" },
+			},
+			quote: { utteranceId: "v3", startByte: 0, endByte: 10 },
+			modality: "asserted",
+		},
+	];
+
+	test("one-hop expansion ranks a chained claim before an unrelated claim and keeps it under a tight budget", () => {
+		// The owner claim's names （分析API・田中） never appear in the
+		// question; only the depends_on claim (tier 1) references 分析API.
+		// The unrelated claim quotes the newest utterance, so plain
+		// recency would rank it ahead of the owner claim.
+		const full = buildSlice(chainEpisode, chainClaims, chainQuestion, 100000);
+		const lines = full.text.split("\n");
+		expect(lines.length).toBe(3);
+		expect(lines[0]).toContain("検索API depends_on 分析API");
+		expect(lines[1]).toContain("分析API owner 田中");
+		expect(lines[2]).toContain("会議室B capacity 8人");
+		const budget =
+			estimateTokens(lines[0] as string) + estimateTokens(lines[1] as string);
+		const cut = buildSlice(chainEpisode, chainClaims, chainQuestion, budget);
+		expect(cut.claimIds).toEqual(["c1", "c2"]);
+		expect(cut.text).toContain("田中");
+		expect(cut.droppedClaims).toBe(1);
+		expect(cut.partial).toBe(true);
+		expect(cut.includedEvidenceIds).toEqual(["v1", "v2"]);
+	});
+
+	test("tiers order 1 before 1.5 before 2 regardless of recency or input order", () => {
+		const orderEpisode: E04Episode = {
+			id: "ep-order",
+			title: "tier順序",
+			entities: [
+				{ id: "ent-search", displayName: "検索API", aliases: [] },
+				{ id: "ent-analysis", displayName: "分析API", aliases: [] },
+				{ id: "ent-tanaka", displayName: "田中", aliases: [] },
+				{ id: "ent-room-b", displayName: "会議室B", aliases: [] },
+				{ id: "ent-record", displayName: "記録API", aliases: [] },
+			],
+			sessions: [
+				{
+					id: "s1",
+					date: "2026-09-02",
+					utterances: [
+						{
+							id: "w1",
+							speaker: "佐藤",
+							text: "検索APIは分析APIに依存しています。",
+						},
+						{
+							id: "w2",
+							speaker: "佐藤",
+							text: "分析APIの担当は田中です。",
+						},
+						{
+							id: "w3",
+							speaker: "佐藤",
+							text: "会議室Bは分析APIを利用しています。",
+						},
+						{
+							id: "w4",
+							speaker: "佐藤",
+							text: "記録APIの容量は100GBです。",
+						},
+					],
+				},
+			],
+		};
+		const claims: E04ExtractionCandidate[] = [
+			// Tier 2: unrelated, but quotes the newest utterance.
+			{
+				subject: { kind: "id", id: "ent-record" },
+				predicate: "capacity",
+				payload: {
+					kind: "value",
+					value: { kind: "number", value: 100, unit: "GB" },
+				},
+				quote: { utteranceId: "w4", startByte: 0, endByte: 10 },
+				modality: "asserted",
+			},
+			// Tier 1.5 via its object: 会議室B uses 分析API (referenced by tier 1).
+			{
+				subject: { kind: "id", id: "ent-room-b" },
+				predicate: "uses",
+				payload: {
+					kind: "relation",
+					relation: "uses",
+					object: { kind: "id", id: "ent-analysis" },
+				},
+				quote: { utteranceId: "w3", startByte: 0, endByte: 10 },
+				modality: "asserted",
+			},
+			// Tier 1: 検索API is named in the question.
+			{
+				subject: { kind: "id", id: "ent-search" },
+				predicate: "depends_on",
+				payload: {
+					kind: "relation",
+					relation: "depends_on",
+					object: { kind: "id", id: "ent-analysis" },
+				},
+				quote: { utteranceId: "w1", startByte: 0, endByte: 10 },
+				modality: "asserted",
+			},
+			// Tier 1.5 via its subject: 分析API owner 田中.
+			{
+				subject: { kind: "id", id: "ent-analysis" },
+				predicate: "owner",
+				payload: {
+					kind: "value",
+					value: { kind: "entity", entityId: "ent-tanaka" },
+				},
+				quote: { utteranceId: "w2", startByte: 0, endByte: 10 },
+				modality: "asserted",
+			},
+		];
+		const slice = buildSlice(
+			orderEpisode,
+			claims,
+			{ ...chainQuestion, episodeId: "ep-order" },
+			100000,
+		);
+		const lines = slice.text.split("\n");
+		expect(lines.length).toBe(4);
+		expect(lines[0]).toContain("検索API depends_on 分析API");
+		// Within tier 1.5, recency still decides: w3 before w2.
+		expect(lines[1]).toContain("会議室B uses 分析API");
+		expect(lines[2]).toContain("分析API owner 田中");
+		expect(lines[3]).toContain("記録API capacity 100GB");
+	});
 });
 
 describe("buildOracleContext", () => {

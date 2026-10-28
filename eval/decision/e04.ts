@@ -593,6 +593,8 @@ const HOLD_MODALITIES: ReadonlySet<string> = new Set([
 
 interface ResolvedClaim {
 	readonly subjectId: string;
+	/** Resolved object entity id; null for scalar-value claims. */
+	readonly objectId: string | null;
 	readonly subjectName: string;
 	readonly predicate: string;
 	/** Rendered value (typed value or entity display name). */
@@ -642,9 +644,19 @@ export interface E04SliceResult {
  * display name / alias text for alias references. Hold modalities are
  * excluded, then candidates are grouped by (subject, predicate) and only
  * the one quoting the latest utterance survives. Survivors are ordered by
- * question mention (tier 1: subject or object name/alias appears in the
- * question text) and then by utterance recency, and rendered until the
+ * relevance tier and then by utterance recency, and rendered until the
  * next line would exceed the budget.
+ *
+ * Relevance tiers:
+ * - tier 1: the claim's subject or object name/alias appears in the
+ *   question text.
+ * - tier 1.5 (one-hop expansion): the claim's subject or object id is in
+ *   the set of entity ids referenced by the tier-1 claims (their
+ *   resolved subject and object ids). A chained question ("who owns the
+ *   API that the search API depends on?") names only the first hop; the
+ *   claim about the indirectly referenced entity still ranks ahead of
+ *   unrelated claims.
+ * - tier 2: the remaining claims.
  */
 export function buildSlice(
 	episode: E04Episode,
@@ -687,14 +699,17 @@ export function buildSlice(
 		const subjectName = subjectEntity?.displayName ?? subjectId;
 		const names: string[] = [subjectName, ...(subjectEntity?.aliases ?? [])];
 		let valueText: string;
+		let objectId: string | null = null;
 		if (candidate.payload.kind === "relation") {
 			const objectEntity = resolveRef(candidate.payload.object);
 			const objectName =
 				objectEntity?.displayName ?? refFallback(candidate.payload.object);
+			objectId = objectEntity?.id ?? refFallback(candidate.payload.object);
 			valueText = objectName;
 			names.push(objectName, ...(objectEntity?.aliases ?? []));
 		} else if (candidate.payload.value.kind === "entity") {
 			const target = entityById.get(candidate.payload.value.entityId);
+			objectId = candidate.payload.value.entityId;
 			valueText = target?.displayName ?? candidate.payload.value.entityId;
 			names.push(valueText, ...(target?.aliases ?? []));
 		} else {
@@ -713,6 +728,7 @@ export function buildSlice(
 					);
 		resolved.push({
 			subjectId,
+			objectId,
 			subjectName,
 			predicate: candidate.predicate,
 			valueText,
@@ -750,10 +766,26 @@ export function buildSlice(
 		survivors.push(winner);
 	}
 
-	const tierOf = (claim: ResolvedClaim): number =>
-		claim.names.some((name) => name !== "" && question.question.includes(name))
-			? 1
-			: 2;
+	const isTier1 = (claim: ResolvedClaim): boolean =>
+		claim.names.some((name) => name !== "" && question.question.includes(name));
+	// One-hop expansion: entities a tier-1 claim points at (its subject
+	// and object ids) are what chained questions are indirectly about.
+	const referenced = new Set<string>();
+	for (const claim of survivors) {
+		if (!isTier1(claim)) continue;
+		referenced.add(claim.subjectId);
+		if (claim.objectId !== null) referenced.add(claim.objectId);
+	}
+	const tierOf = (claim: ResolvedClaim): number => {
+		if (isTier1(claim)) return 1;
+		if (
+			referenced.has(claim.subjectId) ||
+			(claim.objectId !== null && referenced.has(claim.objectId))
+		) {
+			return 1.5;
+		}
+		return 2;
+	};
 	const ordered = [...survivors].sort((a, b) => {
 		const tier = tierOf(a) - tierOf(b);
 		if (tier !== 0) return tier;
