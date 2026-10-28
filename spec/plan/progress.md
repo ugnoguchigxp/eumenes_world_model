@@ -44,7 +44,7 @@
 | P5-01 | 判断APIを製品で使う入口 | 一部完了(Task連携は未受入) | Eumenes world-query(6 mode、上限、権限外、executionPermission none)、model tool定義、POST /api/world/query(未mount)、world-query.test.ts 14件(A14-A16,A47)。Task連携: 実Tasks domainにGap用kind/権限が無く未受入。tool登録・query mount・実resource stateは未配線 |
 | P5-02 | 根拠付き一覧と訂正画面 | 完了(fixture backend、実機未実施) | Eumenes /api/world/{status,claims,forgets,...}、web設定画面World、world-claims.test 13件+http 4件+vitest 16件+Playwright 1件(A48)。訂正理由は本人の確認済みメッセージ。source本文表示・entity表示名・曖昧対象のbrowser caseは未実装/mock |
 | P5-03 | 一つの改善仕事を閉じる | 待機 | W側の純粋規則評価完了: eval/scenarios/cache-latency、test/eval/cache-latency.test.ts 47件(A45,A49のWorld部分)。待機理由: host実行台帳・Tool権限・P5-01/02/P4-04(host) |
-| P5-04 | Worldを使う意味品質の比較 | 待機 | W側harness完了: eval/decision、test/eval/decision.test.ts 74件、spec/decision-evaluation.md。待機理由: G5(実モデル)・先行P5-03。fixtureのp5Acceptedは常に偽 |
+| P5-04 | Worldを使う意味品質の比較 | 待機 | W側harness完了: eval/decision、test/eval/decision.test.ts 74件、spec/decision-evaluation.md。待機理由: .aはP4-05.cのLocal正式受入とG5、.bはP5-03.i。fixtureのp5Acceptedは常に偽（2026-10-28の優先計画で分割） |
 | P6-02 | CapabilityとToolchainと自己改善への証拠 | 未着手 | — |
 | P6-03 | 複数Scopeと長期運用 | 待機 | 条件のみ固定: spec/operational-acceptance.md。24時間実測は未実施(H runnerが必要) |
 | P6-04 | 運用手順と最終受入 | 待機 | 手順骨子: spec/operations-runbook.md。全手順が未実施 |
@@ -732,6 +732,30 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 最終検証: 専用8件・790 assertions成功。測定再現試験の比較型注記だけ修正後、`bun run verify` **935 pass / 0 fail / 17,994 assertions / 70 files**、`bun run build`成功。実測コード・入力・期待値は不変。差分点検で担当外変更、資料IDによる意味選択、文言による規程分類なし。完了は比較・採否判断・記録の完了であり、対象外混入の解消ではない。
 - 詳細: [結果](../../fixtures/experiments/source-role-audit-comparison/2026-10-16.md)、[再現JSON](../../fixtures/experiments/source-role-audit-comparison/2026-10-16.json.gz)。
 
+## 2026-10-16 EumenesのWorld調査と収集Seedの接続
+
+- 利用者がEumenesの連携改修とSeed追加を許可。既存記憶の消去を避ける要望を受け、追加専用・冪等・内容競合拒否とした。本体src・配布パッケージ・既存v5・過去の評価資産は不変。
+- World側は固定Seedを検査してEumenes資料API用JSONLへ出力する `eval/seed/export-eumenes.ts` のみ追加。出力はGit対象外の `artifacts/eumenes-seed-grok-984-v1.jsonl`。manifestは既存 `grok-984-v1`、digest `sha256:7a7f8ef7da7c3460469e8e34d2bff8a0376c44a78f070452225197b44dce5eb3`。
+- Eumenes側は既存world.query調査経路を再利用。条件計算・有効期間・UTC判定時刻・観測未提供を保持する。収集資料の台帳、ホストScopeと単一Writerを使う追加API、原文読取り、報告時の版と取り下げ再確認、新旧bundleを併存する新版を追加した。資料選択・適用の意味判断はLLMに残し、実験で不採用の監査を導入しない。
+- 隔離環境: 984 inserted / 984 unchanged / 984本文・digest・manifestDigest一致。長文も最後まで復元。実データを本人の会話として投入していない。保存と参照の検証であり、全件の意味抽出・採用・正本確認ではない。
+- Eumenesの明示指定回帰: 610 pass / 0 fail / 5,563 assertions / 80 files。別途bundle旧版維持、Scope分離、引用後の取り下げ拒否、有効期間外の計算引継ぎも確認。
+- 実モデル調査担当: 初回は試験の診断SQLの誤りで判定保存失敗。次の実行は空白で連結したキーワードを部分一致検索へ渡してnot_found。連続文字列1つを渡すという汎用のツール説明を補ったところ、同じ1問で検索→原文読取り→引用報告が成立（3呼出し、実行約24秒）。実装の対策済みという事実は作らずSHOULDを保持。部分読取り、summaryのd1表記が残る。会話の親は固定fixtureであり、実モデルの最終回答や一般的な精度向上は未受入。
+- 本体への追加投入は未実施: 既存DBの `migration_checksum_mismatch:inference/0009-agent-sessions` により起動前に停止。同じエラーが前日のログにもあり、今回のWorld変更外。記憶削除・初期化・checksum書換えでは回避していない。
+- 全体検証は成功扱いにしない: Eumenesには変更外の型エラー1件、Web試験の依存不足があり、別作業の入力変更でverify結果もinvalidated。所有ファイルを明示した上記の回帰結果と区別した。後からEumenes AGENTSに明示許可なしのサーバー起動禁止が追加されたため、再起動等は行わない。
+- 詳細と残作業はEumenesの `spec/world-reference-integration-2026-10-16.md`。今回の完了範囲は連携実装・隔離検証・Seed追加手順。製品DBへの投入と既存起動障害の修復は未完了。
+- World側の今回の最終検証: `bun run verify` **935 pass / 0 fail / 17,994 assertions / 70 files**。exportスクリプトのlint/format成功。Seed本文はGit対象外へ移動済み。v5とsrcの差分なし。
+- 最終差分点検時、並行作業のMemory型不一致とagent-runtimeのSQL境界違反も検出した。修正は行わずEumenesの記録に追記。試験fixtureの命名整理後は結合26件・118 assertions成功。610件の成功は実行時の状態に対する証拠であり、進行中の他変更を含む全体受入ではない。今回commit/push未実施。
+
+
+## 2026-10-16 Eumenes本体Seedの投入完了（追記）
+
+- 利用者から初期化も含めたSeed実施の許可を受け、本体DBへ `grok-984-v1` の11コレクション984件を追加。結果として初期化・記憶消去は不要だった。
+- 適用済みinference移行への後付けSQLを新しい移行へ分離し、旧SQLを本体DBの記録済みchecksumと一致させた。移行履歴の直接更新なし。既存行保持・新移行・再オープンと資料結合の5ファイルで15 pass / 0 fail / 91 assertions。
+- 通常起動は別の `tool:web.lookup@1` の版競合で停止。競合定義を今回変更せず、既存排他writer・認証・資料APIの一時backendを使い、既存CLIからHTTPで投入。終了時にbackend/storeを閉じた。
+- 本体実測: 984 inserted、再投入984 unchanged、2,101ページで984件の全文・digest・manifestDigest・版・題名・collection一致。未認証401、検索成功。約2.68秒。
+- 投入前後で他220テーブルの全行ハッシュ・件数一致。起動前に確認した記憶・会話関連・設定35テーブルの件数も一致。データや秘密のコピーなし。
+- Eumenesの `verification-reports/world-reference-live/product-seed.json` と `spec/world-reference-integration-2026-10-16.md` に結果・限界を記録。原文保存の完了であり、全件抽出・自動採用・本体会話利用の受入ではない。通常起動のWeb版競合は残る。v5・World本体srcは不変。今回はcommit/push未実施。
+
 ## 2026-10-26 Bun 1.4.4への更新
 
 - セキュリティ修正を含むBun 1.4.4に合わせ、`package.json`の`packageManager`を1.4.2から1.4.4へ更新し、READMEの使用版を同期。実行環境は着手時点ですでに1.4.4（38afee6c8）。
@@ -758,3 +782,28 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 差分点検: 個別語句での意味分類・固定回答・仮の成功は追加なし。有限AST・提示ID/引用パスは出力契約の強制だけ。モデル出力の意味をホストが書き換えない。既存のseed export作業を保持し、隣接repo・製品DBは変更なし。
 - 導入条件: 旧投影をhostの単一Writer内で各Scopeの`rebuild`により再構築する。今回、製品DBには未実施。
 - 俯瞰評価の記録: 3ラウンド時点でLocalの拒否理由を評価し、reasoning要件・転送方式・引用契約へ原因を絞った。意味判断の専用処理へ移さず、条件を変えた根拠を会話で通知。再実行用CLIでコードdigest不変と3件成功を確認して探索を終了。
+
+
+## 実モデル受入から先の統合計画（2026年10月28日、計画のみ）
+
+3案を[統合計画](next-stage.md)へ整理した。P4-05.a〜c（entity供給照合・2モデルadapter・同じ200件の比較）を最優先とし、P5-04.aの独立品質比較を新しい製品配線より先に置く。
+手書きWorldと実抽出由来World、Local単独とLuna対照/混合、事後回収上限と実行時に検知可能な回収率を分ける。抽出の失敗生成を再投入せず、holdoutと既存閾値を維持する。
+W1/W2/W5は観測した失効・提示・忘却の不足に対する必要最小限の票とし、状況→予測→実測→修正候補→次の判断の小さな一巡をP5-03.i/P5-04.bで受け入れる。
+その後にAgency接続・条件付き規則・P6の実運用を置く。親P5-04の完了条件は.a/.b両方であり、今回の順序変更で既存票を完了にしない。
+
+- 変更範囲: spec/plan/next-stage.md、implementation-plan.md、integration-tasks.md、acceptance.md、README、本記録。
+- 現物との照合: entity一覧とharness候補供給、既存Slice順位、950件の前回成功、decode/JSON修正、10万件性能測定を確認し、未実装という前提を訂正。
+- 実装・モデル実行・製品反映: 未実施。作業票はすべて未着手。外部host/Agencyの作業は依存条件として記録しただけ。
+- 文書検証: 参照ファイル・リンク、票ID・先行関係、受入ゲート、非公開holdout・Cloud fallback境界、差分を点検する。コード試験は文書のみの変更のため再実行しない。
+
+
+## 先行研究の比較実験計画（2026年10月28日、計画のみ）
+
+提供された収集資料のうち、既存の抽出・判断・予測照合へ直接つながる候補を一次資料と現行契約に照合し、[研究比較計画](research-experiments.md)のE01〜E10へ整理した。収集全件を再現・検証したものではない。
+
+- 優先: 200件の初回基準後にJacRED（E01）と取得済み出力の意味支持点検（E03）、P5-04.aで同予算の履歴/Sliceとoracle（E04）。
+- 条件付き: 原子/要素別抽出、PPR、複数支持、双時間監査は対応する不足を観測してから比較する。実物一巡後はWorldEvolver/PSALMの更新を別々に測る。
+- 契約への反映: 予測と実行行動のID/版/parametersを対応させ、行動変更後は実行前に再予測する条件をP4-04.a、N10/N12へ追加。ホスト実装は未着手。
+- 維持した境界: forget本文を履歴から復活させない。無効生成を再投入しない。意味判断はLLM、コードは契約と数値計算。確率を持たない現行PredictionからBrierを算出しない。
+- 成果: 各実験の仮説、対照、対象・予算、測定、採否、保留条件、未実施の結果表。正式A46/A50の閾値やp5Acceptedを変更しない。
+- 実装・モデル実行・データ取得・結果の改善: 未実施。研究の効果は未測定。文書のローカルリンク71件（欠落0）、E01〜E10/N01〜N16の重複なし、票の対応とgit diff --checkを確認。コード試験は文書のみの変更のため省略。既存seed作業は保持。

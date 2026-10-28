@@ -82,3 +82,15 @@ bun run build
 
 通常の検証は小さな合成資料を使い、非公開の984件や実モデルがなくても実行できる。
 実資料984件の通し確認は `bun run seed:world` を別途実行する。
+
+## Eumenesへの収集資料の追加投入
+
+`export-eumenes.ts` は同じ固定manifestを検証して、Eumenesの収集資料API用JSONLへ変換する。本文・収集情報・reviewを保持し、`accepted`を本人申告やWorld主張の採用へ変換しない。出力はGit対象外の`artifacts/`へ保存する。
+
+```sh
+bun eval/seed/export-eumenes.ts data/worldmodel-corpus/seed/v1.json artifacts/eumenes-seed-grok-984-v1.jsonl
+```
+
+Eumenes側の `scripts/world-documents-import.ts <JSONLの絶対パス>` は入力確認だけを行い、`--run`を付けた場合だけ認証済みAPIへ追加する。既存の会話・記憶を消す処理はない。同じID・版・本文は変更なし、同じIDの内容変更と取り下げ済みIDは拒否する。ネットワーク途中失敗は修復後に同じファイルを再投入できる。
+
+2026-10-16: 隔離Eumenesで984件追加、984件の冪等再投入、984件の本文・digest・manifestDigest読み戻しを確認。その後、既存移行の追記を独立した移行へ分離し、本体DBでも984件追加・984件冪等再投入・全件の本文と由来情報の一致を確認した。初期化や記憶削除は不要だった。通常起動は別のWebツール版競合で停止するため、既存認証・Writer・資料APIを使った一時backend経由で投入した。全件を意味抽出・グラフ採用したことを意味しない。

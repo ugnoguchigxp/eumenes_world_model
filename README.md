@@ -4,6 +4,8 @@ SAAAのPersonal Worldを継承する、独立開発用のWorldModelプロジェ�
 
 推奨構成は、TypeScriptの独立パッケージをEumenesへ組み込み、EumenesのSQLite単一Writer・queue・推論接続を使う方式です。対象・状態・条件・因果・相関・依存を根拠付きで管理し、目標との関係、変更の影響、判断に足りない証拠をエージェントへ返します。
 
+- [実モデル受入から先の統合計画](spec/plan/next-stage.md) — LFM2.5/Lunaの抽出比較、判断品質、実物の一巡、Agency・運用への順序
+- [先行研究を取り入れる比較実験](spec/plan/research-experiments.md) — 日本語抽出、引用支持、履歴/Slice比較、条件付き規則の測定と採否
 - [実装計画書](spec/implementation-plan.md) — 43作業票・契約・54受入ケース（進捗は[実装進捗](spec/plan/progress.md)）
 - [SQLite公開API](spec/world-sqlite-public-api.md) — 実装済みの操作と未受入の範囲
 - [プロジェクト構造](spec/project-structure.md) — 配置と依存方向

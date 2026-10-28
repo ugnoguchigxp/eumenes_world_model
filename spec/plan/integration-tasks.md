@@ -4,6 +4,9 @@
 
 パスの`H`は`../eumenes`、`W`はこのリポジトリ。World本体の検証は計画本体のF/D/S。`HF(domain)`はH内の`bun run verify -- --domain <domain>`、`HA`はH内の`bun run verify:all`。world/goalsのHFはdomainを登録した後にだけ実行できる。認可済みのホスト作業中も製品DBの初期化や既存設定のリセットは行わない。
 
+2026年10月28日追補: P4-05以降の残作業・依存順・追加受入は[優先計画](next-stage.md)を参照。
+P4-05を.a〜cへ、P5-04を.a/.bへ分ける。過去のfixture実績を実モデル受入へ読み替えず、既存票の完了条件は維持する。
+
 ## P3-01 正式配布物と独立consumer
 
 - 先行条件: P2-10、G1解決済み。
@@ -117,22 +120,25 @@
 - 先行条件: P4-01、P1-09、P3-07。
 - 変更先: Hの実行台帳所有domainの公開RuntimeSnapshot、world/service/runtime-adapter、world/test/outcomes.test.ts。
 - 作業: 検証済み実行結果からcomparisonId/metric/unit/config/baseline/期間を取り出し、Worldの予測と照合する。元台帳のrevisionと検証状態をinput dependencyへ含める。
+- 追加契約: [研究E08](research-experiments.md)の行動一致をP4-04.aへ反映する。公開snapshotに実行行動のID/版/parametersDigestと予測版を対応付ける。行動変更後は実行前に再予測し、対応不能は比較不能とする。
 - 契約: LLMの「完了しました」をruntime_observationにしない。Tool実行の成否は元台帳が所有し、Worldは支持/反証の意味評価だけを追加する。公開実行台帳がなければその接続票を待機し、fixture部分だけ完了として区別する。
 - 試験/検証: A18、A45。成功報告と実測不一致、比較条件不足、元結果の訂正/forget、重複通知を検査。HF(world)、該当所有domainのHF、HA。
 - 完了条件: 観測が検証済み元台帳の版へ追跡でき、Worldによる実行成功の捏造がない。
 
 ## P4-05 日本語抽出の実モデル評価
 
-- 先行条件: P4-02、03、G5。結果照合を評価するケースはP4-04も必要。
+- 先行条件: .a/.bの契約・adapter準備は現行公開APIの照合から着手できる。.cの正式評価は.a/.bとG5、host queueの受入はP4-02/03が必要。結果照合を評価するケースはP4-04も必要。独立した抽出比較に実行台帳の完成を先行必須としない。
 - 変更先: Wの`eval/extraction/{dataset,runner,scoring}`、packageの`eval:extraction`、`spec/evaluation-baseline.md`。
 - 作業: 否定/仮定/伝聞/別人/同名/期間/条件違い/多根拠/訂正/通常例の10群各20件、計200件を合成し、各群10件を開発用、10件をholdoutに固定する。正解をモデル実行前に保存し、group/sample/versionを固定する。
-- 契約: holdoutをprompt調整へ使わない。閾値は初期受入として採用precision>=0.95、不明の適切な保留recall>=0.95、否定/仮定/伝聞の区分正解率>=0.95。Scope漏洩、引用捏造、忘却後復活、hypothesisの実測化は1件でも失敗。品質率は分子分母とケースIDを示す。
-- 試験/検証: A46。明示的なevalコマンドだけがLocal Providerを呼ぶ。通常verifyではrunnerとscoringをfixtureで検査。モデルID/版/設定、入力bytes、p50/p95、timeout率、可能なら推論費用を保存する。成功したサンプルだけで集計しない。
+- 契約: holdoutをprompt調整へ使わない。閾値は初期受入として採用precision>=0.95、不明の適切な保留recall>=0.95、否定/仮定/伝聞の区分正解率>=0.95、採用recall>=0.95（現行ext-threshold-v2）。Scope漏洩、引用捏造、忘却後復活、hypothesisの実測化は1件でも失敗。品質率は分子分母を示す。holdoutはrunner内部でケースを対応付け、ケースID・本文・goldを追加公開しない。
+- 試験/検証: A46。明示的なevalコマンドだけが実モデルを呼び、Local受入とリモート対照を別に記録する。通常verifyではrunnerとscoringをfixtureで検査。モデルID/版/設定、入力bytes、p50/p95、timeout率、可能なら推論費用を保存する。成功したサンプルだけで集計しない。
+- 追加作業: [P4-05.a〜c](next-stage.md)で既存entity供給を照合し、同じdev100/holdout100をLocal LFM2.5とリモート対照Lunaで実行する。失敗分類、対応する差分、回収上限/実行時検知可能な回収率を分ける。抽出の不正生成は修正要求・再投入しない。Lunaをlocalと偽らず、自動Cloud fallbackを製品に追加しない。
+- 研究評価: 初回比較後に[研究E01/E03](research-experiments.md)でJacREDの外部日本語と引用の意味支持を追加評価する。E02の分割方式は対応する失敗を観測した場合だけ比較する。200件と外部suiteを混ぜず、正式受入の閾値を変えない。
 - 完了条件: deterministicと実モデルの結果が別表にあり、100件holdoutで閾値を満たす。実行環境や正解が不足する場合は未受入。閾値を結果を見て緩める場合は新しい評価版と理由が必要。
 
 ## P5-01 判断APIを製品で使う入口
 
-- 先行条件: P3-09、P1-08、09。自動抽出入力を使う場合はP4も完了。
+- 先行条件: P3-09、P1-08、09。今回のP5-01.iではP4-05.cとP5-04.aの移行ゲートを先行させる。自動抽出はP4-01〜03の必要なhost受入を満たす。実測の利用はP4-04の公開snapshot契約と観測adapterが必要で、未接続時に実測結果を仮生成しない。
 - 変更先: Hのworld/contracts/service/controller/test、Broker、model tool選択の公開接続。
 - 作業: query modeをsnapshot/relevance/influence/dependencies/scenarios/gapsから列挙選択し、Scope・Goal・予算・起点を検査して純粋APIへ渡す。LLMの自由SQLや汎用graph mutationを受け付けない。
 - 契約: Gapは調査候補で実行許可ではない。Taskへの連携はhostが委任と予算を確認し、安定キーで重複排除する。既存Task公開口が未完成ならGap表示までに留め、実行結合を未受入とする。
@@ -159,12 +165,14 @@
 
 ## P5-04 Worldを使う意味品質の比較
 
-- 先行条件: P5-03、G5。
+- 先行条件: .aの独立実モデル比較はP4-05.cのLocal正式受入とG5。.bの結果反映後評価はP5-03.i。親票は.a/.bの両方の受入まで未完了。
 - 変更先: Wの`eval/decision/`、packageの`eval:decision`、結果レポート。
-- 作業: 20個の固定仕事をMemoryのみ/Memory+関連/Memory+条件付きWorldの3条件で同じモデル・入力予算・seed設定により比較する。各仕事に根拠・必要条件・適切な保留・禁止断定の事前rubricを持つ。
-- 契約: 4軸を各0/1で採点し、主観的な総合印象だけで比較しない。World条件がMemoryのみより改善した仕事数と悪化した仕事数を報告。初期受入は安全上の失敗0、悪化0、少なくとも5仕事で改善とする。達成しなければP5未受入。
+- 作業: 20個の固定仕事をMemoryのみ/Memory+関連/同じ主張文のplain-facts対照/Memory+条件付きWorldの4条件で同じモデル・入力予算・seed設定により比較する。各仕事に根拠・必要条件・適切な保留・禁止断定の事前rubricを持つ。
+- 契約: 4軸を各0/1で採点し、主観的な総合印象だけで比較しない。World条件がMemoryのみより改善した仕事数と悪化した仕事数を報告。初期受入は安全上の失敗0、悪化0、評価15仕事の少なくとも5仕事で改善、全セル完了・要判定0とする。plain-factsのframingEvidenceとp5Acceptedは別に維持する。実抽出由来のWorldで既存のdemonstrated条件を満たすことを製品配線への移行ゲートにする。達成しなければ未受入。
 - 試験/検証: A50。評価入力をprompt調整用から分け、出力、引用、採点根拠、token/latency、訂正回数を保存。通常verifyに実モデル実行を含めない。
-- 完了条件: 有用性の主張が比較結果へ追跡できる。平均点でScope漏洩や因果誤認を相殺しない。
+- 研究評価: [研究E04](research-experiments.md)で生履歴・同予算の履歴・実Slice・oracleを別suiteで比較する。既存4条件を保持し、oracleや公開benchmarkの部分適応を製品ゲート/公式スコアと混ぜない。V2の経験・前提評価は.b/AG1で取り入れる。
+- 追加作業: [P5-04.a/.b](next-stage.md)で手書きWorldと実抽出由来Worldを分け、既存表示との比較、実仕事の結果反映、未見条件への誤一般化を測る。新しいprovider/描画APIは既存と推測しない。
+- 完了条件: .aの独立比較と.bの実物一巡後の比較が有用性の主張へ追跡できる。平均点でScope漏洩や因果誤認を相殺しない。
 
 ## P6-02 CapabilityとToolchainと自己改善への証拠
 
