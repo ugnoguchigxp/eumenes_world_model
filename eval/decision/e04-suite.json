@@ -1,22 +1,58 @@
 {
-	"budgetTokens": 240,
+	"budgetTokens": 150,
 	"episodes": [
 		{
 			"entities": [
-				{ "aliases": [], "displayName": "検索API", "id": "ent-search-api" },
-				{ "aliases": [], "displayName": "検索機能", "id": "ent-search-fn" },
-				{ "aliases": [], "displayName": "分析API", "id": "ent-analytics-api" },
+				{
+					"aliases": [],
+					"displayName": "検索API",
+					"id": "ent-search-api"
+				},
+				{
+					"aliases": [],
+					"displayName": "検索機能",
+					"id": "ent-search-fn"
+				},
+				{
+					"aliases": [],
+					"displayName": "分析API",
+					"id": "ent-analytics-api"
+				},
 				{
 					"aliases": [],
 					"displayName": "レコメンド機能",
 					"id": "ent-recommend-fn"
 				},
-				{ "aliases": [], "displayName": "翻訳機能", "id": "ent-translate-fn" },
-				{ "aliases": [], "displayName": "画像API", "id": "ent-image-api" },
-				{ "aliases": ["佐藤さん"], "displayName": "佐藤", "id": "ent-sato" },
-				{ "aliases": ["鈴木さん"], "displayName": "鈴木", "id": "ent-suzuki" },
-				{ "aliases": ["田中さん"], "displayName": "田中", "id": "ent-tanaka" },
-				{ "aliases": ["山田さん"], "displayName": "山田", "id": "ent-yamada" }
+				{
+					"aliases": [],
+					"displayName": "翻訳機能",
+					"id": "ent-translate-fn"
+				},
+				{
+					"aliases": [],
+					"displayName": "画像API",
+					"id": "ent-image-api"
+				},
+				{
+					"aliases": ["佐藤さん"],
+					"displayName": "佐藤",
+					"id": "ent-sato"
+				},
+				{
+					"aliases": ["鈴木さん"],
+					"displayName": "鈴木",
+					"id": "ent-suzuki"
+				},
+				{
+					"aliases": ["田中さん"],
+					"displayName": "田中",
+					"id": "ent-tanaka"
+				},
+				{
+					"aliases": ["山田さん"],
+					"displayName": "山田",
+					"id": "ent-yamada"
+				}
 			],
 			"id": "ep-a",
 			"sessions": [
@@ -103,20 +139,36 @@
 		},
 		{
 			"entities": [
-				{ "aliases": [], "displayName": "アプリ", "id": "ent-app" },
+				{
+					"aliases": [],
+					"displayName": "アプリ",
+					"id": "ent-app"
+				},
 				{
 					"aliases": ["プッシュ通知"],
 					"displayName": "通知機能",
 					"id": "ent-notify-fn"
 				},
-				{ "aliases": [], "displayName": "決済機能", "id": "ent-pay-fn" },
-				{ "aliases": [], "displayName": "地図機能", "id": "ent-map-fn" },
+				{
+					"aliases": [],
+					"displayName": "決済機能",
+					"id": "ent-pay-fn"
+				},
+				{
+					"aliases": [],
+					"displayName": "地図機能",
+					"id": "ent-map-fn"
+				},
 				{
 					"aliases": ["高橋さん"],
 					"displayName": "高橋",
 					"id": "ent-takahashi"
 				},
-				{ "aliases": ["中村さん"], "displayName": "中村", "id": "ent-nakamura" }
+				{
+					"aliases": ["中村さん"],
+					"displayName": "中村",
+					"id": "ent-nakamura"
+				}
 			],
 			"id": "ep-b",
 			"sessions": [
@@ -193,12 +245,36 @@
 		},
 		{
 			"entities": [
-				{ "aliases": [], "displayName": "ポータル", "id": "ent-portal" },
-				{ "aliases": [], "displayName": "旧ポータル", "id": "ent-old-portal" },
-				{ "aliases": [], "displayName": "勤怠機能", "id": "ent-attendance-fn" },
-				{ "aliases": [], "displayName": "ニュース機能", "id": "ent-news-fn" },
-				{ "aliases": ["伊藤さん"], "displayName": "伊藤", "id": "ent-ito" },
-				{ "aliases": ["渡辺さん"], "displayName": "渡辺", "id": "ent-watanabe" }
+				{
+					"aliases": [],
+					"displayName": "ポータル",
+					"id": "ent-portal"
+				},
+				{
+					"aliases": [],
+					"displayName": "旧ポータル",
+					"id": "ent-old-portal"
+				},
+				{
+					"aliases": [],
+					"displayName": "勤怠機能",
+					"id": "ent-attendance-fn"
+				},
+				{
+					"aliases": [],
+					"displayName": "ニュース機能",
+					"id": "ent-news-fn"
+				},
+				{
+					"aliases": ["伊藤さん"],
+					"displayName": "伊藤",
+					"id": "ent-ito"
+				},
+				{
+					"aliases": ["渡辺さん"],
+					"displayName": "渡辺",
+					"id": "ent-watanabe"
+				}
 			],
 			"id": "ep-c",
 			"sessions": [
@@ -280,7 +356,11 @@
 		},
 		{
 			"entities": [
-				{ "aliases": [], "displayName": "ETLジョブ", "id": "ent-etl" },
+				{
+					"aliases": [],
+					"displayName": "ETLジョブ",
+					"id": "ent-etl"
+				},
 				{
 					"aliases": [],
 					"displayName": "売上レポート",
@@ -301,7 +381,11 @@
 					"displayName": "小林",
 					"id": "ent-kobayashi"
 				},
-				{ "aliases": ["加藤さん"], "displayName": "加藤", "id": "ent-kato" }
+				{
+					"aliases": ["加藤さん"],
+					"displayName": "加藤",
+					"id": "ent-kato"
+				}
 			],
 			"id": "ep-d",
 			"sessions": [
@@ -412,7 +496,10 @@
 			},
 			"id": "ep-a-q2",
 			"oracleClaims": [
-				{ "evidenceUtteranceId": "u7", "text": "検索機能の担当は鈴木です" }
+				{
+					"evidenceUtteranceId": "u7",
+					"text": "検索機能の担当は鈴木です"
+				}
 			],
 			"question": "検索機能の現在の担当者は誰ですか？"
 		},
@@ -444,7 +531,10 @@
 					"evidenceUtteranceId": "u3",
 					"text": "検索APIは分析APIに依存しています"
 				},
-				{ "evidenceUtteranceId": "u10", "text": "分析APIの担当は田中です" }
+				{
+					"evidenceUtteranceId": "u10",
+					"text": "分析APIの担当は田中です"
+				}
 			],
 			"question": "検索APIが依存しているAPIの担当者は誰ですか？"
 		},
@@ -575,7 +665,10 @@
 			},
 			"id": "ep-c-q3",
 			"oracleClaims": [
-				{ "evidenceUtteranceId": "u5", "text": "勤怠機能の担当は渡辺です" }
+				{
+					"evidenceUtteranceId": "u5",
+					"text": "勤怠機能の担当は渡辺です"
+				}
 			],
 			"question": "勤怠機能の現在の担当者は誰ですか？"
 		},
