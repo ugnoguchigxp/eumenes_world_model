@@ -888,3 +888,16 @@ devの失敗集中を受け、全35コードの向き・定義・日本語表現
 - test60（未見・対比較）: v1 F1 0.319（P 0.321 / R 0.316）に対しv2 F1 0.301（P 0.310 / R 0.292）で、devの小幅改善は未見では再現しなかった。根拠文一致は両者とも全件一致。
 - 判断: 用語集v2は**採用しない**。定義の精密化はこのモデル級・この課題では一般化する改善にならず、残る壁は関係の意味判断とデータセット規約の2つに整理された。今後の実モデル測定はv1相当の薄い用語集を基準とし、規約起因のクラスは採点解釈で注記する。
 - 証拠: repo外 `~/workspace/dev/jacred-run/run2/`。repo側の変更は本記録のみ。
+
+
+## E03引用意味支持の分析ハーネス（2026年10月29日、実装のみ・測定未実施）
+
+研究計画E03の分析側を新規モジュールとして実装した。既存の`scoring.ts`/`runner.ts`/`dataset.ts`/`providers.ts`・契約・閾値・凍結datasetは変更していない。
+
+- `eval/extraction/quote-support.ts`: 純粋・オフラインの検証と集計のみ。意味判定はrepo外（judgeモデルまたは人手）がJSON文書で作る前提で、本モジュールは判定を生成しない。
+  - 型: `QuoteSupportVerdict`（supports/contradicts/insufficient）、`QuoteSupportItem`（itemId、goldMatched: boolean|null、contractValid、verdict）。
+  - `summarizeQuoteSupport`: 判定総数・verdict別件数・支持率、goldMatched（true/false/null）別の内訳、層分離（contractValidRateと、契約を通ったものだけの支持率）、食い違い2種（gold一致だが支持なし／gold不一致だが支持あり）、atomicPrecision（goldラベル付き候補数を分母とし、無ければ全件を分母とする。recallは計算せず呼び出し側が併記する）。空入力では率はnullでNaNを出さない。
+  - `parseQuoteSupportJudgments`: 判定文書`{suiteId, items:[{itemId, verdict, rationale?}]}`の厳密検証。未知verdict・itemId重複・欠落は`QuoteSupportError`。
+  - `pairJudgments`: 予測と判定の対応付け。予測に無いitemIdの判定は常にエラー、未判定の予測は`requireComplete`指定時のみエラー。gold/契約フラグは呼び出し側が予測ごとに供給し、suite固有のレポート形には依存しない。
+- 試験`test/eval/quote-support.test.ts`は手作りfixtureのみで集計・層分離・食い違い・検証拒否・対応付けを通す（14件）。
+- 意味判定の実測定（judgeによる判定文書の作成と集計）は未実施。結果が得られたら本台帳へ別途記録する。判定は補助指標であり採用権限を持たず、A46/A50の閾値・受入の意味は変更していない。

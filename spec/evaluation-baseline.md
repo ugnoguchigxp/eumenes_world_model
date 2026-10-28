@@ -214,3 +214,15 @@ bun --env-file=../eumenes/.env eval/extraction/local-smoke.ts --host ../eumenes
 - goldは根拠文がちょうど1文のrelationだけを表現可能とし、(subject, relation, object)で重複を除く。複数根拠・`Na`・重複はunsupportedとして件数を出し、存在しないものとして扱わず、モデルの失敗にも数えない。
 - 選定は凍結: seed `jacred-e01-v1`で`sha256(seed:split:上流index)`昇順に並べ、文数>16・結合bytes>6000・entity>24・表現可能なrelationなしの順に除外し、上限はdev 30文書・test 60文書。選定前後の件数と除外理由はmanifestに残す。
 - 指標: relation precision/recall/F1（micro集計）、正解tripleに対する根拠文一致率、無効な予測（未知のentity id・relationコード）の件数、引用なしの件数。失敗・エラー・不正出力のケースは分母から外さない。
+
+## 引用の意味支持の補助分析（E03）
+
+E03は、バイト位置の一致だけでは見えない「引用が主張の内容を支えているか」を、既存の取得済み出力への追加分析として別々に数える。実装は`eval/extraction/quote-support.ts`（検証・集計のみの純粋モジュール）、試験は`test/eval/quote-support.test.ts`。意味判定そのものはrepo外（judgeモデルまたは人手）でJSON文書として作り、本モジュールはその検証と集計だけを行う。
+
+3層を混ぜない。
+
+1. **契約の検証（層1）**: 引用の範囲・digest・source/版・UTF-8境界の既存の必須検査。呼び出し側が候補ごとに`contractValid`として渡し、`contractValidRate`として報告する。
+2. **意味の支持（層2）**: 引用が主張の主体・関係・否定・条件を支えるかを支持／反証／証拠不足で判定する。位置が合っていても内容を支えない候補は層1を通り層2で落ちるものとして数える（`supportRateAmongContractValid`）。
+3. **原子単位の精度（層3）**: 判定済み候補のうち引用が意味的に支持する割合を`atomicPrecision`とする。これはgoldに対するrecallとは別の数であり、本モジュールはrecallを計算しない。出さない方式が有利に見えないよう、呼び出し側が自らのrecallを併記する。
+
+判定と主採点の食い違い（gold一致だが支持なし／gold不一致だが支持あり）も件数として残す。意味判定は**補助指標であり採用権限を持たない**。A46/A50の閾値・凍結dataset・主採点（`scoring.ts`）は変更しない。判定文書は`{suiteId, items: [{itemId, verdict, rationale?}]}`の厳密検証を通し、未知のverdict・itemId重複・欠落はエラーにする。
