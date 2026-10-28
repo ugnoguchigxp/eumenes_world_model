@@ -914,3 +914,18 @@ devの失敗集中を受け、全35コードの向き・定義・日本語表現
 - 限界: 生成とjudgeが同系統のエージェントであり、合意は独立証拠ではない。ext-jaのentity値の主張は、判定用レンダリングで対象名が一般表記になった件があり、引用文内の名前で判定されている（件数は測定成果物側に記録）。judgeに採用権限は持たせておらず、A46/A50の閾値は無変更。
 - 判断: E03の補助分析は**採用**する（診断として有効）。今後の実モデル測定では、gold基準の主指標と並べて意味支持率を併記する。
 - 証拠: repo外 `~/workspace/dev/e03-run/`（バッチ・判定・対応表・除外記録）。
+
+
+## E04追加suiteの機構（2026年10月29日、実装のみ・測定未実施）
+
+研究計画E04（履歴とSliceの同予算比較）の追加suite側を新規モジュールとして実装した。既存4条件のharness・runner・採点の振る舞いは変更していない。suiteデータ（episode・質問・gold・oracle素材）自体は別途作成され、`eval/decision/e04-suite.json`として供給される前提で、本実装はその読み手と集計だけを持つ。
+
+- `eval/decision/e04.ts`: 純粋関数のみ（モデル・時計・ネットワーク・ファイルに触れない）。
+  - `loadE04Suite`: suite JSON（suiteId `e04-ja-v1`、共通予算 `budgetTokens`、episodes、questions）の厳密検証。構造・ID一意性・分類の妥当性に加え、質問→episode、goldの根拠発話IDとoracleの根拠発話IDがそのepisodeに実在する相互参照まで検査し、違反は `E04SuiteError`。
+  - `renderHistory`（H-full）: 全発話を `[発話ID] (日付 発話者) 本文` の行で時系列に描く。`truncateHistory`（H-budget）: 最新の発話から遡って予算（`estimateTokens` 見積もり、質問は含めない）に収まる分だけ残し、残した行は時系列で描く。切る規則はgoldを見ず実行前に固定。
+  - `parseExtractionCandidates`: 抽出評価の疎な候補JSON（配列または `candidates` を持つオブジェクト）への寛容な読み手。不正な要素は例外にせず件数を数えて読み飛ばす。entity値の参照は `entityId` / `id` の双方を受ける。
+  - `buildSlice`（W-slice）: 実抽出候補から決定的な選択・描画だけでSliceを作る。主体・対象はepisodeのentityへ解決（alias照合を含む）。保留様式（negated/hypothetical/question）を除外し、（主体、述語）ごとに引用発話が最新の候補だけを残し、質問に名前が出る主張を先に、残りを発話の新しさ順に並べ、共通予算で切る。引用はバイト範囲が正しく復号できる場合だけその範囲、でなければ発話全体。含めた根拠発話・予算で落ちた件数・supersede件数・保留除外件数・partialを返す。
+  - `buildOracleContext`（W-oracle）: 質問のoracle主張を同じ予算規則で描く。診断専用で、製品ゲートや公式スコアへ混ぜない。
+  - `scoreE04Answer`: goldに対する採点（必須語句グループ、禁止語句の混入、保留の適否、文脈内引用の妥当性と理由）。`summarizeE04`: arm別・arm×分類別の集計（正答率、混入件数、保留正確度、平均入力token、根拠recall平均、partial件数）。失敗とpartialは分母に残し、n=0の率はnull。
+- 試験 `test/eval/e04.test.ts` は手作りfixtureのみで、loaderの検証拒否、履歴描画の順序、切詰めの新しさ保持と脱落報告、sliceのsupersedeと保留様式除外、予算超過のpartial、oracle描画、採点の各分岐、集計の算術と空armを通す（25件）。
+- 実モデル測定（およびエージェント対照測定）は未実施。結果が得られたら本台帳へ別途記録する。既存A46/A50・`p5Accepted` の意味と閾値は変更していない。

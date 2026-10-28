@@ -1,0 +1,668 @@
+{
+	"budgetTokens": 240,
+	"episodes": [
+		{
+			"entities": [
+				{ "aliases": [], "displayName": "検索API", "id": "ent-search-api" },
+				{ "aliases": [], "displayName": "検索機能", "id": "ent-search-fn" },
+				{ "aliases": [], "displayName": "分析API", "id": "ent-analytics-api" },
+				{
+					"aliases": [],
+					"displayName": "レコメンド機能",
+					"id": "ent-recommend-fn"
+				},
+				{ "aliases": [], "displayName": "翻訳機能", "id": "ent-translate-fn" },
+				{ "aliases": [], "displayName": "画像API", "id": "ent-image-api" },
+				{ "aliases": ["佐藤さん"], "displayName": "佐藤", "id": "ent-sato" },
+				{ "aliases": ["鈴木さん"], "displayName": "鈴木", "id": "ent-suzuki" },
+				{ "aliases": ["田中さん"], "displayName": "田中", "id": "ent-tanaka" },
+				{ "aliases": ["山田さん"], "displayName": "山田", "id": "ent-yamada" }
+			],
+			"id": "ep-a",
+			"sessions": [
+				{
+					"date": "2026-09-02",
+					"id": "s1",
+					"utterances": [
+						{
+							"id": "u1",
+							"speaker": "山田",
+							"text": "検索APIの応答時間は平均300ミリ秒です。"
+						},
+						{
+							"id": "u2",
+							"speaker": "佐藤",
+							"text": "検索機能の担当は佐藤です。"
+						},
+						{
+							"id": "u3",
+							"speaker": "山田",
+							"text": "検索APIは分析APIに依存しています。"
+						},
+						{
+							"id": "u4",
+							"speaker": "山田",
+							"text": "翻訳機能の担当は山田です。"
+						},
+						{
+							"id": "u5",
+							"speaker": "佐藤",
+							"text": "画像APIの応答時間は平均120ミリ秒です。"
+						}
+					]
+				},
+				{
+					"date": "2026-09-16",
+					"id": "s2",
+					"utterances": [
+						{
+							"id": "u6",
+							"speaker": "鈴木",
+							"text": "訂正です。検索APIの応答時間は正しくは180ミリ秒でした。"
+						},
+						{
+							"id": "u7",
+							"speaker": "山田",
+							"text": "検索機能の担当は鈴木さんに交代しました。"
+						},
+						{
+							"id": "u8",
+							"speaker": "佐藤",
+							"text": "レコメンド機能の提供期間は2026年12月末までです。"
+						},
+						{
+							"id": "u9",
+							"speaker": "鈴木",
+							"text": "翻訳機能の応答時間は平均250ミリ秒です。"
+						}
+					]
+				},
+				{
+					"date": "2026-10-01",
+					"id": "s3",
+					"utterances": [
+						{
+							"id": "u10",
+							"speaker": "鈴木",
+							"text": "分析APIの担当は田中さんです。"
+						},
+						{
+							"id": "u11",
+							"speaker": "山田",
+							"text": "検索APIのキャッシュ有効期限は10分です。"
+						},
+						{
+							"id": "u12",
+							"speaker": "佐藤",
+							"text": "定例会議は毎週月曜10時からです。"
+						}
+					]
+				}
+			],
+			"title": "検索基盤チーム"
+		},
+		{
+			"entities": [
+				{ "aliases": [], "displayName": "アプリ", "id": "ent-app" },
+				{
+					"aliases": ["プッシュ通知"],
+					"displayName": "通知機能",
+					"id": "ent-notify-fn"
+				},
+				{ "aliases": [], "displayName": "決済機能", "id": "ent-pay-fn" },
+				{ "aliases": [], "displayName": "地図機能", "id": "ent-map-fn" },
+				{
+					"aliases": ["高橋さん"],
+					"displayName": "高橋",
+					"id": "ent-takahashi"
+				},
+				{ "aliases": ["中村さん"], "displayName": "中村", "id": "ent-nakamura" }
+			],
+			"id": "ep-b",
+			"sessions": [
+				{
+					"date": "2026-08-20",
+					"id": "s1",
+					"utterances": [
+						{
+							"id": "u1",
+							"speaker": "高橋",
+							"text": "アプリのプッシュ通知はFirebase経由です。"
+						},
+						{
+							"id": "u2",
+							"speaker": "高橋",
+							"text": "通知機能の担当は高橋です。"
+						},
+						{
+							"id": "u3",
+							"speaker": "中村",
+							"text": "アプリのクラッシュ率は0.8%です。"
+						},
+						{
+							"id": "u4",
+							"speaker": "中村",
+							"text": "地図機能の担当は中村です。"
+						}
+					]
+				},
+				{
+					"date": "2026-09-05",
+					"id": "s2",
+					"utterances": [
+						{
+							"id": "u5",
+							"speaker": "中村",
+							"text": "訂正します。アプリのクラッシュ率は正しくは0.5%です。"
+						},
+						{
+							"id": "u6",
+							"speaker": "高橋",
+							"text": "通知の送信上限は1日3回までです。"
+						},
+						{
+							"id": "u7",
+							"speaker": "中村",
+							"text": "決済機能は2026年10月から利用可能になります。"
+						},
+						{
+							"id": "u8",
+							"speaker": "高橋",
+							"text": "地図機能の表示上限は100件です。"
+						}
+					]
+				},
+				{
+					"date": "2026-09-25",
+					"id": "s3",
+					"utterances": [
+						{
+							"id": "u9",
+							"speaker": "高橋",
+							"text": "決済機能の担当は中村さんです。"
+						},
+						{
+							"id": "u10",
+							"speaker": "中村",
+							"text": "アプリの起動時間は平均1.2秒です。"
+						}
+					]
+				}
+			],
+			"title": "モバイルアプリ"
+		},
+		{
+			"entities": [
+				{ "aliases": [], "displayName": "ポータル", "id": "ent-portal" },
+				{ "aliases": [], "displayName": "旧ポータル", "id": "ent-old-portal" },
+				{ "aliases": [], "displayName": "勤怠機能", "id": "ent-attendance-fn" },
+				{ "aliases": [], "displayName": "ニュース機能", "id": "ent-news-fn" },
+				{ "aliases": ["伊藤さん"], "displayName": "伊藤", "id": "ent-ito" },
+				{ "aliases": ["渡辺さん"], "displayName": "渡辺", "id": "ent-watanabe" }
+			],
+			"id": "ep-c",
+			"sessions": [
+				{
+					"date": "2026-09-10",
+					"id": "s1",
+					"utterances": [
+						{
+							"id": "u1",
+							"speaker": "伊藤",
+							"text": "ポータルのログインはSSOのみです。"
+						},
+						{
+							"id": "u2",
+							"speaker": "伊藤",
+							"text": "勤怠機能の担当は伊藤です。"
+						},
+						{
+							"id": "u3",
+							"speaker": "渡辺",
+							"text": "ポータルの保守時間は毎週日曜2時から4時です。"
+						},
+						{
+							"id": "u4",
+							"speaker": "渡辺",
+							"text": "ニュース機能の担当は渡辺です。"
+						}
+					]
+				},
+				{
+					"date": "2026-09-24",
+					"id": "s2",
+					"utterances": [
+						{
+							"id": "u5",
+							"speaker": "渡辺",
+							"text": "勤怠機能の担当は渡辺に変わりました。"
+						},
+						{
+							"id": "u6",
+							"speaker": "伊藤",
+							"text": "旧ポータルの提供は2026年9月末で終了しました。"
+						},
+						{
+							"id": "u7",
+							"speaker": "渡辺",
+							"text": "勤怠データの保存期間は5年です。"
+						},
+						{
+							"id": "u8",
+							"speaker": "伊藤",
+							"text": "ニュース機能の更新は平日9時です。"
+						}
+					]
+				},
+				{
+					"date": "2026-10-08",
+					"id": "s3",
+					"utterances": [
+						{
+							"id": "u9",
+							"speaker": "伊藤",
+							"text": "ポータルの応答時間は平均450ミリ秒です。"
+						},
+						{
+							"id": "u10",
+							"speaker": "渡辺",
+							"text": "訂正です。ポータルの応答時間は正しくは380ミリ秒です。"
+						},
+						{
+							"id": "u11",
+							"speaker": "伊藤",
+							"text": "ポータルの利用言語は日本語と英語です。"
+						}
+					]
+				}
+			],
+			"title": "社内ポータル"
+		},
+		{
+			"entities": [
+				{ "aliases": [], "displayName": "ETLジョブ", "id": "ent-etl" },
+				{
+					"aliases": [],
+					"displayName": "売上レポート",
+					"id": "ent-sales-report"
+				},
+				{
+					"aliases": [],
+					"displayName": "在庫レポート",
+					"id": "ent-inventory-report"
+				},
+				{
+					"aliases": [],
+					"displayName": "データ基盤",
+					"id": "ent-data-platform"
+				},
+				{
+					"aliases": ["小林さん"],
+					"displayName": "小林",
+					"id": "ent-kobayashi"
+				},
+				{ "aliases": ["加藤さん"], "displayName": "加藤", "id": "ent-kato" }
+			],
+			"id": "ep-d",
+			"sessions": [
+				{
+					"date": "2026-08-28",
+					"id": "s1",
+					"utterances": [
+						{
+							"id": "u1",
+							"speaker": "小林",
+							"text": "ETLジョブは毎朝5時に実行されます。"
+						},
+						{
+							"id": "u2",
+							"speaker": "小林",
+							"text": "データ基盤の担当は小林です。"
+						},
+						{
+							"id": "u3",
+							"speaker": "加藤",
+							"text": "売上レポートはETLジョブの出力を使います。"
+						},
+						{
+							"id": "u4",
+							"speaker": "加藤",
+							"text": "在庫レポートは毎週金曜に作成されます。"
+						}
+					]
+				},
+				{
+					"date": "2026-09-12",
+					"id": "s2",
+					"utterances": [
+						{
+							"id": "u5",
+							"speaker": "加藤",
+							"text": "ETLジョブの実行時刻は毎朝4時半に変更されました。"
+						},
+						{
+							"id": "u6",
+							"speaker": "小林",
+							"text": "売上レポートの担当は加藤さんです。"
+						},
+						{
+							"id": "u7",
+							"speaker": "加藤",
+							"text": "顧客データのマスキングは必須です。"
+						},
+						{
+							"id": "u8",
+							"speaker": "小林",
+							"text": "在庫レポートの担当は小林です。"
+						}
+					]
+				},
+				{
+					"date": "2026-09-30",
+					"id": "s3",
+					"utterances": [
+						{
+							"id": "u9",
+							"speaker": "小林",
+							"text": "ETLジョブの処理時間は約40分です。"
+						},
+						{
+							"id": "u10",
+							"speaker": "加藤",
+							"text": "訂正します。ETLジョブの処理時間は正しくは55分です。"
+						},
+						{
+							"id": "u11",
+							"speaker": "小林",
+							"text": "データ基盤のバックアップは日次です。"
+						}
+					]
+				}
+			],
+			"title": "データ基盤"
+		}
+	],
+	"questions": [
+		{
+			"category": "update",
+			"episodeId": "ep-a",
+			"gold": {
+				"evidenceUtteranceIds": ["u6"],
+				"forbidden": ["300ミリ秒"],
+				"holdExpected": false,
+				"requiredGroups": [["180ミリ秒", "180 ミリ秒", "180ms"]]
+			},
+			"id": "ep-a-q1",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u6",
+					"text": "検索APIの応答時間は平均180ミリ秒です"
+				}
+			],
+			"question": "検索APIの現在の応答時間は平均何ミリ秒ですか？"
+		},
+		{
+			"category": "update",
+			"episodeId": "ep-a",
+			"gold": {
+				"evidenceUtteranceIds": ["u7"],
+				"forbidden": ["担当は佐藤"],
+				"holdExpected": false,
+				"requiredGroups": [["鈴木"]]
+			},
+			"id": "ep-a-q2",
+			"oracleClaims": [
+				{ "evidenceUtteranceId": "u7", "text": "検索機能の担当は鈴木です" }
+			],
+			"question": "検索機能の現在の担当者は誰ですか？"
+		},
+		{
+			"category": "rejection",
+			"episodeId": "ep-a",
+			"gold": {
+				"evidenceUtteranceIds": [],
+				"forbidden": [],
+				"holdExpected": true,
+				"requiredGroups": []
+			},
+			"id": "ep-a-q3",
+			"oracleClaims": [],
+			"question": "検索APIの月額費用はいくらですか？"
+		},
+		{
+			"category": "multi-session",
+			"episodeId": "ep-a",
+			"gold": {
+				"evidenceUtteranceIds": ["u3", "u10"],
+				"forbidden": [],
+				"holdExpected": false,
+				"requiredGroups": [["田中"]]
+			},
+			"id": "ep-a-q4",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u3",
+					"text": "検索APIは分析APIに依存しています"
+				},
+				{ "evidenceUtteranceId": "u10", "text": "分析APIの担当は田中です" }
+			],
+			"question": "検索APIが依存しているAPIの担当者は誰ですか？"
+		},
+		{
+			"category": "update",
+			"episodeId": "ep-b",
+			"gold": {
+				"evidenceUtteranceIds": ["u5"],
+				"forbidden": ["0.8%", "0.8％"],
+				"holdExpected": false,
+				"requiredGroups": [["0.5%", "0.5％"]]
+			},
+			"id": "ep-b-q1",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u5",
+					"text": "アプリのクラッシュ率は0.5%です"
+				}
+			],
+			"question": "アプリの現在のクラッシュ率は何%ですか？"
+		},
+		{
+			"category": "temporal",
+			"episodeId": "ep-b",
+			"gold": {
+				"evidenceUtteranceIds": ["u7"],
+				"forbidden": ["利用可能でした"],
+				"holdExpected": false,
+				"requiredGroups": [
+					[
+						"まだ利用可能ではない",
+						"利用可能ではない",
+						"利用できません",
+						"10月から"
+					]
+				]
+			},
+			"id": "ep-b-q2",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u7",
+					"text": "決済機能は2026年10月から利用可能になります"
+				}
+			],
+			"question": "決済機能は2026年9月時点で利用可能でしたか？"
+		},
+		{
+			"category": "multi-session",
+			"episodeId": "ep-b",
+			"gold": {
+				"evidenceUtteranceIds": ["u1", "u6"],
+				"forbidden": [],
+				"holdExpected": false,
+				"requiredGroups": [["3回"], ["Firebase"]]
+			},
+			"id": "ep-b-q3",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u1",
+					"text": "アプリのプッシュ通知はFirebase経由です"
+				},
+				{
+					"evidenceUtteranceId": "u6",
+					"text": "通知の送信上限は1日3回までです"
+				}
+			],
+			"question": "プッシュ通知の送信上限は1日何回までで、基盤は何経由ですか？"
+		},
+		{
+			"category": "rejection",
+			"episodeId": "ep-b",
+			"gold": {
+				"evidenceUtteranceIds": [],
+				"forbidden": [],
+				"holdExpected": true,
+				"requiredGroups": []
+			},
+			"id": "ep-b-q4",
+			"oracleClaims": [],
+			"question": "アプリの月間アクティブユーザー数は何人ですか？"
+		},
+		{
+			"category": "update",
+			"episodeId": "ep-c",
+			"gold": {
+				"evidenceUtteranceIds": ["u10"],
+				"forbidden": ["450ミリ秒"],
+				"holdExpected": false,
+				"requiredGroups": [["380ミリ秒"]]
+			},
+			"id": "ep-c-q1",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u10",
+					"text": "ポータルの応答時間は平均380ミリ秒です"
+				}
+			],
+			"question": "ポータルの現在の応答時間は平均何ミリ秒ですか？"
+		},
+		{
+			"category": "temporal",
+			"episodeId": "ep-c",
+			"gold": {
+				"evidenceUtteranceIds": ["u6"],
+				"forbidden": ["提供されていました"],
+				"holdExpected": false,
+				"requiredGroups": [
+					["終了", "提供されていない", "提供していません", "9月末"]
+				]
+			},
+			"id": "ep-c-q2",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u6",
+					"text": "旧ポータルの提供は2026年9月末で終了しました"
+				}
+			],
+			"question": "旧ポータルは2026年10月時点で提供されていましたか？"
+		},
+		{
+			"category": "update",
+			"episodeId": "ep-c",
+			"gold": {
+				"evidenceUtteranceIds": ["u5"],
+				"forbidden": ["担当は伊藤"],
+				"holdExpected": false,
+				"requiredGroups": [["渡辺"]]
+			},
+			"id": "ep-c-q3",
+			"oracleClaims": [
+				{ "evidenceUtteranceId": "u5", "text": "勤怠機能の担当は渡辺です" }
+			],
+			"question": "勤怠機能の現在の担当者は誰ですか？"
+		},
+		{
+			"category": "rejection",
+			"episodeId": "ep-c",
+			"gold": {
+				"evidenceUtteranceIds": [],
+				"forbidden": [],
+				"holdExpected": true,
+				"requiredGroups": []
+			},
+			"id": "ep-c-q4",
+			"oracleClaims": [],
+			"question": "ポータルの利用者満足度は何%ですか？"
+		},
+		{
+			"category": "update",
+			"episodeId": "ep-d",
+			"gold": {
+				"evidenceUtteranceIds": ["u5"],
+				"forbidden": ["毎朝5時"],
+				"holdExpected": false,
+				"requiredGroups": [["4時半", "4:30", "4時30分"]]
+			},
+			"id": "ep-d-q1",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u5",
+					"text": "ETLジョブの実行時刻は毎朝4時半です"
+				}
+			],
+			"question": "ETLジョブの現在の実行時刻は毎朝何時ですか？"
+		},
+		{
+			"category": "multi-session",
+			"episodeId": "ep-d",
+			"gold": {
+				"evidenceUtteranceIds": ["u3", "u5"],
+				"forbidden": ["毎朝5時"],
+				"holdExpected": false,
+				"requiredGroups": [["4時半", "4:30", "4時30分"]]
+			},
+			"id": "ep-d-q2",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u3",
+					"text": "売上レポートはETLジョブの出力を使います"
+				},
+				{
+					"evidenceUtteranceId": "u5",
+					"text": "ETLジョブの実行時刻は毎朝4時半です"
+				}
+			],
+			"question": "売上レポートが使っているジョブの現在の実行時刻は毎朝何時ですか？"
+		},
+		{
+			"category": "update",
+			"episodeId": "ep-d",
+			"gold": {
+				"evidenceUtteranceIds": ["u10"],
+				"forbidden": ["40分"],
+				"holdExpected": false,
+				"requiredGroups": [["55分"]]
+			},
+			"id": "ep-d-q3",
+			"oracleClaims": [
+				{
+					"evidenceUtteranceId": "u10",
+					"text": "ETLジョブの処理時間は約55分です"
+				}
+			],
+			"question": "ETLジョブの現在の処理時間は約何分ですか？"
+		},
+		{
+			"category": "rejection",
+			"episodeId": "ep-d",
+			"gold": {
+				"evidenceUtteranceIds": [],
+				"forbidden": [],
+				"holdExpected": true,
+				"requiredGroups": []
+			},
+			"id": "ep-d-q4",
+			"oracleClaims": [],
+			"question": "顧客データの保持期間は何年ですか？"
+		}
+	],
+	"suiteId": "e04-ja-v1"
+}
