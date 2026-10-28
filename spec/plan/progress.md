@@ -855,3 +855,14 @@ holdoutで残った未抽出（recall）への対処として、抽出手順「�
 - dev100: 採用precision 58/64→60/67（0.906→0.896）、採用recall 58/66→60/66（0.879→0.909）と微増したが、保留recall 34/34→30/34、区分 30/30→26/30へ悪化。NOT_EXPECTEDが0→4件（再走査が保留すべき主張まで拾った）。PREDICATE不一致は6→1へ改善。対応付けでは v2失敗6件・v3失敗7件で正味は拮抗。
 - 判断: **採用しない**。再走査の無条件な回収圧が保留の規律（A46の安全側）を壊すトレードオフであり、純増ではない。列挙ステップがpredicate選択を助けた可能性は副観測として残すが、devでの追加調整は過適合の恐れがあるため打ち切り、未見集合（E01 JacRED等）での検証候補とする。
 - 証拠: repo外 `~/workspace/dev/agent-model-run/run3/`。repo側の変更は本記録のみ。共有指示文は`eval-extract-instruction-2`のまま不変。
+
+
+## E01 JacRED外部妥当性suiteの実装（2026年10月29日、測定は未実施）
+
+研究計画E01のadapterを新規suiteとして実装した。既存の`dataset.ts`/`runner.ts`/`scoring.ts`/`providers.ts`は変更していない。
+
+- `eval/extraction/jacred.ts`: 上流DocRED形式からsuiteへの決定的変換と選定。文本文はtokenを`""`で結合（元文書の生バイトと偽らない旨をメタデータに明記）。entityは最小sent_idのmention名をdisplayName、残りをaliasesとし、idは`ent-<vertexIndex>`。goldは根拠1文のrelationだけを(subject, relation, object)で重複除去して保持し、複数根拠・Na・重複はunsupported件数として残す。選定はseed `jacred-e01-v1`のsha256順、除外は文数16・結合bytes 6000・entity数24・表現可能relationなしの順、上限dev 30/test 60で凍結し、manifestに選定前後の件数と理由別内訳を残す。
+- `eval/extraction/jacred-scoring.ts`: relation P/R/F1（micro集計）、根拠文一致率。未知のentity id・relationコードの予測はinvalidとして分離しtp/fpに入れない。予測の重複除去と引用なし件数も数える。
+- `eval/extraction/jacred-runner.ts`: 1件につきprovider呼出し1回（初回生成のみ）。alias主体は供給entityへ解決し、解決できないaliasは未知idとして採点側のinvalidに数えさせる。非relation候補はignoredとして数え、不正出力はinvalid_output、provider例外はerrorとして全件を分母に残す。
+- 試験`test/eval/jacred.test.ts`は手作りの上流fixtureだけで変換・選定・採点・runnerを通し、実データファイルは読まない。
+- 測定（実モデルでのdev/test実行）は未実施。結果が得られたら本台帳へ別途記録する。A46の閾値・受入の意味は変更していない。
