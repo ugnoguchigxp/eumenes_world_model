@@ -7,6 +7,7 @@ import {
 } from "../../contracts/index.ts";
 import {
 	sourceIdentityKey,
+	referencesCurrentContent,
 	terminalLifecycles,
 	type Assertion,
 	type AssertionRef,
@@ -134,21 +135,26 @@ function citedStates(
 	return [...byKey.values()];
 }
 
-/** Disputers per target (id, revision); terminal disputers still count. */
+type Disputer = { readonly target: AssertionRef; readonly ref: AssertionRef };
+
+/** Disputers indexed by target id, retaining the content revision they dispute. */
 function disputersOf(
 	assertions: readonly Assertion[],
-	into = new Map<string, AssertionRef[]>(),
-): Map<string, AssertionRef[]> {
+	into = new Map<string, Disputer[]>(),
+): Map<string, Disputer[]> {
 	for (const assertion of assertions)
 		for (const target of assertion.contradicts) {
-			const list = into.get(refKey(target)) ?? [];
-			list.push({ id: assertion.id, revision: assertion.revision });
-			into.set(refKey(target), list);
+			const list = into.get(target.id) ?? [];
+			list.push({
+				target,
+				ref: { id: assertion.id, revision: assertion.revision },
+			});
+			into.set(target.id, list);
 		}
 	return into;
 }
 
-/** True when `ref` names a CURRENT head of the ledger that is not terminal. */
+/** True when `ref` still names the content of a non-terminal ledger head. */
 type LiveHead = (ref: AssertionRef) => boolean;
 const terminalSet = new Set<string>(terminalLifecycles);
 
@@ -162,7 +168,7 @@ function dbLiveHead(db: WorldDb, scope: ScopeRef): LiveHead {
 			const head = getAssertion(db, scope, ref.id);
 			live =
 				head !== undefined &&
-				head.revision === ref.revision &&
+				referencesCurrentContent(ref, head) &&
 				!terminalSet.has(head.lifecycle);
 			cache.set(key, live);
 		}
@@ -202,7 +208,7 @@ function rowsOfGroup(
 	assertions: readonly Assertion[],
 	scope: ScopeRef,
 	context: ProjectContext,
-	disputers: ReadonlyMap<string, AssertionRef[]>,
+	disputers: ReadonlyMap<string, Disputer[]>,
 	liveHead: LiveHead,
 ): { entries: CurrentRow[]; edges: EdgeRow[] } {
 	const built = buildProjection(
@@ -239,8 +245,9 @@ function rowsOfGroup(
 		const refutations = new Map<string, AssertionRef>();
 		for (const ref of [
 			...entry.refutations,
-			...(disputers.get(refKey({ id: entry.id, revision: entry.revision })) ??
-				[]),
+			...(disputers.get(entry.id) ?? [])
+				.filter((d) => referencesCurrentContent(d.target, entry.assertion))
+				.map((d) => d.ref),
 		])
 			refutations.set(refKey(ref), { id: ref.id, revision: ref.revision });
 		// Scope-wide, page-independent: an active claim is causally eligible
@@ -302,7 +309,7 @@ export function projectLedger(
 		const head = heads.get(ref.id);
 		return (
 			head !== undefined &&
-			head.revision === ref.revision &&
+			referencesCurrentContent(ref, head) &&
 			!terminalSet.has(head.lifecycle)
 		);
 	};
@@ -375,20 +382,26 @@ export function applyHeadChanges(
 	}));
 	let sum = sumOf(getEpoch(db, scope)?.materialDigest);
 	const removed: AssertionRef[] = [];
+	const inheritedRefs = new Map<string, AssertionRef[]>();
 	// Rows whose eligibility may change: everything the old/new heads relate to.
 	const affected = new Map<string, AssertionRef>();
-	const touch = (ref: AssertionRef) =>
-		affected.set(refKey(ref), { id: ref.id, revision: ref.revision });
+	const touch = (ref: AssertionRef) => {
+		const head = getAssertion(db, scope, ref.id);
+		if (head)
+			affected.set(refKey(head), { id: head.id, revision: head.revision });
+	};
 	for (const { old, next } of changes) {
 		if (old) {
 			sum -= headHash(old, context.hasher);
 			removed.push({ id: old.id, revision: old.revision });
 			const row = getCurrentRow(db, scope, old.id, old.revision);
-			if (row)
-				for (const ref of (
+			if (row) {
+				const refs = (
 					JSON.parse(row.payloadJson) as { refutations: AssertionRef[] }
-				).refutations)
-					touch(ref);
+				).refutations;
+				inheritedRefs.set(old.id, refs);
+				for (const ref of refs) touch(ref);
+			}
 			for (const ref of old.contradicts) touch(ref);
 		}
 		for (const ref of next.contradicts) touch(ref);
@@ -397,8 +410,16 @@ export function applyHeadChanges(
 	}
 	if (removed.length > 0) deleteProjectionFor(db, scope, removed);
 	const liveHead = dbLiveHead(db, scope);
-	for (const { next } of changes) {
-		const rows = rowsOfGroup([next], scope, context, new Map(), liveHead);
+	for (const { next, old } of changes) {
+		const disputers = new Map<string, Disputer[]>();
+		if (old) {
+			// The old row was captured before deletion above via inheritedRefs.
+			for (const ref of inheritedRefs.get(old.id) ?? []) {
+				const head = getAssertion(db, scope, ref.id);
+				if (head) disputersOf([head], disputers);
+			}
+		}
+		const rows = rowsOfGroup([next], scope, context, disputers, liveHead);
 		insertProjectionRows(db, scope, rows);
 	}
 	const patches: {
@@ -414,7 +435,9 @@ export function applyHeadChanges(
 			patches.push({ target, add: { id: next.id, revision: next.revision } });
 	}
 	for (const { target, add, drop } of patches) {
-		const row = getCurrentRow(db, scope, target.id, target.revision);
+		const head = getAssertion(db, scope, target.id);
+		if (!head || !referencesCurrentContent(target, head)) continue;
+		const row = getCurrentRow(db, scope, head.id, head.revision);
 		if (!row) continue;
 		const payload = JSON.parse(row.payloadJson) as {
 			refutations: AssertionRef[];
@@ -429,7 +452,7 @@ export function applyHeadChanges(
 			refutations: [...refutations.values()].sort(compareRef),
 		});
 		if (next !== row.payloadJson)
-			updateCurrentPayload(db, scope, target.id, target.revision, next);
+			updateCurrentPayload(db, scope, head.id, head.revision, next);
 	}
 	recomputeEligibility(db, scope, affected.values(), liveHead);
 	return advanceProjectionEpoch(db, scope, digestOf(sum));
@@ -472,8 +495,11 @@ export function removeHeads(
 	let sum = sumOf(getEpoch(db, scope)?.materialDigest);
 	for (const head of heads) sum -= headHash(head, context.hasher);
 	const affected = new Map<string, AssertionRef>();
-	const touch = (ref: AssertionRef) =>
-		affected.set(refKey(ref), { id: ref.id, revision: ref.revision });
+	const touch = (ref: AssertionRef) => {
+		const head = getAssertion(db, scope, ref.id);
+		if (head)
+			affected.set(refKey(head), { id: head.id, revision: head.revision });
+	};
 	for (const head of heads) {
 		const row = getCurrentRow(db, scope, head.id, head.revision);
 		if (row)
@@ -545,7 +571,7 @@ export function rebuildProjection(
 ): { readonly epoch: number; readonly changed: boolean } {
 	let sum = 0n;
 	let count = 0;
-	const disputers = new Map<string, AssertionRef[]>();
+	const disputers = new Map<string, Disputer[]>();
 	for (let after: string | undefined; ;) {
 		const page = listScopeAssertions(db, scope, {
 			limit: pageSize,

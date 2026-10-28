@@ -1,7 +1,7 @@
 # 抽出拒否の回復比較
 
 **計測済み・既定採用は保留。原文切替は不採用。再抽出は判定56/56だが資料集合が51/56で、実験として保持する。**
-[結果](results/2026-10-16.md)を参照。
+[結果](../../fixtures/experiments/extraction-fallback-comparison/2026-10-16.md)を参照。
 
 既存v5は変更しない。`recovery.ts` はExample内の任意の入口で、候補が
 `HYPOTHETICAL_NOT_FACT` で拒否された場合、または候補0件の場合だけ、全原文を

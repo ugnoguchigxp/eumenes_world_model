@@ -1,5 +1,6 @@
 import {
 	canonicalBytes,
+	extractionLimits,
 	validateCandidates,
 	type Assertion,
 	type Entity,
@@ -26,6 +27,7 @@ export function validateOutput(
 	entity: Entity,
 	raw: unknown,
 	recordedAt: number,
+	interpretationVersion = PROMPT_VERSION,
 ) {
 	const prepared = prepareSeedDocument(document);
 	if (!prepared.ok || prepared.value.status !== "prepared")
@@ -36,7 +38,30 @@ export function validateOutput(
 		status: "available",
 		content: document.content,
 	};
-	const binding = bindQuotes(raw, document.source.id, document.content);
+	// Bound the wire bytes before parsing or walking the model output. The
+	// core validator records malformed output as a rejection, not an exception.
+	let parsed = raw;
+	if (typeof raw === "string") {
+		if (Buffer.byteLength(raw) > extractionLimits.maxOutputBytes) parsed = null;
+		else {
+			try {
+				parsed = JSON.parse(raw);
+			} catch {
+				parsed = null;
+			}
+		}
+	} else if (!canonicalBytes(raw, extractionLimits.maxOutputBytes).ok)
+		parsed = null;
+	let binding: {
+		output: unknown;
+		bindings: { index: number; status: string }[];
+	};
+	try {
+		binding = bindQuotes(parsed, document.source.id, document.content);
+	} catch {
+		binding = { output: null, bindings: [] };
+	}
+
 	const context = {
 		contractVersion: 1,
 		scope: seedScope,
@@ -46,7 +71,7 @@ export function validateOutput(
 		entities: [entity],
 		assigned: {
 			recordedAt,
-			interpretationVersion: PROMPT_VERSION,
+			interpretationVersion,
 			freshnessMaxAgeMs: 86_400_000,
 			items: Array.from({ length: 8 }, (_, index) => ({
 				assertionId: `${document.source.id}:claim:${index}`,

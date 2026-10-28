@@ -1,3 +1,4 @@
+import { decodeJson } from "../../../contracts/decode-json.ts";
 import {
 	canonicalBytes,
 	checkId,
@@ -8,6 +9,7 @@ import {
 import {
 	expectChanges,
 	requireTransaction,
+	WorldIntegrityError,
 	type WorldDb,
 } from "../../../infrastructure/sqlite/db.ts";
 import { checkPrediction, type Prediction } from "../contracts/index.ts";
@@ -123,7 +125,12 @@ export function insertPrediction(
 }
 
 function toStored(row: PredictionRow): StoredPrediction {
-	const prediction = JSON.parse(row.payload_json) as Prediction;
+	const parsed = decodeJson(row.payload_json, checkPrediction, "prediction");
+	if (!parsed.ok)
+		throw new WorldIntegrityError(
+			`PREDICTION_PAYLOAD:${parsed.code}:${parsed.path}`,
+		);
+	const prediction = parsed.value;
 	return {
 		prediction,
 		dueAt: row.due_at,

@@ -306,3 +306,37 @@ export function checkAssertionDraft(
 	}
 	return ok(draft);
 }
+
+const assertionRecordKeys = ["lifecycle", "rootEvidenceIds"];
+
+/** An adopted-ledger record: a draft plus lifecycle and root evidence IDs. */
+export function checkAssertionRecord(
+	value: unknown,
+	path: string,
+): Checked<Assertion> {
+	const object = asRecord(value);
+	if (!object) return fail("INVALID_INPUT", path);
+	const lifecycle = object["lifecycle"];
+	if (!lifecycles.includes(lifecycle as Lifecycle))
+		return fail("INVALID_INPUT", `${path}.lifecycle`);
+	const roots = object["rootEvidenceIds"];
+	if (!Array.isArray(roots))
+		return fail("INVALID_INPUT", `${path}.rootEvidenceIds`);
+	const rootIds: string[] = [];
+	for (let i = 0; i < roots.length; i++) {
+		const id = checkId(roots[i], `${path}.rootEvidenceIds[${i}]`);
+		if (!id.ok) return id;
+		rootIds.push(id.value);
+	}
+	const rest: Record<string, unknown> = {};
+	for (const [key, item] of Object.entries(object))
+		if (!assertionRecordKeys.includes(key)) rest[key] = item;
+	const draft = checkAssertionDraft(rest, path);
+	if (!draft.ok) return draft;
+	const { lifecycle: _ignored, ...base } = draft.value;
+	return ok({
+		...base,
+		lifecycle: lifecycle as Lifecycle,
+		rootEvidenceIds: [...rootIds].sort(),
+	});
+}

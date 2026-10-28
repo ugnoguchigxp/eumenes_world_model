@@ -1,5 +1,7 @@
+import { decodeJson } from "../../../contracts/decode-json.ts";
 import {
 	canonicalBytes,
+	asRecord,
 	checkScope,
 	sameScope,
 	type ScopeRef,
@@ -12,7 +14,11 @@ import {
 	type SqlValue,
 	type WorldDb,
 } from "../../../infrastructure/sqlite/db.ts";
-import type { Assertion, AssertionRef } from "../contracts/assertion.ts";
+import {
+	checkAssertionRecord,
+	type Assertion,
+	type AssertionRef,
+} from "../contracts/assertion.ts";
 import {
 	terminalLifecycles,
 	type TransitionPlan,
@@ -77,10 +83,27 @@ interface AssertionRow {
 	lifecycle: Assertion["lifecycle"];
 	payload_json: string;
 }
-const fromRow = (row: AssertionRow): Assertion => ({
-	...(JSON.parse(row.payload_json) as Assertion),
-	lifecycle: row.lifecycle,
-});
+const fromRow = (row: AssertionRow): Assertion => {
+	const result = decodeJson(
+		row.payload_json,
+		(value, path) => {
+			const object = asRecord(value);
+			if (!object) return checkAssertionRecord(value, path);
+			const { lastTransition: _metadata, ...payload } = object;
+			// SQL lifecycle is authoritative for stopped historical revisions.
+			return checkAssertionRecord(
+				{ ...payload, lifecycle: row.lifecycle },
+				path,
+			);
+		},
+		"assertion",
+	);
+	if (!result.ok)
+		throw new WorldIntegrityError(
+			`ASSERTION_PAYLOAD:${result.code}:${result.path}`,
+		);
+	return result.value;
+};
 
 export function getHead(
 	db: WorldDb,
@@ -196,7 +219,9 @@ export function listAssertionsReferencingEntities(
 					after.revision,
 				) as { id: string; revision: number; payload_json: string }[];
 			for (const row of rows)
-				for (const entity of collectEntityRefs(JSON.parse(row.payload_json)))
+				for (const entity of collectEntityRefs(
+					fromRow({ ...row, lifecycle: "candidate" }),
+				))
 					matches.get(entity)?.add(row.id);
 			if (rows.length < 1000) break;
 			const last = rows[rows.length - 1]!;
@@ -405,6 +430,7 @@ export function applyTransition(
 			replacement.revision !== plan.nextRevision ||
 			replacement.lifecycle !== plan.nextLifecycle ||
 			!sameScope(replacement.scope, scope) ||
+			!replacement.supersedes.some((link) => sameRef(link, self)) ||
 			!plan.supersedes.every((ref) =>
 				replacement.supersedes.some((link) => sameRef(link, ref)),
 			)

@@ -12,6 +12,7 @@ import {
 } from "../../../contracts/index.ts";
 import {
 	assessFreshness,
+	referencesCurrentContent,
 	sourceIdentityKey,
 	sourceInputKey,
 	type Assertion,
@@ -83,17 +84,17 @@ export function projectSnapshot(
 	hasher: CanonicalHasher,
 ): Checked<Projection> {
 	const states = indexStates(snapshot.sources);
-	const lifecycleOf = new Map(
-		snapshot.assertions.map((a) => [refKey(a), a.lifecycle]),
-	);
+	const heads = new Map(snapshot.assertions.map((a) => [a.id, a]));
 	const disputers = new Map<string, AssertionRef[]>();
 	for (const assertion of snapshot.assertions) {
 		// A withdrawn/superseded/invalidated assertion no longer disputes anything.
 		if (terminal.has(assertion.lifecycle)) continue;
 		for (const target of assertion.contradicts) {
-			const list = disputers.get(refKey(target)) ?? [];
+			const head = heads.get(target.id);
+			if (!head || !referencesCurrentContent(target, head)) continue;
+			const list = disputers.get(refKey(head)) ?? [];
 			list.push({ id: assertion.id, revision: assertion.revision });
-			disputers.set(refKey(target), list);
+			disputers.set(refKey(head), list);
 		}
 	}
 	const entries: ProjectionEntry[] = [];
@@ -142,8 +143,12 @@ export function projectSnapshot(
 			causalEligible:
 				status === "active" &&
 				![...refutations.values()].some((ref) => {
-					const lifecycle = lifecycleOf.get(refKey(ref));
-					return lifecycle !== undefined && !terminal.has(lifecycle);
+					const head = heads.get(ref.id);
+					return (
+						head !== undefined &&
+						referencesCurrentContent(ref, head) &&
+						!terminal.has(head.lifecycle)
+					);
 				}),
 			refutations: [...refutations.values()].sort(compareRef),
 			sources,

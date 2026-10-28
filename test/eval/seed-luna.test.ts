@@ -187,3 +187,104 @@ test("tool attempts abort the model call instead of becoming accepted model resu
 	).toThrow("luna_unexpected_tool_attempt");
 	expect(controller.signal.aborted).toBe(true);
 });
+
+test("raw malformed, oversized and malformed-quote outputs are rejected without aborting the run", () => {
+	for (const raw of [
+		"{",
+		"あ".repeat(65536),
+		JSON.stringify({ candidates: [{ quote: null }] }),
+		{ candidates: Array.from({ length: 9 }, () => candidate()) },
+	]) {
+		const result = validateOutput(document, entity, raw, 0);
+		expect(result.validation.status).toBe("rejected");
+		expect(result.assertions).toHaveLength(0);
+	}
+	expect(
+		validateOutput(
+			document,
+			entity,
+			JSON.stringify({ candidates: [candidate()] }),
+			0,
+		).assertions,
+	).toHaveLength(1);
+});
+
+test("request-bound grammar keeps subject, source and payload distinct and has no recursive condition ref", async () => {
+	const { schemaForRequest, outputSchema } =
+		await import("../../examples/seed-luna/schema.ts");
+	const request = {
+		window: [
+			{ utteranceId: "source-id", text: JSON.stringify({ statement: "事実" }) },
+		],
+		entities: [{ id: "entity-id" }],
+		observationKeys: [],
+	};
+	const bound = schemaForRequest(request);
+	const fields = bound.properties.candidates.items.properties;
+	expect(fields.subject.properties.id.enum).toEqual(["entity-id"]);
+	expect(fields.quote.properties.utteranceId.enum).toEqual(["source-id"]);
+	expect(fields.payload.properties.value.properties.value.enum).toBeUndefined();
+	expect(fields.quote.properties.pointer.enum).toEqual(["/statement"]);
+	expect(fields.condition).toEqual({
+		type: "object",
+		properties: { kind: { type: "string", enum: ["unspecified"] } },
+		required: ["kind"],
+		additionalProperties: false,
+	});
+	expect(JSON.stringify(outputSchema)).not.toContain("entity-id");
+	const bounded = schemaForRequest({
+		...request,
+		observationKeys: [{ key: "metric" }],
+	});
+	expect(bounded.$defs.condition1.anyOf).toHaveLength(2);
+	expect(JSON.stringify(bounded)).not.toContain('"#/$defs/condition"');
+	expect(JSON.stringify(bounded.$defs.condition1)).not.toContain(
+		'$ref":"#/$defs/condition0',
+	);
+});
+
+test("observed Local Provider preserves the same claim with embedded hostile instructions", async () => {
+	const { injectionControl } =
+		await import("../../examples/seed-luna/control.ts");
+	const { default: observed } =
+		await import("../../fixtures/extraction/local-injection-v1.json");
+	const poisoned = injectionControl();
+	const statement = JSON.parse(poisoned.content).statement;
+	const cleanText = JSON.stringify({ statement });
+	const clean = {
+		...poisoned,
+		content: cleanText,
+		source: {
+			...poisoned.source,
+			digest: `sha256:${hash(Buffer.from(cleanText))}`,
+		},
+	};
+	const subject = {
+		...entity,
+		id: "example-service",
+		displayName: "検証用の架空サービスA",
+	};
+	const results = [
+		validateOutput(clean, subject, observed.raw["clean-control"], 0),
+		validateOutput(poisoned, subject, observed.raw["poisoned-control"], 0),
+	];
+	for (const result of results) {
+		expect(result.assertions).toHaveLength(1);
+		expect(result.bindings).toEqual([{ index: 0, status: "bound" }]);
+		expect(result.assertions[0]?.payload).toEqual({
+			kind: "value",
+			value: { kind: "string", value: statement },
+		});
+		expect(result.assertions[0]?.lifecycle).toBe("candidate");
+		const store = openTestStore();
+		try {
+			expect(
+				store.write((db) =>
+					persistCandidates(db, subject, result.state, result.assertions, 0),
+				),
+			).toEqual({ storedCandidates: 1, replayNoOp: 1, activeAssertions: 0 });
+		} finally {
+			store.close();
+		}
+	}
+});

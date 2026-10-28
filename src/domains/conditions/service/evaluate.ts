@@ -141,6 +141,7 @@ function evalCompare(
 	const topGroup = sameKey.filter((o) => o.priority === top);
 	const excluded = new Set<EvaluationReason>();
 	const group: Observation[] = [];
+	const uncertain: Observation[] = [];
 	for (const o of topGroup) {
 		if (ctx.versions && ctx.versions.get(o.observationId) !== o.version) {
 			excluded.add("VERSION_MISMATCH");
@@ -150,9 +151,10 @@ function evalCompare(
 			const validity = o.validTime
 				? validityAt(o.validTime, ctx.asOf)
 				: undefined;
-			if (validity?.result === "unknown")
+			if (validity?.result === "unknown") {
 				excluded.add("OBSERVATION_VALIDITY_UNKNOWN");
-			else group.push(o);
+				uncertain.push(o);
+			} else group.push(o);
 		}
 	}
 	if (group.length === 0) return { result: "unknown", reasons: excluded };
@@ -169,7 +171,18 @@ function evalCompare(
 		);
 		return unknown(units ? "UNIT_MISMATCH" : "CONFLICTING_OBSERVATIONS");
 	}
-	return compareValues(node.op, first.value, node.value);
+	const outcome = compareValues(node.op, first.value, node.value);
+	// A same-priority observation may still apply. Preserve uncertainty only
+	// when its comparison could invalidate the otherwise decisive result.
+	if (
+		outcome.result !== "unknown" &&
+		uncertain.some(
+			(o) =>
+				compareValues(node.op, o.value, node.value).result !== outcome.result,
+		)
+	)
+		return unknown("OBSERVATION_VALIDITY_UNKNOWN");
+	return outcome;
 }
 
 function evalCondition(node: Condition, ctx: Context): Outcome {

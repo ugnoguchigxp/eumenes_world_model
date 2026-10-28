@@ -381,3 +381,88 @@ export function parseMergePlan(
 		members: members.value,
 	});
 }
+
+export function parseSplitPlan(
+	value: unknown,
+	path: string,
+): Checked<SplitPlan> {
+	const parsed = strictRecord(value, path, [
+		"kind",
+		"operationId",
+		"mergeOperationId",
+		"scope",
+		"representativeId",
+		"representative",
+		"restored",
+	]);
+	if (!parsed.ok) return parsed;
+	const o = parsed.value;
+	if (o["kind"] !== "split") return fail("INVALID_INPUT", `${path}.kind`);
+	const operationId = checkId(o["operationId"], `${path}.operationId`);
+	if (!operationId.ok) return operationId;
+	const mergeOperationId = checkId(
+		o["mergeOperationId"],
+		`${path}.mergeOperationId`,
+	);
+	if (!mergeOperationId.ok) return mergeOperationId;
+	const scope = checkScope(o["scope"], `${path}.scope`);
+	if (!scope.ok) return scope;
+	const representativeId = checkId(
+		o["representativeId"],
+		`${path}.representativeId`,
+	);
+	if (!representativeId.ok) return representativeId;
+	const representative = parseMergedMember(
+		o["representative"],
+		`${path}.representative`,
+	);
+	if (!representative.ok) return representative;
+	const restored = listOf(o["restored"], `${path}.restored`, parseMergedMember);
+	if (!restored.ok) return restored;
+	if (
+		representative.value.id !== representativeId.value ||
+		[representative.value, ...restored.value].some(
+			(m) => m.nextRevision !== m.revision + 1,
+		)
+	)
+		return fail("INVALID_INPUT", path);
+	return ok({
+		kind: "split",
+		operationId: operationId.value,
+		mergeOperationId: mergeOperationId.value,
+		scope: scope.value,
+		representativeId: representativeId.value,
+		representative: representative.value,
+		restored: restored.value,
+	});
+}
+
+export function parseEntityPayload(
+	value: unknown,
+	path: string,
+): Checked<Pick<Entity, "displayName" | "aliases" | "externalRefs">> {
+	const object = strictRecord(value, path, [
+		"displayName",
+		"aliases",
+		"externalRefs",
+	]);
+	if (!object.ok) return object;
+	const displayName = aliasText(
+		object.value["displayName"],
+		`${path}.displayName`,
+	);
+	if (!displayName.ok) return displayName;
+	const aliases = listOf(object.value["aliases"], `${path}.aliases`, aliasText);
+	if (!aliases.ok) return aliases;
+	const externalRefs = listOf(
+		object.value["externalRefs"],
+		`${path}.externalRefs`,
+		externalRef,
+	);
+	if (!externalRefs.ok) return externalRefs;
+	return ok({
+		displayName: displayName.value,
+		aliases: aliases.value,
+		externalRefs: externalRefs.value,
+	});
+}

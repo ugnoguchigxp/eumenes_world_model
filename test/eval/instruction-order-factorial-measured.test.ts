@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readExperimentEvidence } from "../support/experiment-evidence.ts";
 import { hash } from "../../eval/seed/corpus.ts";
 import { openTestStore } from "../support/sqlite-store.ts";
 import {
@@ -26,9 +26,9 @@ import {
 } from "../../examples/instruction-order-factorial/results.ts";
 import { adoption } from "../../examples/instruction-order-factorial/adoption.ts";
 const saved = JSON.parse(
-	readFileSync(
+	readExperimentEvidence(
 		new URL(
-			"../../examples/instruction-order-factorial/results/2026-10-16.json",
+			"../../fixtures/experiments/instruction-order-factorial/2026-10-16.json.gz",
 			import.meta.url,
 		),
 		"utf8",

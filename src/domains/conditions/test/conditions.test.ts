@@ -423,3 +423,50 @@ describe("review fixes: fail-closed operators, priority first, no duplicate vers
 			).toBe(false);
 	});
 });
+
+describe("uncertain validity at the winning priority", () => {
+	const uncertain = (value: unknown, priority = 1) =>
+		obs({
+			observationId: "uncertain",
+			value,
+			priority,
+			validTime: {
+				kind: "period",
+				precision: "month",
+				original: "曖昧な終了日",
+				end: { earliest: NOW - 1000, latest: NOW + 1000 },
+			},
+		});
+	test("a possibly applicable counter-observation prevents either decisive result", () => {
+		for (const [certain, possible] of [
+			[90, 500],
+			[500, 90],
+		]) {
+			for (const observations of [
+				[obs({ value: ms(certain!) }), uncertain(ms(possible!))],
+				[uncertain(ms(possible!)), obs({ value: ms(certain!) })],
+			])
+				expect(run(input(cmp(), { observations }))).toEqual({
+					result: "unknown",
+					reasons: ["OBSERVATION_VALIDITY_UNKNOWN"],
+				});
+		}
+	});
+	test("uncertainty that cannot change the comparison does not erase a conclusion", () => {
+		for (const observations of [
+			[obs(), uncertain(ms(90))],
+			[obs(), uncertain(ms(80))],
+			[obs(), uncertain(ms(500), 0)],
+		])
+			expect(run(input(cmp(), { observations }))).toEqual({
+				result: "satisfied",
+				reasons: [],
+			});
+	});
+	test("unknown type or unit in a possibly applicable observation is retained", () => {
+		for (const value of [ms(90, "s"), { kind: "string", value: "fast" }])
+			expect(
+				run(input(cmp(), { observations: [obs(), uncertain(value)] })).result,
+			).toBe("unknown");
+	});
+});

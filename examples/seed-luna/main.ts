@@ -100,7 +100,7 @@ try {
 				const result = validateOutput(
 					document,
 					entity,
-					JSON.parse(response.raw),
+					response.raw,
 					recordedAt,
 				);
 				const persistence = store.write((db) =>

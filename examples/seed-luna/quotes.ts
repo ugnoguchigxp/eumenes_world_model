@@ -74,3 +74,10 @@ export function bindQuotes(raw: unknown, utteranceId: string, content: string) {
 	});
 	return { output: { ...output, candidates }, bindings };
 }
+
+/** Host-derived allowable anchors; choosing which supports a claim remains semantic. */
+export function quotePointers(content: string): string[] {
+	return [...stringLocations(content)]
+		.filter(([, leaf]) => leaf.text.length > 0)
+		.map(([pointer]) => pointer);
+}

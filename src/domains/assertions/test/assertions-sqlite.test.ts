@@ -237,6 +237,18 @@ for (const mode of ["file", "memory"] as const) {
 					supersedes: [{ id: "claim-1", revision: 2 }],
 					payload: { kind: "value", value: { kind: "boolean", value: false } },
 				});
+				// Even a hand-built plan cannot omit the content-change boundary.
+				const beforeForged = store.read((db) => counts(db));
+				expect(
+					store.write((db) =>
+						applyTransition(
+							db,
+							{ ...p, supersedes: [] },
+							{ ...replacement, supersedes: [] },
+						),
+					),
+				).toEqual({ status: "rejected", reasonCode: "REPLACEMENT_MISMATCH" });
+				expect(store.read((db) => counts(db))).toEqual(beforeForged);
 				// replacement is mandatory and must match the plan
 				expect(store.write((db) => applyTransition(db, p))).toEqual({
 					status: "rejected",

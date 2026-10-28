@@ -1,6 +1,6 @@
 # WorldModel 実装進捗
 
-2026年10月9日。P0の構造準備だけが完了。以下は実装作業票の台帳であり、計画書の完成を機能の完成として記録しない。P0の22試験は[準備状況](../preparation-status.md)を参照。
+2026年10月28日更新。P0〜P2とP3-01は実装・検証済み。P3のhost結合およびP4/P5の一部は下表の条件で実施済み。実モデルの正式評価・実運用は未受入。以下は実装作業票の台帳であり、計画書の完成を機能の完成として記録しない。P0の22試験は[準備状況](../preparation-status.md)を参照。
 
 状態は未着手、進行中、待機、完了。待機には不足する契約/配布物/許可範囲を具体的に記す。完了には実行結果へのリンクが必要。
 
@@ -40,7 +40,7 @@
 | P4-02 | Local抽出のqueue handler | 完了(fixture provider) | extraction-handler.ts(world.extract、larm-only/cloudAllowed=false、30s budget、slot再利用防止)、extraction-handler.test.ts 16件+application/world-extraction.test.ts 6件(A19,A20,A43、Cloud fetch 0)。実Local Provider未実施、entity listing無しでsubject名はSUBJECT_UNRESOLVED |
 | P4-03 | 前景優先と取消と再開 | 完了(host fixture/stub provider) | Eumenes world/service/foreground.ts、extraction-handler(hold/unconfirmed slot/stale attempt)、application/world-foreground.ts、inferenceにforegroundBusy hook。scheduling.test.ts 11件+application/world-scheduling.test.ts 5件(A44)。実Local Provider未実施。前景=interactive laneの全job(長時間jobで抽出が止まる) |
 | P4-04 | Runtime結果の観測化 | 待機(fixtureのみ。公開実行台帳が無く未受入) | runtime-adapter.ts+RuntimeLedgerPort fixture、outcomes.test.ts 14件(A18,A45のWorld部分)。待機理由: tool-runtime/agent-runtime/capabilitiesにcomparisonId/metric/unit/config/baseline/検証状態を持つ公開snapshotが無い。package側にoutcome source入力・prediction読取APIが無い |
-| P4-05 | 日本語抽出の実モデル評価 | 待機 | W側基盤(dataset200件・runner・scoring・fixture)完了: eval/extraction、test/eval/extraction.test.ts 64件、spec/evaluation-baseline.md。待機理由: G5(Local Provider未接続)・先行P4-02/03(host)。実モデル未受入 |
+| P4-05 | 日本語抽出の実モデル評価 | 待機 | W側基盤(dataset200件・runner・scoring・fixture)完了: eval/extraction、test/eval/extraction.test.ts 64件、spec/evaluation-baseline.md。2026-10-28にSQLite登録Localで実資料1件＋対攻撃2件の候補保存まで成功。正式holdout・日本語品質・host queueの実モデル受入は未実施（spec/evaluation-baseline.md）。小規模結果でP4-05全体を完了にしない |
 | P5-01 | 判断APIを製品で使う入口 | 一部完了(Task連携は未受入) | Eumenes world-query(6 mode、上限、権限外、executionPermission none)、model tool定義、POST /api/world/query(未mount)、world-query.test.ts 14件(A14-A16,A47)。Task連携: 実Tasks domainにGap用kind/権限が無く未受入。tool登録・query mount・実resource stateは未配線 |
 | P5-02 | 根拠付き一覧と訂正画面 | 完了(fixture backend、実機未実施) | Eumenes /api/world/{status,claims,forgets,...}、web設定画面World、world-claims.test 13件+http 4件+vitest 16件+Playwright 1件(A48)。訂正理由は本人の確認済みメッセージ。source本文表示・entity表示名・曖昧対象のbrowser caseは未実装/mock |
 | P5-03 | 一つの改善仕事を閉じる | 待機 | W側の純粋規則評価完了: eval/scenarios/cache-latency、test/eval/cache-latency.test.ts 47件(A45,A49のWorld部分)。待機理由: host実行台帳・Tool権限・P5-01/02/P4-04(host) |
@@ -108,7 +108,7 @@ host結合: 未実施(Eumenes Writer queue・実Memory登録は未受入)
 - journalはfixtureで耐久性未受入(P3-05)。
 - 台帳が200,000 head assertionを超えるScopeの全再構築はblocked LEDGER_TOO_LARGE(実測はせず単体試験のみ)。
 - 性能値は1機材・合成fixtureのみ。他機材で再測定が必要。
-- Memory配布物はローカル生成・生成時点のMemory src(未コミット変更含む)に固定。Memory側変更後は bun scripts/vendor-memory.ts で再生成。
+- Memory配布物はローカル生成・生成時点のMemory src(未コミット変更含む)に固定。Memory更新時は固定commitを明示し、契約差分を確認してから再生成する（現在の手順はREADME）。
 - P3以降(Eumenes結合、実モデル、実運用)は未着手。
 ```
 
@@ -131,7 +131,9 @@ host結合: 対象外(P3-02以降)
 
 ## P3-02〜P6 の扱い(2026年10月9日)
 
-本依頼は「World本体のみ」(../eumenes は参照専用、変更なし)。完了はP3-01まで。P3-02〜09、P4-01〜04、P5-01/02、P6-02はEumenes変更を含む依頼が必要で未着手。P4-05/P5-03/P5-04/P6-03/P6-04はW側の基盤・条件のみ実施し、実モデル・host結合・実運用は未受入。全体verify:all 772件合格、build成功。全体完成ではない。
+**以下は2026年10月9日の依頼範囲の履歴。現在の状態は冒頭の表と後続記録を参照。**
+
+当時の依頼は「World本体のみ」(../eumenes は参照専用、変更なし)。当時の完了はP3-01まで。P3-02〜09、P4-01〜04、P5-01/02、P6-02はEumenes変更を含む依頼が必要で未着手。P4-05/P5-03/P5-04/P6-03/P6-04はW側の基盤・条件のみ実施し、実モデル・host結合・実運用は未受入。全体verify:all 772件合格、build成功。全体完成ではない。
 
 レビュー反映(2026年10月9日): 独立レビュー1回、指摘9件+軽微1件を一括修正。抽出評価はdataset v2/ext-threshold-v2、判断評価は対照条件plain-factsと否定対応の禁止語判定、配布はd.ts export一致検査を追加。verify:all 824件合格、build成功。
 
@@ -445,7 +447,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
   比較実装と失敗例は不採用表示を付けて検証資産として保存。改善を得るまで同じ問題を調整し続けない。
 - 完了証拠: 全32ペアの入力一致、正解非提示、175コードdigest不変、期待計算19件一致、
   既知context不変、全生応答のdecision最終項目を確認。追加モデル呼出し0で再生し、report/events不変。
-  Gitに持ち運べる結果は `examples/source-role-comparison/results/2026-10-16.md` と同名JSON。
+  Gitに持ち運べる結果は `fixtures/experiments/source-role-comparison/2026-10-16.md` と同名JSON。
   JSONは4抽出・64回答の生出力と採点・説明点検・照合・再生証拠を含み、秘密や接続認証は含まない。
 
 ### 抽出拒否からの回復比較・既定採用保留（2026年10月16日）
@@ -483,7 +485,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
   `2026-10-16T05-29-35.281Z-9fac00b2`。180/182コードdigest不変で完了し、
   各48/72キャッシュを追加呼出し0で再生、report/eventsのdigest不変。
   全生応答・protocol・当時の実験コード・採点・コストは
-  `examples/extraction-fallback-comparison/results/2026-10-16.json`、判断は同名Markdown。
+  `fixtures/experiments/extraction-fallback-comparison/2026-10-16.json.gz`、判断は同名Markdown。
   代表的な3誤答を回帰試験へ保存。通常verifyはモデルを呼ばない。
 - 最終検証: 部分試験7件・98 expect、全体verify 878件成功・失敗0・12,423 expect・54ファイル、
   build成功。差分点検で本体src・公開契約・既存v5・既存実験・隣接repoの変更なし。
@@ -516,7 +518,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 実行記録: `artifacts/operative-sources-comparison/2026-10-16T05-50-32.196Z-17c00fb8`。
   48ペアのrequestバイト一致、正解非提示、28期待計算一致、全原文保持、173コードdigest不変。
   全100キャッシュを追加呼出し0で再生し、report/events不変。生応答・採否は
-  `examples/operative-sources-comparison/results/2026-10-16.json` と同名Markdownへ保存。
+  `fixtures/experiments/operative-sources-comparison/2026-10-16.json.gz` と同名Markdownへ保存。
   実測成功/失敗ペアと、旧資料を一括除外すると有効な観測方針が消える回帰試験を追加。
 - 最終検証: 部分7件・171 expect、全体verify 885件成功・失敗0・12,594 expect・56ファイル、
   build成功。差分点検で本体・公開契約・既存v5・既存実験・隣接repoの変更なし。
@@ -540,7 +542,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
   元のv5と補足指示を変更せず、比較候補・全初回応答・改善/悪化例を研究用として保持。追加のモデル再実行や指示修正は行わない。
   全128説明をCodexが確認（非独立・非盲検）。日付「17日まで」を「17日間」とする説明誤りも両方式各1件記録。
   CV5の一部章だけの撤回はWorld主張全体の撤回となり、存続観測章は原文参照で補う。章単位管理の実装とは扱わない。
-- 保存先: `examples/operative-sources-holdout/results/2026-10-16.json`と同名Markdown。
+- 保存先: `fixtures/experiments/operative-sources-holdout/2026-10-16.json.gz`と同名Markdown。
   固定protocol・134生応答/usage・32入力・採点・採否・当時の実験コード・説明の指摘を保存（認証情報/SDK thread IDなし）。
   実行記録は`artifacts/operative-sources-holdout/2026-10-16T06-22-05.107Z-09db172f`。
 - 検証: 実行前の部分/SQLite試験7件成功、実行後の追加試験5件・600 expect成功。新規抽出から全24問をSQLiteで再構築し、
@@ -579,7 +581,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
   全原文保持、正解非提示、候補48回答は評価欄が先、全144回答で判定が最後。
   148キャッシュを追加呼出し0で再生、report/events digest不変。新規16問をSQLiteから再構築し、
   全144応答のrequest digest/採点/集計/採否も通常試験で再現。
-- 保存先: `examples/applicability-order-comparison/results/2026-10-16.json`と同名Markdown。
+- 保存先: `fixtures/experiments/applicability-order-comparison/2026-10-16.json.gz`と同名Markdown。
   全148生応答/usage、24入力、固定protocol/コードsnapshot、採否、説明点検を保存（認証情報/SDK thread IDなし）。
   実行記録: `artifacts/applicability-order-comparison/2026-10-16T06-54-01.914Z-dd98407d`。
 - 最終検証: 新規部分試験7件・821 expect、全体verify 897件成功・失敗0・14,015 expect・60ファイル、build成功。
@@ -622,7 +624,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 固定193ファイル不変。40組prompt一致、160要求のschemaは順序以外同値、正解非提示、全取得回答が指定順。
   キャッシュのみ再生で追加呼出し0、162応答再利用、2通信失敗も再現。report/events digest不変。
   新規SQLite入力再構築、拒否参照の再現、全応答/失敗のdigest・採点・集計・採否の再現試験を追加。
-- 保存: `examples/instruction-order-factorial/results/2026-10-16.json`と同名Markdown。
+- 保存: `fixtures/experiments/instruction-order-factorial/2026-10-16.json.gz`と同名Markdown。
   固定protocol、162生応答/usage、2失敗、20入力、192セル、採否、コードsnapshot、説明点検（認証情報/SDK thread IDなし）。
   実行記録: `artifacts/instruction-order-factorial/2026-10-16T07-23-38.730Z-dffc963e`。
 - 最終検証: 部分7件・878 expect、verify 904件成功・失敗0・14,893 expect・62ファイル、build成功。
@@ -662,7 +664,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 固定201ファイル不変、12修正ペアは監査フィードバック以外の入力/schema同一。48新規出力はv5の順序。
   キャッシュ52件を追加呼出し0で再生、report/events digest不変。全監査分岐/費用/採点/採否とSQLite再構築、抽出拒否を試験で再現。
   生応答/usage、20入力、144セル、protocol/実験コード、採否、説明点検を
-  `examples/audit-repair-comparison/results/2026-10-16.json`と同名Markdownに保存（認証情報/SDK thread IDなし）。
+  `fixtures/experiments/audit-repair-comparison/2026-10-16.json.gz`と同名Markdownに保存（認証情報/SDK thread IDなし）。
   実行記録: `artifacts/audit-repair-comparison/2026-10-16T07-53-45.863Z-48c74c71`。
 - 最終検証: 部分7件・838 expect、verify 911件成功・失敗0・15,731 expect・64ファイル、build成功。
   通常試験の成功と実測の全件成功を区別する。差分点検で本体src/公開契約/DB/既存v5/監査/既存実験/隣接repoは不変。
@@ -689,7 +691,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 検証: 修正後の部分＋既存SQLite再現7件/837 assertions成功。実測後は専用部分・測定再現8件/637 assertions成功。全84回答の入力・分岐・監査・採点・費用・集計・採否と24未評価セルを再現。28組の見直し入力/schema同一、80新規回答のv5順序、無効runから意味条件を変更していないことを検証。
 - 追加呼出し0・84応答再利用の再生でreport/eventsのdigest不変。最終`bun run verify`: **919 pass / 0 fail / 16,368 assertions / 66 files**、`bun run build`成功。通常検証でモデルは呼ばない。抽出未評価を全体通し成功と混同しない。
 - 完了: 実装・部分→結合→実モデル比較→再現→全体検証、全回答確認、費用・採否・限界の記録まで完了。差分は担当範囲のみ。規程の意味選択をコードへ移す処理なし。
-- 詳細: [比較結果](../../examples/source-review-comparison/results/2026-10-16.md)、[有効run](../../examples/source-review-comparison/results/2026-10-16.json)、[無効run](../../examples/source-review-comparison/results/2026-10-16-invalidated.json)。
+- 詳細: [比較結果](../../fixtures/experiments/source-review-comparison/2026-10-16.md)、[有効run](../../fixtures/experiments/source-review-comparison/2026-10-16.json.gz)、[無効run](../../fixtures/experiments/source-review-comparison/2026-10-16-invalidated.json.gz)。
 
 ## 2026-10-16 有効期間外の計算理由を接続する監査比較
 
@@ -707,7 +709,7 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 費用は重複なし45呼出しで入力692,887/出力11,259 tokens。抽出39,477/2,235、初回379,210/5,519、control132,126/1,833、validity142,074/1,672。未見平均は初回10.58秒、見直し込みcontrol11.07秒/validity11.17秒。共有初回の二重計上と保存seedの元費用を含めない。
 - 追加呼出し0・45応答再利用でreport/events digest不変。219固定ファイル不変、9要求ペアは追加監査フィードバックだけ異なり、42新規回答は元のv5順序。全108セルの要求digest・分岐・監査・費用・採点・集計・採否を再現し、SQLiteも再構築する専用試験を追加。
 - 最終検証: 専用8件・836 assertions成功。`bun run verify` **927 pass / 0 fail / 17,204 assertions / 68 files**、`bun run build`成功。通常試験はモデルを呼ばない。差分点検で担当外変更・LLMの意味判断を置換する処理なし。
-- 完了: 比較・計測・全回答点検・再現・全体検証・費用/採否/残課題の記録。詳細は[結果](../../examples/validity-audit-comparison/results/2026-10-16.md)、[再現JSON](../../examples/validity-audit-comparison/results/2026-10-16.json)。認証情報・SDK thread IDは保存しない。
+- 完了: 比較・計測・全回答点検・再現・全体検証・費用/採否/残課題の記録。詳細は[結果](../../fixtures/experiments/validity-audit-comparison/2026-10-16.md)、[再現JSON](../../fixtures/experiments/validity-audit-comparison/2026-10-16.json.gz)。認証情報・SDK thread IDは保存しない。
 
 ## 2026-10-16 対象外資料の混入を確認する独立した役割監査（不採用）
 
@@ -728,10 +730,31 @@ P3-05/07 独立レビュー反映(2026年10月10日): 確認coverage検査(依�
 - 次の未検証仮説: 候補の資料ID一覧も見せず、対象に直接適用する条項・役割を原文から先に選び、その集合と回答を照合する。今回の結果だけで一覧による誘導を原因と断定せず、効果は未測定とする。
 - 再現: 新規呼出し0、61キャッシュ・91読出し（共有初回監査の重複参照を含む）でreport/events digest不変。228固定ファイル不変、1修正ペアはsourceRoleAudit以外同一、26新規回答はv5順序。全90セルの要求digest・分岐・費用・監査・採点・集計・採否、SQLite再構築と見逃しを回帰試験で再現。認証情報/SDK thread IDは保存しない。
 - 最終検証: 専用8件・790 assertions成功。測定再現試験の比較型注記だけ修正後、`bun run verify` **935 pass / 0 fail / 17,994 assertions / 70 files**、`bun run build`成功。実測コード・入力・期待値は不変。差分点検で担当外変更、資料IDによる意味選択、文言による規程分類なし。完了は比較・採否判断・記録の完了であり、対象外混入の解消ではない。
-- 詳細: [結果](../../examples/source-role-audit-comparison/results/2026-10-16.md)、[再現JSON](../../examples/source-role-audit-comparison/results/2026-10-16.json)。
+- 詳細: [結果](../../fixtures/experiments/source-role-audit-comparison/2026-10-16.md)、[再現JSON](../../fixtures/experiments/source-role-audit-comparison/2026-10-16.json.gz)。
 
 ## 2026-10-26 Bun 1.4.4への更新
 
 - セキュリティ修正を含むBun 1.4.4に合わせ、`package.json`の`packageManager`を1.4.2から1.4.4へ更新し、READMEの使用版を同期。実行環境は着手時点ですでに1.4.4（38afee6c8）。
 - `bun install --frozen-lockfile`成功、lockfile差分なし。SQLite結合試験は21 pass / 0 fail、`bun run verify`は935 pass / 0 fail / 17,994 assertions / 70 files。整形・lint・型・境界検査と`bun run build`も成功。
 - 変更は実行版の指定・案内・本記録のみ。製品コードの意味判断・専用分岐の追加なし。既存の作業中差分と過去の測定環境の記録は維持。
+
+
+## 591b066レビュー対応（2026年10月28日）
+
+目的・範囲・全指摘の対応表と導入条件は[対応記録](../review-591b066-remediation.md)を参照。
+
+- 矛盾は状態遷移だけでは失効せず、内容置換の自己supersedesで区切る。採用順反転、純粋投影・増分投影・再構築の一致と、自己リンク省略の拒否を確認。
+- 同順位の適用期間不明な観測が結論を変え得る場合はunknown。結論不変・下位の不確実性では確定結果を維持。
+- Memory 0.3.6の既存配布157ファイルをGit対象にし、manifest pin・全ファイルのハッシュをverify前に検査。再生成はclean checkoutと完全commit IDを必須にし、異なる版は明示更新なしに拒否。
+- payload読取りは既存契約parserで検証。不正JSON・欠損・型違いをWorldIntegrityErrorとして拒否。root公開APIとmigrationは変更なし。
+- モデル出力は上限確認後に解析し、壊れた出力を通常の拒否へ。既存の回復処理はmalformedを回復対象にしない。
+- staleなAGENTS・計画・README・verify表示を修正。Agency/Memory対応表とWorldSlice利用境界をhost契約へ追加。
+- grokbotの同梱理由を明記しtar重複を削除。実験の固定証拠は内容を保ったままgzip化（8,764,271→872,899 bytes）し、SHA・再採点試験を維持。新規resultsはGit対象外。
+- 部分検証: 条件/投影32件、投影・SQLite結合225件、repository・scenario368件。破損データ・schema・配布pin・圧縮証拠の試験を追加。変更前の不具合と、手作りsupersedeで境界を省けるケースが失敗することを確認してから修正。
+- 最終全体: `bun run verify`950件成功・失敗0・18,144 expect、74ファイル。整形・lint・型・境界・consumer成功。build成功、SQLite基盤21件成功。
+- 新規環境: tracked＋新規非ignoreファイルだけの一時コピー（依存物・成果物・隣接checkoutなし）でinstall/verify 950件/buildすべて成功。最終コードでも再確認。一時ディレクトリは回収。
+- 実モデル: 既存Eumenes SQLite設定を読取り、既存クライアント経由で`ornith1.5Strix` / `lfm2.5-24b-a2b`へ接続。`seed-local-v1`、reasoning low、非stream、実資料1件と通常/攻撃2件すべて候補1件・再投入no_op・active0。対攻撃では同じ7日保持の内容を維持。任意実行の`eval/extraction/local-smoke.ts`と実出力の回帰試験を追加。
+- 検証区分: 純粋規則・実SQLite・配布consumer・実Local小規模接続は成功。100件の正式holdout、日本語payload品質、host queueの実モデル受入、実運用は未受入。実資料payloadが英語のままという制約も保持。
+- 差分点検: 個別語句での意味分類・固定回答・仮の成功は追加なし。有限AST・提示ID/引用パスは出力契約の強制だけ。モデル出力の意味をホストが書き換えない。既存のseed export作業を保持し、隣接repo・製品DBは変更なし。
+- 導入条件: 旧投影をhostの単一Writer内で各Scopeの`rebuild`により再構築する。今回、製品DBには未実施。
+- 俯瞰評価の記録: 3ラウンド時点でLocalの拒否理由を評価し、reasoning要件・転送方式・引用契約へ原因を絞った。意味判断の専用処理へ移さず、条件を変えた根拠を会話で通知。再実行用CLIでコードdigest不変と3件成功を確認して探索を終了。

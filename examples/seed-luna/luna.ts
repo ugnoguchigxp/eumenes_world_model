@@ -145,3 +145,12 @@ export function assertNoTool(event: ThreadEvent, controller: AbortController) {
 		throw new Error("luna_unexpected_tool_attempt");
 	}
 }
+
+export const LOCAL_PROMPT_VERSION = "seed-local-v1";
+export const localInstructions = `${instructions}
+Use the exact utteranceId from window and the exact entity id from entities; a document digest is not an utteranceId.
+Modality describes the sentence in the cited field: question only for an actual question,
+hypothetical for a proposal or possibility, negated for an explicit denial, reported for attributed reports,
+and asserted for a direct declarative claim. Uncertainty about truth alone does not make it a question.
+When observationKeys is empty, output condition.kind=unspecified and preserve material qualifications in payload text.
+`;

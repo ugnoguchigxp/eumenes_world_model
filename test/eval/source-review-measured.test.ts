@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readExperimentEvidence } from "../support/experiment-evidence.ts";
 import { hash } from "../../eval/seed/corpus.ts";
 import { openTestStore } from "../support/sqlite-store.ts";
 import {
@@ -29,9 +29,9 @@ import {
 } from "../../examples/source-review-comparison/results.ts";
 import { adoption } from "../../examples/source-review-comparison/adoption.ts";
 const saved = JSON.parse(
-	readFileSync(
+	readExperimentEvidence(
 		new URL(
-			"../../examples/source-review-comparison/results/2026-10-16.json",
+			"../../fixtures/experiments/source-review-comparison/2026-10-16.json.gz",
 			import.meta.url,
 		),
 		"utf8",
@@ -252,9 +252,9 @@ test("both reviews repair the known miss, but unseen coherent error survives and
 });
 test("invalidated identity-collision run is separate and no semantic protocol was tuned after seeing its answers", () => {
 	const invalid = JSON.parse(
-		readFileSync(
+		readExperimentEvidence(
 			new URL(
-				"../../examples/source-review-comparison/results/2026-10-16-invalidated.json",
+				"../../fixtures/experiments/source-review-comparison/2026-10-16-invalidated.json.gz",
 				import.meta.url,
 			),
 			"utf8",
@@ -272,9 +272,9 @@ test("invalidated identity-collision run is separate and no semantic protocol wa
 	expect(old.questions).toEqual(saved.protocol.questions);
 	expect(old.instructions).toEqual(saved.protocol.instructions);
 	const full = JSON.parse(
-		readFileSync(
+		readExperimentEvidence(
 			new URL(
-				"../../examples/source-review-comparison/results/2026-10-16.json",
+				"../../fixtures/experiments/source-review-comparison/2026-10-16.json.gz",
 				import.meta.url,
 			),
 			"utf8",

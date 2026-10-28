@@ -33,3 +33,13 @@ SDKの接続・隔離・時間上限は、現時点では `seed-luna/luna.ts` �
 
 - [抽出拒否の回復比較](extraction-fallback-comparison/README.md): 原文切替と1回の再抽出を計測。再抽出で44停止回答を回復・判定56/56。ただし適用資料集合の誤りが5件あり、既定v5は維持。
 - [適用資料集合と履歴参照の比較](operative-sources-comparison/README.md): 指示の補足だけで撤回済み資料の混入4件→0件、主指標44/48→48/48。未見群は双方32/32で優位差は未確認。既存v5を維持し、独立候補として保存。
+
+## 受入に使うものと探索の記録
+
+- 日常の受入ゲート: `bun run verify`と`bun run build`。モデルを呼ばず、純粋規則・実SQLite・独立consumerを確認する。
+- 正式な抽出品質受入: [eval/extraction](../spec/evaluation-baseline.md)。固定holdoutと登録済みLocal Providerを使う。fixture成功とは区別する。
+- 実資料の接続確認: [seed-luna](seed-luna/README.md)の入力・引用・候補保存の流れ。Codexのリモートモデルでの成功はLocal受入を代替しない。
+- その他の比較ディレクトリ: 探索済み仮説の再現用。新しい実験の追加より、既存の抽出受入と実仕事の検証を優先する。
+
+過去の`results/`は[固定実験証拠](../fixtures/experiments/README.md)へ移し、JSONはバイト列を変えずgzip圧縮した。
+Markdownの要約と再採点試験を残している。新規実行の出力先`artifacts/`と`examples/**/results/`はGit対象外。

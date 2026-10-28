@@ -1,5 +1,5 @@
 node_modules/
-dist/
+/dist/
 coverage/
 artifacts/
 *.tsbuildinfo
@@ -16,3 +16,6 @@ artifacts/
 .claude/settings.local.json
 .serena/cache/
 eval/**/results/
+
+examples/**/results/
+/grokbot.tar.gz

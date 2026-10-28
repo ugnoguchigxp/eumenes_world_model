@@ -56,6 +56,8 @@ export function recover(packet: Packet, raw: string) {
 			{ candidates },
 			date(packet.documents[index]!.published),
 		);
+		if (checked.validation.status === "rejected")
+			throw new Error("malformed_extraction_output");
 		if (checked.bindings.some((binding) => binding.status !== "bound"))
 			throw new Error("unbound_quote");
 		const reasons = checked.validation.verdicts.flatMap((v) =>

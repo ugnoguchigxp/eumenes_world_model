@@ -108,7 +108,7 @@ ListedEntity = { id, revision, displayName, aliases: string[], externalRefs: {sy
 - **Long source keys**: a source/state forget root or tombstone may carry the full source identity key (up to 8192 bytes); every other kind keeps the 256-byte ID limit. No hashing, so tombstones stay exact.
 - **Restore and the inbox**: `restore.begin` deletes inbox events still `received`/`held` (payload included): their feed key embeds the pre-restore epoch and they could never be settled. The host re-delivers them from the reset cursor. A final (`applied`/`rejected`) event re-delivered under any feed key or sequence with the same content is a duplicate (`unchanged`).
 - **Replay digest**: set-valued fields (forget roots, invalidate targets/sourceKeys, restore registrations, journal tombstones, manifest dependencies) are put in canonical order before hashing, so a reordered resend is a `no_op`. `restore.*` and `rebuild` also include the host's `restoreEpoch`, so reusing a key under a new epoch is `OPERATION_KEY_CONFLICT`. forget/restore/invalidate/settle/receive operations may be up to 4 MiB canonical; every other operation stays at 64 KiB.
-- **Causal eligibility** (`world_current.causal_eligible` and the edge payload) is derived from the ledger the same way in incremental updates and in a rebuild: an active claim is eligible only while none of its refutations (own contradicts + recorded disputers) is a live (non-terminal) head. The result no longer depends on page boundaries.
+- **Causal eligibility** (`world_current.causal_eligible` and the edge payload) is derived from the ledger the same way in incremental updates and in a rebuild: an active claim is eligible only while none of its refutations (own contradicts + recorded disputers) still refers to the content of a live (non-terminal) head. Lifecycle-only revisions preserve that content identity; a self-supersedes link marks a content replacement. The result no longer depends on page boundaries.
 - **Invalidate by source** stops only HEAD revisions that still depend on the source.
 - **`forget.reopen`** (superseded by round 3 below): round 2 made the gate name a single owning forget; round 3 tracks every complete forget instead.
 
@@ -122,3 +122,7 @@ ListedEntity = { id, revision, displayName, aliases: string[], externalRefs: {sy
 - **Cost of an entity forget**: one scan of the Scope's assertions and one of its predictions per batch of entity targets (not per target), plus one `merged_into IN (...)` query; `payload_json` has no index, so the cost is linear in the Scope's rows per batch and independent of how many entity roots the batch holds. A forget chunk handles up to 500 targets.
 - **`world_forget_target`** rows stay after completion (kind/id/revision/state only: the same opaque ids the tombstones keep, no payload). They are the progress record behind `processed`. They never hold source text.
 - **Operation count** is 17 (see `operationKinds`); a test compares this document with the code.
+
+
+2026年10月28日修正の導入時は、hostの単一Writer transaction内で既存の`rebuild`操作をScopeごとに実行し、旧版が作った投影を正本から再構築する。
+スキーマと履歴は変更しない。製品DBへの実行は今回の検証に含めず、起動・公開の前にhost側の導入作業として行う。

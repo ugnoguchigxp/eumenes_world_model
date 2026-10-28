@@ -1,0 +1,68 @@
+[
+	{
+		"path": "applicability-order-comparison/2026-10-16.json.gz",
+		"sha256": "10891becfec898e2b2eb651e150f3df94a00cbef10d6ef67073420bf3e84f78d",
+		"bytes": 1151568,
+		"compressedBytes": 113620
+	},
+	{
+		"path": "audit-repair-comparison/2026-10-16.json.gz",
+		"sha256": "1d5ce7e24360c02aeb50268abe0ac71df6c7ce875073728458a796a8bdf9d4b0",
+		"bytes": 1195450,
+		"compressedBytes": 96934
+	},
+	{
+		"path": "extraction-fallback-comparison/2026-10-16.json.gz",
+		"sha256": "f5f20c9880d4dc27e355da6b219c2efc2112fbf82ea3f64757362dec50fad86e",
+		"bytes": 530239,
+		"compressedBytes": 80930
+	},
+	{
+		"path": "instruction-order-factorial/2026-10-16.json.gz",
+		"sha256": "eb4114c310e49ede21ceb041881bbc9acf44a26ae8006a4080597b1dc24c3689",
+		"bytes": 1143843,
+		"compressedBytes": 122009
+	},
+	{
+		"path": "operative-sources-comparison/2026-10-16.json.gz",
+		"sha256": "fbad8d24fb2438b488798f4e99f87f06503f60a84a04229c3cbb05cb8c568ea2",
+		"bytes": 434896,
+		"compressedBytes": 60417
+	},
+	{
+		"path": "operative-sources-holdout/2026-10-16.json.gz",
+		"sha256": "fe596aee2f8808722c10fc6c189a4ec3be0f818f5ef7370de0a44eb96d4077fc",
+		"bytes": 1141754,
+		"compressedBytes": 96355
+	},
+	{
+		"path": "source-review-comparison/2026-10-16-invalidated.json.gz",
+		"sha256": "92fc4459cfac93a613cc663be95e45131704173e9201d6e233b8368e558c0c16",
+		"bytes": 306774,
+		"compressedBytes": 47969
+	},
+	{
+		"path": "source-review-comparison/2026-10-16.json.gz",
+		"sha256": "5b346a17091ca459659a293a755cca147363a0ef480e6cd85ec66583ec2701ca",
+		"bytes": 796649,
+		"compressedBytes": 80480
+	},
+	{
+		"path": "source-role-audit-comparison/2026-10-16.json.gz",
+		"sha256": "97a56f56aff9d6b9c9a1a9bcf52ff60c210c6c7c94e643bca72e9ccf4212b369",
+		"bytes": 907906,
+		"compressedBytes": 78280
+	},
+	{
+		"path": "source-role-comparison/2026-10-16.json.gz",
+		"sha256": "843dc036b20033be5ffce4d311905eca6a1cbff87a25bb41c912bfe2751482dd",
+		"bytes": 163966,
+		"compressedBytes": 15830
+	},
+	{
+		"path": "validity-audit-comparison/2026-10-16.json.gz",
+		"sha256": "c1668c2f554452e5dd00de89542dae56a0246c0bf0cf9525e6f0320b437c8c7c",
+		"bytes": 991226,
+		"compressedBytes": 80075
+	}
+]

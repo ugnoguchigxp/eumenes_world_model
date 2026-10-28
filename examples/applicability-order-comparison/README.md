@@ -2,7 +2,7 @@
 
 **実測済み: 比較用の優先候補として保持。既定v5は変更しない。**
 新候補48/48、v5 47/48、前回補足指示48/48。対象2失敗は全方式で再発しなかったため、
-その2点に対する新対策固有の効果は未確定。[結果と限界](results/2026-10-16.md)を参照。
+その2点に対する新対策固有の効果は未確定。[結果と限界](../../fixtures/experiments/applicability-order-comparison/2026-10-16.md)を参照。
 新候補を試す場合は本Exampleの`instructions.applicability`と`schemaFor(context, "applicability")`を組で用いる。
 以下は実行前に固定した計画。採否条件は実測後に変更していない。
 

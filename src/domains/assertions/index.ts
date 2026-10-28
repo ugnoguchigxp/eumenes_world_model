@@ -8,3 +8,5 @@ export { planAssertionTransition } from "./service/transition.ts";
 export { groupEvidenceRoots } from "./service/evidence-roots.ts";
 export type { EvidenceRoots, RootGroup } from "./service/evidence-roots.ts";
 export * from "./contracts/index.ts";
+
+export { referencesCurrentContent } from "./service/content-reference.ts";

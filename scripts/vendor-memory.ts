@@ -2,7 +2,7 @@
  * Generates the local, hash-pinned Memory type distribution under
  * vendor/eumenes-memory from a read-only checkout of ../eumenes_memory.
  * This is a LOCAL generation, not an official Memory release. Memory files are
- * only read. Usage: bun scripts/vendor-memory.ts
+ * only read. Usage: bun scripts/vendor-memory.ts <checkout> --commit <full-sha> [--update-pin]
  */
 import { createHash } from "node:crypto";
 import {
@@ -20,7 +20,14 @@ import { join, relative, resolve } from "node:path";
 import { isTest, walk } from "./files.ts";
 
 const root = resolve(import.meta.dir, "..");
-const memoryRoot = resolve(root, process.argv[2] ?? "../eumenes_memory");
+const args = process.argv.slice(2);
+const sourcePath = args[0];
+if (!sourcePath)
+	throw new Error("MEMORY_SOURCE_REQUIRED: pass a clean checkout and --commit");
+const flag = (name: string) => args[args.indexOf(name) + 1];
+const expectedCommit = args.includes("--commit") ? flag("--commit") : undefined;
+const updatePin = args.includes("--update-pin");
+const memoryRoot = resolve(root, sourcePath);
 const target = join(root, "vendor/eumenes-memory");
 // Built beside the live directory and swapped in only after everything succeeded.
 const next = `${target}.next`;
@@ -49,6 +56,29 @@ async function run(command: string[], cwd: string): Promise<string> {
 	return out.trim();
 }
 
+const ownRepo = existsSync(join(memoryRoot, ".git"));
+const commit = ownRepo
+	? await run(["git", "rev-parse", "HEAD"], memoryRoot)
+	: "unknown";
+const dirty = ownRepo
+	? await run(
+			["git", "status", "--porcelain", "--", "src", "package.json"],
+			memoryRoot,
+		)
+	: "unknown";
+if (
+	!ownRepo ||
+	!expectedCommit ||
+	!/^[0-9a-f]{40}$/.test(expectedCommit) ||
+	expectedCommit !== commit ||
+	dirty !== ""
+)
+	throw new Error(
+		"MEMORY_COMMIT_MISMATCH_OR_DIRTY: clean checkout and exact --commit required",
+	);
+const existingManifest = JSON.parse(
+	readFileSync(join(target, "manifest.json"), "utf8"),
+);
 const staging = mkdtempSync(join(tmpdir(), "world-vendor-memory-"));
 try {
 	if (!existsSync(join(memoryRoot, "src/index.ts")))
@@ -110,16 +140,6 @@ try {
 			"\t",
 		)}\n`,
 	);
-	const ownRepo = existsSync(join(memoryRoot, ".git"));
-	const commit = ownRepo
-		? await run(["git", "rev-parse", "HEAD"], memoryRoot).catch(() => "unknown")
-		: "unknown";
-	const dirty = ownRepo
-		? await run(
-				["git", "status", "--porcelain", "--", "src"],
-				memoryRoot,
-			).catch(() => "unknown")
-		: "unknown";
 	const files = hashTree(next, (file) => file.endsWith("manifest.json"));
 	writeFileSync(
 		join(next, "manifest.json"),
@@ -127,16 +147,11 @@ try {
 			{
 				kind: "local-generated-not-official-release",
 				source: {
-					repository: `${process.argv[2] ?? "../eumenes_memory"} (read-only)`,
+					repository: `${sourcePath} (read-only)`,
 					packageVersion: memoryPackage.version,
 					gitCommit: commit,
-					sourceTarballSha256: process.argv[3]
-						? sha(readFileSync(resolve(root, process.argv[3])))
-						: null,
-					srcDirtyFiles:
-						dirty === "unknown"
-							? "unknown"
-							: dirty.split("\n").filter(Boolean).length,
+					sourceTarballSha256: null,
+					srcDirtyFiles: 0,
 					publicEntry: "src/index.ts",
 					sourceFileCount: sources.length,
 					sourceTreeSha256: sha(JSON.stringify(sources)),
@@ -152,10 +167,32 @@ try {
 			"\t",
 		)}\n`,
 	);
+	const generatedManifest = JSON.parse(
+		readFileSync(join(next, "manifest.json"), "utf8"),
+	);
+	if (
+		!updatePin &&
+		(generatedManifest.source.sourceTreeSha256 !==
+			existingManifest.source.sourceTreeSha256 ||
+			generatedManifest.source.packageVersion !==
+				existingManifest.source.packageVersion ||
+			JSON.stringify(generatedManifest.files) !==
+				JSON.stringify(existingManifest.files))
+	)
+		throw new Error(
+			"MEMORY_PIN_MISMATCH: review the contract change, then explicitly use --update-pin",
+		);
+	if (!updatePin)
+		cpSync(join(target, "manifest.json"), join(next, "manifest.json"));
 	// Swap: the old distribution stays intact until the new one is complete.
 	rmSync(previous, { recursive: true, force: true });
 	if (existsSync(target)) renameSync(target, previous);
 	renameSync(next, target);
+	if (updatePin)
+		writeFileSync(
+			join(root, "vendor/eumenes-memory.pin.json"),
+			`${JSON.stringify({ manifestSha256: sha(readFileSync(join(target, "manifest.json"))) }, undefined, "\t")}\n`,
+		);
 	rmSync(previous, { recursive: true, force: true });
 	console.log(`vendored ${files.length} files from ${sources.length} sources`);
 } finally {

@@ -1,5 +1,8 @@
+import { decodeJson } from "../../../contracts/decode-json.ts";
 import {
 	canonicalBytes,
+	asRecord,
+	type Checked,
 	checkId,
 	checkScope,
 	sameScope,
@@ -15,7 +18,9 @@ import {
 import {
 	normalizeAlias,
 	parseEntity,
+	parseEntityPayload,
 	parseMergePlan,
+	parseSplitPlan,
 	type Entity,
 	type ExternalRef,
 	type IdentityRejectCode,
@@ -97,23 +102,47 @@ function selectEntity(
 		.get(scope.principal, scope.scopeKey, id);
 	return row === null || row === undefined ? undefined : (row as EntityRow);
 }
+function entityPayload(
+	text: string,
+): Pick<Entity, "displayName" | "aliases" | "externalRefs"> {
+	const parsed = decodeJson(text, parseEntityPayload, "entity");
+	if (!parsed.ok)
+		throw new WorldIntegrityError(
+			`ENTITY_PAYLOAD:${parsed.code}:${parsed.path}`,
+		);
+	const { displayName, aliases, externalRefs } = parsed.value;
+	return { displayName, aliases, externalRefs };
+}
+function identityEvent(text: string): IdentityEvent {
+	const parsed = decodeJson(
+		text,
+		(value, path): Checked<IdentityEvent> => {
+			return asRecord(value)?.["kind"] === "merge"
+				? parseMergePlan(value, path)
+				: parseSplitPlan(value, path);
+		},
+		"identityEvent",
+	);
+	if (!parsed.ok)
+		throw new WorldIntegrityError(
+			`IDENTITY_EVENT_PAYLOAD:${parsed.code}:${parsed.path}`,
+		);
+	return parsed.value;
+}
 function toEntity(scope: ScopeRef, row: EntityRow): Entity {
-	const payload = JSON.parse(row.payload_json) as {
-		displayName: string;
-		aliases: string[];
-		externalRefs: ExternalRef[];
-	};
-	const base = {
-		id: row.id,
-		scope,
-		revision: row.revision,
-		displayName: payload.displayName,
-		aliases: payload.aliases,
-		externalRefs: payload.externalRefs,
-	};
-	return row.merged_into === null
-		? base
-		: { ...base, mergedInto: row.merged_into };
+	const parsed = parseEntity(
+		{
+			...entityPayload(row.payload_json),
+			id: row.id,
+			scope,
+			revision: row.revision,
+			...(row.merged_into === null ? {} : { mergedInto: row.merged_into }),
+		},
+		"entity",
+	);
+	if (!parsed.ok)
+		throw new WorldIntegrityError(`ENTITY_ROW:${parsed.code}:${parsed.path}`);
+	return parsed.value;
 }
 function memberPayload(
 	m: Pick<MemberSnapshot, "displayName" | "aliases" | "externalRefs">,
@@ -235,9 +264,7 @@ export function listEvents(
 		)
 		.all(s.principal, s.scopeKey, limit + 1) as { payload_json: string }[];
 	return {
-		events: rows
-			.slice(0, limit)
-			.map((r) => JSON.parse(r.payload_json) as IdentityEvent),
+		events: rows.slice(0, limit).map((r) => identityEvent(r.payload_json)),
 		truncated: rows.length > limit,
 	};
 }
@@ -391,7 +418,7 @@ export function applySplitPlan(
 	if (
 		splits.some(
 			(r) =>
-				(JSON.parse(r.payload_json) as SplitPlan).mergeOperationId ===
+				(identityEvent(r.payload_json) as SplitPlan).mergeOperationId ===
 				plan.mergeOperationId,
 		)
 	)
@@ -533,9 +560,9 @@ function scrubForgottenText(
 		for (const t of textsOf(snapshot)) forgottenTexts.add(t);
 		for (const r of refsOf(snapshot)) forgottenRefs.add(r);
 	};
-	for (const row of forgotten) take(JSON.parse(row.payload_json));
+	for (const row of forgotten) take(entityPayload(row.payload_json));
 	for (const e of doomed)
-		walkSnapshots(JSON.parse(e.payload_json), (snap) => {
+		walkSnapshots(identityEvent(e.payload_json), (snap) => {
 			if (idSet.has(snap.id)) take(snap);
 		});
 	// Ancestors: the chain of representatives above each forgotten merged member.
@@ -552,7 +579,7 @@ function scrubForgottenText(
 	const parsedEvents = events.map((e) => ({
 		...e,
 		doomed: doomed.some((d) => d.event_id === e.event_id),
-		json: JSON.parse(e.payload_json) as {
+		json: identityEvent(e.payload_json) as {
 			representativeId: string;
 			representativeBefore?: SnapshotLike;
 			members?: (SnapshotLike & { id: string })[];
@@ -578,7 +605,7 @@ function scrubForgottenText(
 		const known = repOriginal.get(id) ?? memberOriginal.get(id);
 		if (known) return known;
 		const row = selectEntity(db, s, id);
-		return row ? (JSON.parse(row.payload_json) as SnapshotLike) : undefined;
+		return row ? entityPayload(row.payload_json) : undefined;
 	};
 	/** Entities (not forgotten) that currently sit below `root` in the merge tree. */
 	const survivingSubtree = (root: string): string[] => {
@@ -622,9 +649,7 @@ function scrubForgottenText(
 			const original = originalOf(id);
 			if (original) keep(original);
 		}
-		const payload = JSON.parse(row.payload_json) as SnapshotLike & {
-			displayName: string;
-		};
+		const payload = entityPayload(row.payload_json);
 		keep({ displayName: payload.displayName });
 		const dropTexts = new Set(
 			[...forgottenTexts].filter((t) => !keepTexts.has(t)),
@@ -756,17 +781,15 @@ export function deleteEntities(
 	}[];
 	const involves = (p: {
 		representativeId: string;
-		members?: { id: string }[];
-		restored?: { id: string }[];
+		members?: readonly { id: string }[];
+		restored?: readonly { id: string }[];
 	}) =>
 		[
 			p.representativeId,
 			...(p.members ?? []).map((m) => m.id),
 			...(p.restored ?? []).map((m) => m.id),
 		].some((id) => idSet.has(id));
-	const doomed = events.filter((e) =>
-		involves(JSON.parse(e.payload_json) as Parameters<typeof involves>[0]),
-	);
+	const doomed = events.filter((e) => involves(identityEvent(e.payload_json)));
 	const scrub = scrubForgottenText(db, s, idSet, existingRows, events, doomed);
 	// Representatives keep the union of their members' text: take the
 	// forgotten member's text out of them (and out of surviving events) BEFORE

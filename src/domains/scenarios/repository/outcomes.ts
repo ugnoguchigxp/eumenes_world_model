@@ -1,3 +1,4 @@
+import { decodeJson } from "../../../contracts/decode-json.ts";
 import {
 	checkId,
 	checkScope,
@@ -7,9 +8,14 @@ import type { DependentRef } from "../../../contracts/index.ts";
 import {
 	expectChanges,
 	requireTransaction,
+	WorldIntegrityError,
 	type WorldDb,
 } from "../../../infrastructure/sqlite/db.ts";
-import { checkOutcome, type Outcome } from "../contracts/index.ts";
+import {
+	checkOutcome,
+	checkPrediction,
+	type Outcome,
+} from "../contracts/index.ts";
 import {
 	comparisonKey,
 	payloadText,
@@ -17,7 +23,6 @@ import {
 	type InsertResult,
 	type Page,
 } from "./predictions.ts";
-import type { Prediction } from "../contracts/index.ts";
 
 export interface OutcomeInput {
 	/** Id of the prediction this outcome measures; revision is in the outcome. */
@@ -57,10 +62,16 @@ export function insertOutcome(
 		| { comparison_id: string; payload_json: string }
 		| undefined;
 	if (!prediction) return rejected("PREDICTION_NOT_FOUND");
-	if (
-		prediction.comparison_id !==
-		comparisonKey(JSON.parse(prediction.payload_json) as Prediction)
-	)
+	const parsed = decodeJson(
+		prediction.payload_json,
+		checkPrediction,
+		"prediction",
+	);
+	if (!parsed.ok)
+		throw new WorldIntegrityError(
+			`PREDICTION_PAYLOAD:${parsed.code}:${parsed.path}`,
+		);
+	if (prediction.comparison_id !== comparisonKey(parsed.value))
 		return rejected("PREDICTION_NOT_FOUND");
 	if (prediction.comparison_id !== o.comparisonId)
 		return rejected("COMPARISON_MISMATCH");
@@ -95,10 +106,14 @@ export function insertOutcome(
 }
 
 type OutcomeRow = { payload_json: string; prediction_id: string };
-const toStored = (row: OutcomeRow): StoredOutcome => ({
-	predictionId: row.prediction_id,
-	outcome: JSON.parse(row.payload_json) as Outcome,
-});
+const toStored = (row: OutcomeRow): StoredOutcome => {
+	const parsed = decodeJson(row.payload_json, checkOutcome, "outcome");
+	if (!parsed.ok)
+		throw new WorldIntegrityError(
+			`OUTCOME_PAYLOAD:${parsed.code}:${parsed.path}`,
+		);
+	return { predictionId: row.prediction_id, outcome: parsed.value };
+};
 
 export function getOutcome(
 	db: WorldDb,

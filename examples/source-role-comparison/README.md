@@ -2,7 +2,7 @@
 
 **計測済み・新形式は不採用。** 主指標は既存v5が32/32、新形式が30/32。
 新規設問は同点、既知設問で悪化したため、既存v5を維持する。
-[結果と不採用理由](results/2026-10-16.md)、[全応答と採点](results/2026-10-16.json)をGitに保存する。
+[結果と不採用理由](../../fixtures/experiments/source-role-comparison/2026-10-16.md)、[全応答と採点](../../fixtures/experiments/source-role-comparison/2026-10-16.json.gz)をGitに保存する。
 このExampleは比較実験であり、推奨する既定の回答形式ではない。
 
 前段のcheckpointは `1703351`（commit・push済み）。許可規程と補助資料の混同だけを対象に、

@@ -1,12 +1,12 @@
 # WorldModelの作業規則
 
 - 作業開始時に`initial_instructions`を会話内で一度だけ実行する。ユーザーの明示依頼なしに別Codexチャットへ送信しない。
-- 実装の入口は`spec/implementation-plan.md`。現在の完了範囲はP0の構造準備のみ。計画の存在を後続段階の実装指示として扱わない。
+- 実装の入口は`spec/implementation-plan.md`。P0〜P2と配布consumerは実装済み。P3〜P5のhost/fixture実績と未受入事項は`spec/plan/progress.md`を正本とする。計画の存在を後続段階の実装指示として扱わない。
 - `../SAAA`、`../eumenes`、`../eumenes_memory`は参照専用。製品DB・設定・秘密をコピーしない。
 - 純粋層はDB、時計、乱数、ネットワーク、モデル、ホストに依存しない。共通のSourceRef等は契約確定後にMemoryの公開型を使い、仮の複製を作らない。
 - `src/domains/*/repository`はホストから借りる同期接続だけを使う。DBのopen/close、transaction制御、PRAGMA、独自writer、queueを持たない。書込みはホストのtransaction内で行う。
 - 実SQLiteの接続生成は`test/support`に限定する。標準は一時ファイル＋WAL＋単一writer＋readonly reader。終了・初期化失敗時に一時ディレクトリを回収する。
-- 日常検証は`bun run verify`。DB基盤だけの試験は`bun run test:sqlite`。配布形確認は`bun run build`。領域別は`bun run verify -- --domain <name>`。未実装の0件試験は失敗扱い。正式配布consumer試験は後続で追加する。
+- 日常検証は`bun run verify`。DB基盤だけの試験は`bun run test:sqlite`。配布形確認は`bun run build`。領域別は`bun run verify -- --domain <name>`。未実装の0件試験は失敗扱い。配布consumer試験はverifyに含まれる。
 - 構造準備、機能実装、fixture、実SQL、ホスト結合、実モデル、実機受入を区別する。未実装APIに成功を返す仮実装を作らない。
 
 - ドメインは`src/domains/<name>`がcontracts/service/repository/testを所有する。別domainは公開index.ts・contracts/index.ts・sqlite.tsだけを参照し、scripts/domains.tsに直接依存を宣言する。共通src/contractsはdomainを参照しない。

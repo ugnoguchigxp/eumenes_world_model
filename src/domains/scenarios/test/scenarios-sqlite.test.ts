@@ -316,3 +316,37 @@ for (const mode of ["file", "memory"] as const) {
 		});
 	});
 }
+
+test("malformed persisted prediction and outcome shapes never escape as typed records", () => {
+	const s = openTestStore();
+	try {
+		s.write((db) => {
+			expect(
+				insertPrediction(db, scopeA, { prediction: prediction(), dueAt: 2000 })
+					.status,
+			).toBe("inserted");
+			expect(
+				insertOutcome(db, scopeA, {
+					predictionId: "pred-1",
+					outcome: outcome(),
+				}).status,
+			).toBe("inserted");
+		});
+		for (const payload of ["{", "null", "{}", '{"contractVersion":999}']) {
+			s.write((db) => {
+				db.query("UPDATE world_prediction SET payload_json=?").run(payload);
+				db.query("UPDATE world_outcome SET payload_json=?").run(payload);
+			});
+			s.read((db) => {
+				expect(() => getPrediction(db, scopeA, "pred-1", 1)).toThrow(
+					"world_integrity:PREDICTION_PAYLOAD",
+				);
+				expect(() => getOutcome(db, scopeA, "out-1", 1)).toThrow(
+					"world_integrity:OUTCOME_PAYLOAD",
+				);
+			});
+		}
+	} finally {
+		s.close();
+	}
+});

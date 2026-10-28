@@ -1,11 +1,17 @@
 import type { ScopeRef } from "../../../contracts/index.ts";
+import { decodeJson } from "../../../contracts/decode-json.ts";
 import {
 	expectChanges,
 	requireTransaction,
+	WorldIntegrityError,
 	type WorldDb,
 } from "../../../infrastructure/sqlite/db.ts";
 import type { AssertionRef } from "../contracts/assertion.ts";
-import { sourceIdentityKey, type Evidence } from "../contracts/evidence.ts";
+import {
+	checkEvidence,
+	sourceIdentityKey,
+	type Evidence,
+} from "../contracts/evidence.ts";
 import {
 	canonicalText,
 	getHead,
@@ -95,5 +101,12 @@ export function listEvidence(
 			) as {
 			payload_json: string;
 		}[]
-	).map((row) => JSON.parse(row.payload_json) as Evidence);
+	).map((row) => {
+		const parsed = decodeJson(row.payload_json, checkEvidence, "evidence");
+		if (!parsed.ok)
+			throw new WorldIntegrityError(
+				`EVIDENCE_PAYLOAD:${parsed.code}:${parsed.path}`,
+			);
+		return parsed.value;
+	});
 }

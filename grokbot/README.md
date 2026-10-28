@@ -2,6 +2,8 @@
 
 Grok Bot が、探す対象を選び、本文を読み、根拠を残して JSONL を持ち帰るための運用指示と補助ツールです。意味の判断は Bot が担当し、Python は簡単な本文取得、引用位置とJSONLの組み立て、整合性検証、配分集計、検索結果の保存を担当します。WorldModel 本体には接続しません。
 
+このキットはWorldModel評価用コーパスの収集手順を保存するために同梱しています。製品からはimportせず、収集結果の採用はWorldModelの検査を別途通します。ソースを正本とし、配布tarはREADMEの手順で必要時に生成します。
+
 ## Grok に渡すもの
 
 `collect-eumenes-knowledge/` フォルダ全体を渡してください。入口は [SKILL.md](collect-eumenes-knowledge/SKILL.md) です。Skill を直接読み込めない環境でも、このファイルを作業指示として読み、参照先を必要時に開けば使えます。自動インストールはしていません。
