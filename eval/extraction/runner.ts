@@ -33,6 +33,14 @@ import {
 	type SampleStatus,
 	type ScoreReport,
 } from "./scoring.ts";
+import {
+	buildSupplyManifest,
+	classifySupply,
+	summarizeSupply,
+	type SupplyClass,
+	type SupplyManifest,
+	type SupplySummary,
+} from "./supply.ts";
 
 export type ProviderConfig = Readonly<
 	Record<string, string | number | boolean>
@@ -180,6 +188,9 @@ export interface SampleRecord {
 	readonly outputBytes: number | null;
 	readonly usage: ProviderResponse["usage"] | null;
 	readonly evaluation: CaseEvaluation;
+	/** The entity supply the case was run with (P4-05.a, N01). */
+	readonly supply: SupplyManifest;
+	readonly supplyClass: SupplyClass;
 }
 export interface RunReport {
 	readonly evaluationVersion: string;
@@ -213,6 +224,11 @@ export interface RunReport {
 	 * errors. Any non-zero value means the run is not a clean measurement.
 	 */
 	readonly abandonedProviderCalls: number;
+	/**
+	 * Supply classes of the run's cases and the failures attributable to
+	 * the model (P4-05.a, N01). Content-free counts only.
+	 */
+	readonly supplySummary: SupplySummary;
 	readonly samples: readonly SampleRecord[];
 }
 
@@ -470,6 +486,8 @@ export async function runEvaluation(options: RunOptions): Promise<RunReport> {
 			outputBytes,
 			usage,
 			evaluation: evaluateSample(tc, outcome, context),
+			supply: buildSupplyManifest(dataset, tc),
+			supplyClass: classifySupply(dataset, tc),
 		});
 	}
 
@@ -517,6 +535,7 @@ export async function runEvaluation(options: RunOptions): Promise<RunReport> {
 					: "not an acceptance run (needs holdout + acceptance mode + a provider declared local)",
 		},
 		abandonedProviderCalls: abandoned,
+		supplySummary: summarizeSupply(samples),
 		samples,
 	};
 }
