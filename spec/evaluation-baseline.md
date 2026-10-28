@@ -197,3 +197,10 @@ bun --env-file=../eumenes/.env eval/extraction/local-smoke.ts --host ../eumenes
 実資料のpayloadは日本語指示に対して英語を保持したため、日本語生成品質も正式受入では引き続き評価が必要。
 初回のreasoning=offはProvider契約で拒否、ストリーミングでは接続切断を観測した。
 このrunnerは確認できたreasoning=low・非ストリーミングを使う。一般的な転送の耐久性を主張しない。
+
+## 抽出指示の規約（eval-extract-instruction-2で採用、2026年10月29日）
+
+共有指示文（`eval/extraction/providers.ts`）へ次の2規約を明示し、版を`eval-extract-instruction-2`へ上げた。根拠はエージェントをremote対照モデルにした実測（進捗台帳2026年10月29日の2記録）で、規約なし（v1相当）→規約明示（v2相当）でdev採用precision 0.597→0.906、holdout（2回目参照）0.609→0.818、引用不一致は両splitで0件になった。閾値・dataset・採点は不変で、Local正式受入の証拠ではない。
+
+1. 訂正: 後続の発話が同一subject/predicateの主張を訂正したら、訂正後の主張だけを`asserted`で1件出す。真偽反転の訂正はmodalityでなく値（boolean）で表す。値は常に訂正後の最終値。
+2. 引用範囲: 主張を述べる最小の範囲とし、主語から始める。前置き・ framing 節（確認したところ、／メモとして、／すみません、／訂正です。等）は範囲に含めない。

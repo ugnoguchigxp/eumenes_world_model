@@ -92,7 +92,7 @@ describe("ChatCompletionsProvider", () => {
 				temperature: 0,
 			},
 		});
-		expect(EXTRACTION_INSTRUCTION_VERSION).toBe("eval-extract-instruction-1");
+		expect(EXTRACTION_INSTRUCTION_VERSION).toBe("eval-extract-instruction-2");
 	});
 
 	test("a non-2xx answer is a provider-unavailable error", async () => {

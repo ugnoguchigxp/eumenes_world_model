@@ -20,7 +20,7 @@ import {
 } from "./runner.ts";
 
 /** Frozen instruction identity; any wording change is a new version. */
-export const EXTRACTION_INSTRUCTION_VERSION = "eval-extract-instruction-1";
+export const EXTRACTION_INSTRUCTION_VERSION = "eval-extract-instruction-2";
 export const EXTRACTION_INSTRUCTION = [
 	"You extract candidate claims from a window of utterances.",
 	'Answer with one JSON object of the form {"candidates": [...]} and',
@@ -39,6 +39,17 @@ export const EXTRACTION_INSTRUCTION = [
 	"be resolved to a given entity, or a claim is negated, hypothetical or",
 	"a question, still report it with the matching modality instead of",
 	"dropping it or guessing an entity.",
+	"Conventions (v2, from the agent-model contrast runs in progress.md):",
+	"- Corrections: when a later utterance corrects an earlier claim about",
+	"  the same subject and predicate, report ONLY the final corrected",
+	'  claim, once, as "asserted" with the corrected value; never report',
+	"  the superseded claim. A correction that flips a boolean is an",
+	"  asserted claim whose payload carries the final boolean value, not",
+	'  modality "negated". Values are always the final values.',
+	"- Quote span: the byte range of the minimal span that itself states",
+	"  the claim, starting at the claim's subject. Exclude discourse",
+	"  lead-ins and framing clauses (e.g. 確認したところ、 / メモとして、 /",
+	"  すみません、 / 訂正です。) from the span.",
 ].join("\n");
 
 /** The fetch shape this provider needs (the global fetch satisfies it). */

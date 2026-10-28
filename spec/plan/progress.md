@@ -841,3 +841,8 @@ v1のdev失敗を実物で分析し、規約が指示に無いことが主因と
 - holdout100（集計のみ）: 採用precision 42/69→45/55（0.609→0.818）、採用recall 35/66→45/66、保留recall 34/34、区分 30/30、違反0。QUOTE 17→0。残る不一致はPAYLOAD 5・VALID_TIME 2のみだが、不一致のあるケースは21件で、主因は誤採用ではなく未抽出（recall側）。
 - 解釈: 規約の明示は構造の異なるholdoutにも移転した（precisionと引用は改善）。一方recallの改善幅はdev（+0.23）よりholdout（+0.15）が小さく、未見の文構造での取りこぼしが次の壁。閾値（各19/20）は依然未達で、Local正式受入ではない。
 - 証拠: repo外 `~/workspace/dev/agent-model-run/run2/`。repo側の変更は本記録のみ。
+
+
+## 規約の採用と手順実験の開始（2026年10月29日）
+
+採用判断: エージェント対照実測で効果が確認できた2規約（訂正の扱い・引用範囲）を、共有指示文`EXTRACTION_INSTRUCTION`へ取り込み版を`eval-extract-instruction-2`へ更新した（providers.testの版固定も追随）。`spec/evaluation-baseline.md`へ規約と根拠を追記。全体verify 976件成功・失敗0。実モデル（LFM/Luna）での再測定は未実施で、この採用は指示文の既定値を変えるものであり、受入判定には影響しない。
