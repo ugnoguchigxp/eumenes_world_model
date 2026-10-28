@@ -819,3 +819,15 @@ W1/W2/W5は観測した失効・提示・忘却の不足に対する必要最小
 - 検証: 新規試験26件（supply 10件・providers 9件・compare 7件、fetchは全てfake、ネットワークなし）。`bun run verify` **976 pass / 0 fail / 18,823 assertions / 77 files**（従来950件から新規26件分増加）、`bun run build`成功。整形・lint・型・境界検査もverify内で成功。
 - 未実施（この環境の制約）: Local Providerとhost（MCP）がこの環境に無いため、LFM2.5 / Lunaの実モデル実行、dev100/holdout100の200件比較、N03/N04の実測値、A46の正式Local受入判定は一切行っていない。**正式受入は未実施**のままである。次に必要なのは、host側のLocal接続が使える環境でadapterの接続確認（各数件）を行い、指示/schema/予算を凍結してから本評価へ進むこと。
 - 変更範囲: eval/extraction/{supply,providers,compare}.ts（新規）、eval/extraction/{runner,scoring,main}.ts（追加のみ）、test/eval/{supply,providers,compare}.test.ts（新規）。凍結dataset（dataset.v2.jsonとdigest）、閾値、src本体は不変。作業ブランチ `work/next-stage-p405` へローカルcommitのみ、push未実施。
+
+
+## エージェントをremote対照モデルにした抽出実測（2026年10月29日、受入ではない）
+
+Local Provider／MCPホストが無い環境で、P4-05のharnessへ実モデル相当の出力を初めて通した対照測定。生成役はMuse（サブエージェント群）が担い、各生成役にはモデル可視情報（発話・entity候補・predicate）だけを渡し、gold・caseId・splitは渡していない。初回生成のみ、再試行なし。指示は`agent-muse-v1`としてdev/holdoutで凍結し、holdout結果を見た調整はしていない。引用は生成役が選んだ文に対しバイト範囲を正規化（計画P4-05.bで許容された正規変換）し、修正件数は両splitとも0件だった。provider種別は`remote`で、runnerの`acceptance.eligible`は偽。**Local正式受入（A46/N03）ではない。**
+
+- dev100: 全件status ok（不正出力0）。採用precision 43/72（0.597）、採用recall 43/66、保留recall 32/34、区分正解 28/30。閾値（各19/20）は未達。
+- holdout100（集計のみ、個別ID・本文は出さない）: 全件status ok。採用precision 42/69（0.609）、採用recall 35/66、保留recall 32/34、区分正解 28/30。違反はScope漏洩・引用捏造・忘却後復活・仮説の実測化すべて0件。閾値未達。
+- 供給分析（P4-05.a）: 両splitとも供給不足（gold_not_supplied）0件、意図した保留10件。失敗はすべてモデル／契約解釈へ帰属（dev 25件、holdout 33件に何らかの不一致）。
+- 失敗の集中: 引用範囲の粒度（QUOTE、dev16/holdout17）、値の表現（PAYLOAD、9/10）、predicate選択（5/6）。devでは訂正グループに誤採用16件と忘却後復活2件が集中した（holdoutでは違反0）。
+- 解釈: 形式遵守は強いモデルで完全に取れる一方、このdatasetの精度閾値は「契約の規約（訂正の意味論・引用粒度・値の正規形）への追従」を強く測っており、生の読解力だけでは届かない。LFM2.5の初回測定では、形式失敗と規約解釈の失敗を分けて読む必要がある。
+- 証拠の所在: 実行成果物はrepo外 `~/workspace/dev/agent-model-run/run1/`（batch・生成出力・replay・report）。dataset digestはext-ja-v2の凍結値のまま。repo側の変更は本記録のみ。
