@@ -807,3 +807,187 @@ W1/W2/W5は観測した失効・提示・忘却の不足に対する必要最小
 - 維持した境界: forget本文を履歴から復活させない。無効生成を再投入しない。意味判断はLLM、コードは契約と数値計算。確率を持たない現行PredictionからBrierを算出しない。
 - 成果: 各実験の仮説、対照、対象・予算、測定、採否、保留条件、未実施の結果表。正式A46/A50の閾値やp5Acceptedを変更しない。
 - 実装・モデル実行・データ取得・結果の改善: 未実施。研究の効果は未測定。文書のローカルリンク71件（欠落0）、E01〜E10/N01〜N16の重複なし、票の対応とgit diff --checkを確認。コード試験は文書のみの変更のため省略。既存seed作業は保持。
+
+
+## P4-05.a〜c harness側の実装（2026年10月28日、実モデル未実施）
+
+統合計画[next-stage.md](next-stage.md)の最初の着手点P4-05.a〜cについて、この環境で実施できるharness側だけを実装した。実モデル接続・200件比較・正式受入は未実施であり、本記録はその代替ではない。
+
+- P4-05.a（N01）: `eval/extraction/supply.ts`を追加。各ケースの供給manifest（entity IDとrevision、entitySet名、供給数、上限なし＝null・打切りなし、Scope、dataset版、可視要求内容のsha256 digest）と供給分類（supplied / gold_not_supplied / intended_hold / ambiguous_supply）をrunnerのSampleRecordへ記録し、RunReportへ供給クラス別件数と「モデルに帰属する失敗数」（suppliedケースでstatus非okまたは評価不一致のみ）を追加した。既存フィールド・scoring・ext-threshold-v2の閾値意味は不変（追加のみ）。goldのsubject解決は、idは供給ID集合への包含、aliasはdisplayName/aliasesとの一致数（1＝supplied、0＝gold_not_supplied、2以上＝ambiguous_supply）で判定する。unresolved_subject / ambiguous_subjectの保留はintended_holdとし、それ以外の保留はreferenceのsubjectで分類する判断を注記した。
+- P4-05.b（N02のharness側）: `eval/extraction/providers.ts`にOpenAI互換chat-completions providerを追加。凍結した指示文（`EXTRACTION_INSTRUCTION`、版`eval-extract-instruction-1`）と可視要求JSONを送り、応答contentをそのままモデル出力として返す。非2xx・接続失敗・応答envelope不正はProviderUnavailableError、abortはランナーのtimeout機構へそのまま伝播する。ProviderInfo.kindへ`remote`（Luna対照用）を追加し、受入eligibleはLocalのみのまま不変であることを回帰試験で固定した。main.tsへ`--remote`を追加したが、endpointの既定値は持たず`--endpoint`と`--model-id`がなければ利用エラーで fail-closed とする。実endpointへの接続・配線は行っていない。
+- P4-05.c（N04の集計側）: `eval/extraction/compare.ts`に純粋関数`compareRuns`を追加。evaluationVersion / datasetVersion / splitが異なる報告同士は例外で拒否する。ケース対応の4分類（両方一致・Aのみ失敗・Bのみ失敗・両方失敗）、モデル別の失敗内訳（SampleStatus別、評価reason code別）、エスカレーション回収上限（goldを使う事後的な上限であることを明記）、実行時に検知可能なルートでの回収率と誤エスカレーション件数を分けて出す。routableの定義（status非ok、または評価にmismatch/violation codeが残るケース）はCaseEvaluationに残るフィールドからの近似であることをコード内に注記した。
+- 検証: 新規試験26件（supply 10件・providers 9件・compare 7件、fetchは全てfake、ネットワークなし）。`bun run verify` **976 pass / 0 fail / 18,823 assertions / 77 files**（従来950件から新規26件分増加）、`bun run build`成功。整形・lint・型・境界検査もverify内で成功。
+- 未実施（この環境の制約）: Local Providerとhost（MCP）がこの環境に無いため、LFM2.5 / Lunaの実モデル実行、dev100/holdout100の200件比較、N03/N04の実測値、A46の正式Local受入判定は一切行っていない。**正式受入は未実施**のままである。次に必要なのは、host側のLocal接続が使える環境でadapterの接続確認（各数件）を行い、指示/schema/予算を凍結してから本評価へ進むこと。
+- 変更範囲: eval/extraction/{supply,providers,compare}.ts（新規）、eval/extraction/{runner,scoring,main}.ts（追加のみ）、test/eval/{supply,providers,compare}.test.ts（新規）。凍結dataset（dataset.v2.jsonとdigest）、閾値、src本体は不変。作業ブランチ `work/next-stage-p405` へローカルcommitのみ、push未実施。
+
+
+## エージェントをremote対照モデルにした抽出実測（2026年10月29日、受入ではない）
+
+Local Provider／MCPホストが無い環境で、P4-05のharnessへ実モデル相当の出力を初めて通した対照測定。生成役はMuse（サブエージェント群）が担い、各生成役にはモデル可視情報（発話・entity候補・predicate）だけを渡し、gold・caseId・splitは渡していない。初回生成のみ、再試行なし。指示は`agent-muse-v1`としてdev/holdoutで凍結し、holdout結果を見た調整はしていない。引用は生成役が選んだ文に対しバイト範囲を正規化（計画P4-05.bで許容された正規変換）し、修正件数は両splitとも0件だった。provider種別は`remote`で、runnerの`acceptance.eligible`は偽。**Local正式受入（A46/N03）ではない。**
+
+- dev100: 全件status ok（不正出力0）。採用precision 43/72（0.597）、採用recall 43/66、保留recall 32/34、区分正解 28/30。閾値（各19/20）は未達。
+- holdout100（集計のみ、個別ID・本文は出さない）: 全件status ok。採用precision 42/69（0.609）、採用recall 35/66、保留recall 32/34、区分正解 28/30。違反はScope漏洩・引用捏造・忘却後復活・仮説の実測化すべて0件。閾値未達。
+- 供給分析（P4-05.a）: 両splitとも供給不足（gold_not_supplied）0件、意図した保留10件。失敗はすべてモデル／契約解釈へ帰属（dev 25件、holdout 33件に何らかの不一致）。
+- 失敗の集中: 引用範囲の粒度（QUOTE、dev16/holdout17）、値の表現（PAYLOAD、9/10）、predicate選択（5/6）。devでは訂正グループに誤採用16件と忘却後復活2件が集中した（holdoutでは違反0）。
+- 解釈: 形式遵守は強いモデルで完全に取れる一方、このdatasetの精度閾値は「契約の規約（訂正の意味論・引用粒度・値の正規形）への追従」を強く測っており、生の読解力だけでは届かない。LFM2.5の初回測定では、形式失敗と規約解釈の失敗を分けて読む必要がある。
+- 証拠の所在: 実行成果物はrepo外 `~/workspace/dev/agent-model-run/run1/`（batch・生成出力・replay・report）。dataset digestはext-ja-v2の凍結値のまま。repo側の変更は本記録のみ。
+
+
+## 指示v2（規約明示）の対照測定（2026年10月29日、受入ではない）
+
+v1のdev失敗を実物で分析し、規約が指示に無いことが主因と特定した。gold参照との突合で判明した規約は2つ:(1)訂正は訂正後の主張だけをassertedで出し、真偽反転はmodalityでなく値で表す。(2)引用は前置き節を除いた主語始まりの最小文。これらと「値は訂正後の最終値」を明示した指示を`agent-muse-v2`とし、生成役・手順はv1と同一にした。dev→holdoutの順で測定し、holdoutはv1で参照済みのため**2回目の参照**として記録する（未見の改善証拠とは扱わない。未見確認は別集合が別途必要）。
+
+- dev100: 採用precision 43/72→58/64（0.597→0.906）、採用recall 43/66→58/66、保留recall 34/34、区分 30/30。QUOTE不一致16→0、PAYLOAD 9→2、忘却後復活 2→0。対応付けでは v1失敗25件中18件が回復、悪化1件、双方失敗7件。
+- holdout100（集計のみ）: 採用precision 42/69→45/55（0.609→0.818）、採用recall 35/66→45/66、保留recall 34/34、区分 30/30、違反0。QUOTE 17→0。残る不一致はPAYLOAD 5・VALID_TIME 2のみだが、不一致のあるケースは21件で、主因は誤採用ではなく未抽出（recall側）。
+- 解釈: 規約の明示は構造の異なるholdoutにも移転した（precisionと引用は改善）。一方recallの改善幅はdev（+0.23）よりholdout（+0.15）が小さく、未見の文構造での取りこぼしが次の壁。閾値（各19/20）は依然未達で、Local正式受入ではない。
+- 証拠: repo外 `~/workspace/dev/agent-model-run/run2/`。repo側の変更は本記録のみ。
+
+
+## 規約の採用と手順実験の開始（2026年10月29日）
+
+採用判断: エージェント対照実測で効果が確認できた2規約（訂正の扱い・引用範囲）を、共有指示文`EXTRACTION_INSTRUCTION`へ取り込み版を`eval-extract-instruction-2`へ更新した（providers.testの版固定も追随）。`spec/evaluation-baseline.md`へ規約と根拠を追記。全体verify 976件成功・失敗0。実モデル（LFM/Luna）での再測定は未実施で、この採用は指示文の既定値を変えるものであり、受入判定には影響しない。
+
+
+## 手順明示v3の対照測定（2026年10月29日、採用せず）
+
+holdoutで残った未抽出（recall）への対処として、抽出手順「主張文の列挙→抽出→文単位の再走査で取りこぼし回収」を明示した`agent-muse-v3`をdevで測定した（規約はv2と同一、生成役・手順基盤は同一）。
+
+- dev100: 採用precision 58/64→60/67（0.906→0.896）、採用recall 58/66→60/66（0.879→0.909）と微増したが、保留recall 34/34→30/34、区分 30/30→26/30へ悪化。NOT_EXPECTEDが0→4件（再走査が保留すべき主張まで拾った）。PREDICATE不一致は6→1へ改善。対応付けでは v2失敗6件・v3失敗7件で正味は拮抗。
+- 判断: **採用しない**。再走査の無条件な回収圧が保留の規律（A46の安全側）を壊すトレードオフであり、純増ではない。列挙ステップがpredicate選択を助けた可能性は副観測として残すが、devでの追加調整は過適合の恐れがあるため打ち切り、未見集合（E01 JacRED等）での検証候補とする。
+- 証拠: repo外 `~/workspace/dev/agent-model-run/run3/`。repo側の変更は本記録のみ。共有指示文は`eval-extract-instruction-2`のまま不変。
+
+
+## E01 JacRED外部妥当性suiteの実装（2026年10月29日、測定は未実施）
+
+研究計画E01のadapterを新規suiteとして実装した。既存の`dataset.ts`/`runner.ts`/`scoring.ts`/`providers.ts`は変更していない。
+
+- `eval/extraction/jacred.ts`: 上流DocRED形式からsuiteへの決定的変換と選定。文本文はtokenを`""`で結合（元文書の生バイトと偽らない旨をメタデータに明記）。entityは最小sent_idのmention名をdisplayName、残りをaliasesとし、idは`ent-<vertexIndex>`。goldは根拠1文のrelationだけを(subject, relation, object)で重複除去して保持し、複数根拠・Na・重複はunsupported件数として残す。選定はseed `jacred-e01-v1`のsha256順、除外は文数16・結合bytes 6000・entity数24・表現可能relationなしの順、上限dev 30/test 60で凍結し、manifestに選定前後の件数と理由別内訳を残す。
+- `eval/extraction/jacred-scoring.ts`: relation P/R/F1（micro集計）、根拠文一致率。未知のentity id・relationコードの予測はinvalidとして分離しtp/fpに入れない。予測の重複除去と引用なし件数も数える。
+- `eval/extraction/jacred-runner.ts`: 1件につきprovider呼出し1回（初回生成のみ）。alias主体は供給entityへ解決し、解決できないaliasは未知idとして採点側のinvalidに数えさせる。非relation候補はignoredとして数え、不正出力はinvalid_output、provider例外はerrorとして全件を分母に残す。
+- 試験`test/eval/jacred.test.ts`は手作りの上流fixtureだけで変換・選定・採点・runnerを通し、実データファイルは読まない。
+- 測定（実モデルでのdev/test実行）は未実施。結果が得られたら本台帳へ別途記録する。A46の閾値・受入の意味は変更していない。
+
+
+## E01初回測定： JacRED dev30での外部妥当性（2026年10月29日、探索的・受入ではない）
+
+suite `jacred-ja-v1` を使い、エージェントをremote対照モデルとしてdev選定30文書を測定した（条件： entity候補を与えた関係抽出、根拠1文に収まる関係のみが採点対象）。生成時の事故として、初回のバッチ生成で文書本文が生成役へ渡らない不具合があり、空回答は破棄して本文の存在を機械確認した上で再生成した。再生成分のみを採点している。
+
+- 関係: tp 79 / fp 104 / fn 157、precision 0.432 / recall 0.335 / F1 0.377。正解側に当たった関係の根拠文一致は77/79（0.975）。形式違反・無効な予測は0。
+- 採点対象は選定文書内の表現可能な正解236件で、対象外326件（複数根拠など）はunsupportedとして別数えした。JacRED側の正解の網羅性には既知の限界があるため、precisionは過小評価の可能性がある。
+- 失敗の集中: HasPart（P527）は正解36件すべて未抽出、PartOf（P361）は fn 31、AdministrativeLocation（P131）は fn 31。過剰側はCreator（P170）fp 9（tp 0）、Follows/FollowedBy（P155/P156）は方向の混同が疑われる。生年月日（P569）・国籍（P27）はほぼ完璧だった。
+- 解釈: 合成200件で見えた失敗（形式・規約）とは別物で、実テキストでは関係の意味判断と部分‐全体の向きが壁。小標本のため探索的表示とし、次の仮説は「部分‐全体と方向を持つ関係の定義・向きの明示」だが、devでの追加調整は過適合に注意する。
+- 証拠: repo外 `~/workspace/dev/jacred-run/run1/`（suite・マニフェスト・レポート）。repo側の変更は本記録のみ。
+
+
+## E01用語集v2の再測定とtest確認（2026年10月29日、探索的・不採用）
+
+devの失敗集中を受け、全35コードの向き・定義・日本語表現を精密化した用語集v2で再測定し、未見のtest選定60文書では薄い用語集v1と対で比較した。
+
+- dev30: F1 0.377→0.407（precision 0.432→0.467、recall 0.335→0.360）と小幅改善。ただし狙ったHasPart（P527）は正解36件が依然tp 0で、PartOf・所在・Creatorもほぼ不変だった。
+- HasPartの正解実例を確認すると、州→都市・国→領域という地理的包含が大半で、根拠文は出生地等の文であり部分‐全体を述べる文は無い。JacREDが地理包含をP527で注釈するデータセット規約であり、モデルの失敗とは切り分ける。本文から直接読めるのは逆向きの所在（P131）までである。
+- test60（未見・対比較）: v1 F1 0.319（P 0.321 / R 0.316）に対しv2 F1 0.301（P 0.310 / R 0.292）で、devの小幅改善は未見では再現しなかった。根拠文一致は両者とも全件一致。
+- 判断: 用語集v2は**採用しない**。定義の精密化はこのモデル級・この課題では一般化する改善にならず、残る壁は関係の意味判断とデータセット規約の2つに整理された。今後の実モデル測定はv1相当の薄い用語集を基準とし、規約起因のクラスは採点解釈で注記する。
+- 証拠: repo外 `~/workspace/dev/jacred-run/run2/`。repo側の変更は本記録のみ。
+
+
+## E03引用意味支持の分析ハーネス（2026年10月29日、実装のみ・測定未実施）
+
+研究計画E03の分析側を新規モジュールとして実装した。既存の`scoring.ts`/`runner.ts`/`dataset.ts`/`providers.ts`・契約・閾値・凍結datasetは変更していない。
+
+- `eval/extraction/quote-support.ts`: 純粋・オフラインの検証と集計のみ。意味判定はrepo外（judgeモデルまたは人手）がJSON文書で作る前提で、本モジュールは判定を生成しない。
+  - 型: `QuoteSupportVerdict`（supports/contradicts/insufficient）、`QuoteSupportItem`（itemId、goldMatched: boolean|null、contractValid、verdict）。
+  - `summarizeQuoteSupport`: 判定総数・verdict別件数・支持率、goldMatched（true/false/null）別の内訳、層分離（contractValidRateと、契約を通ったものだけの支持率）、食い違い2種（gold一致だが支持なし／gold不一致だが支持あり）、atomicPrecision（goldラベル付き候補数を分母とし、無ければ全件を分母とする。recallは計算せず呼び出し側が併記する）。空入力では率はnullでNaNを出さない。
+  - `parseQuoteSupportJudgments`: 判定文書`{suiteId, items:[{itemId, verdict, rationale?}]}`の厳密検証。未知verdict・itemId重複・欠落は`QuoteSupportError`。
+  - `pairJudgments`: 予測と判定の対応付け。予測に無いitemIdの判定は常にエラー、未判定の予測は`requireComplete`指定時のみエラー。gold/契約フラグは呼び出し側が予測ごとに供給し、suite固有のレポート形には依存しない。
+- 試験`test/eval/quote-support.test.ts`は手作りfixtureのみで集計・層分離・食い違い・検証拒否・対応付けを通す（14件）。
+- 意味判定の実測定（judgeによる判定文書の作成と集計）は未実施。結果が得られたら本台帳へ別途記録する。判定は補助指標であり採用権限を持たず、A46/A50の閾値・受入の意味は変更していない。
+
+
+## E03 引用の意味支持の初回測定（2026年10月29日、探索的・補助指標として採用）
+
+取得済み出力の再分析として、引用が位置だけでなく内容も主張を支えるかを、生成の出所を伏せた別エージェントの判定（支持/反証/証拠不足）で測った。集計は `eval/extraction/quote-support.ts`（commit 50d875b、全ゲート1006件合格）。判定対象293件＝ext-ja-v2 v2実行の採用候補のうち候補が単一で同定可能な110件（曖昧な6サンプルは除外として記録）と、JacRED dev予測183件。全件が契約検証（バイト・範囲）は通過済み。
+
+- gold一致した候補の引用支持率は 175/180 = 0.972。位置が合う引用は、ほぼ常に内容も支えていた。残り5件は照合の結果、引用範囲の粒度（文全体ではなく主張部分）と文書文脈への依存という規約差が中心だった。
+- JacRED devでは、gold不一致の予測104件のうち41件が「引用文は主張を実際に支えている」と判定された。gold基準のprecision 0.432に対し、意味支持ベースでは 117/183 = 0.639 で、差の +0.207 はモデル過剰ではなくgoldの欠落・規約差として定量化できた。
+- ext-jaでは意味支持ベースの精度が dev 0.918（gold基準0.906）とほぼ一致し、holdoutでは 49/49 だった（単一候補サンプルへの限定つき）。合成側の形式成功は過大評価ではなかった。
+- 照合（運営者確認）: judgeとgoldの食い違い52件全件＋一致からの固定無作為12件を確認。judgeの実質的な誤りは「担当」をownerと厳密に読んだ1件程度で、食い違いの大半はgold側の欠落・規約差だった。一致標本は12件全て妥当。
+- 限界: 生成とjudgeが同系統のエージェントであり、合意は独立証拠ではない。ext-jaのentity値の主張は、判定用レンダリングで対象名が一般表記になった件があり、引用文内の名前で判定されている（件数は測定成果物側に記録）。judgeに採用権限は持たせておらず、A46/A50の閾値は無変更。
+- 判断: E03の補助分析は**採用**する（診断として有効）。今後の実モデル測定では、gold基準の主指標と並べて意味支持率を併記する。
+- 証拠: repo外 `~/workspace/dev/e03-run/`（バッチ・判定・対応表・除外記録）。
+
+
+## E04追加suiteの機構（2026年10月29日、実装のみ・測定未実施）
+
+研究計画E04（履歴とSliceの同予算比較）の追加suite側を新規モジュールとして実装した。既存4条件のharness・runner・採点の振る舞いは変更していない。suiteデータ（episode・質問・gold・oracle素材）自体は別途作成され、`eval/decision/e04-suite.json`として供給される前提で、本実装はその読み手と集計だけを持つ。
+
+- `eval/decision/e04.ts`: 純粋関数のみ（モデル・時計・ネットワーク・ファイルに触れない）。
+  - `loadE04Suite`: suite JSON（suiteId `e04-ja-v1`、共通予算 `budgetTokens`、episodes、questions）の厳密検証。構造・ID一意性・分類の妥当性に加え、質問→episode、goldの根拠発話IDとoracleの根拠発話IDがそのepisodeに実在する相互参照まで検査し、違反は `E04SuiteError`。
+  - `renderHistory`（H-full）: 全発話を `[発話ID] (日付 発話者) 本文` の行で時系列に描く。`truncateHistory`（H-budget）: 最新の発話から遡って予算（`estimateTokens` 見積もり、質問は含めない）に収まる分だけ残し、残した行は時系列で描く。切る規則はgoldを見ず実行前に固定。
+  - `parseExtractionCandidates`: 抽出評価の疎な候補JSON（配列または `candidates` を持つオブジェクト）への寛容な読み手。不正な要素は例外にせず件数を数えて読み飛ばす。entity値の参照は `entityId` / `id` の双方を受ける。
+  - `buildSlice`（W-slice）: 実抽出候補から決定的な選択・描画だけでSliceを作る。主体・対象はepisodeのentityへ解決（alias照合を含む）。保留様式（negated/hypothetical/question）を除外し、（主体、述語）ごとに引用発話が最新の候補だけを残し、質問に名前が出る主張を先に、残りを発話の新しさ順に並べ、共通予算で切る。引用はバイト範囲が正しく復号できる場合だけその範囲、でなければ発話全体。含めた根拠発話・予算で落ちた件数・supersede件数・保留除外件数・partialを返す。
+  - `buildOracleContext`（W-oracle）: 質問のoracle主張を同じ予算規則で描く。診断専用で、製品ゲートや公式スコアへ混ぜない。
+  - `scoreE04Answer`: goldに対する採点（必須語句グループ、禁止語句の混入、保留の適否、文脈内引用の妥当性と理由）。`summarizeE04`: arm別・arm×分類別の集計（正答率、混入件数、保留正確度、平均入力token、根拠recall平均、partial件数）。失敗とpartialは分母に残し、n=0の率はnull。
+- 試験 `test/eval/e04.test.ts` は手作りfixtureのみで、loaderの検証拒否、履歴描画の順序、切詰めの新しさ保持と脱落報告、sliceのsupersedeと保留様式除外、予算超過のpartial、oracle描画、採点の各分岐、集計の算術と空armを通す（25件）。
+- 実モデル測定（およびエージェント対照測定）は未実施。結果が得られたら本台帳へ別途記録する。既存A46/A50・`p5Accepted` の意味と閾値は変更していない。
+
+
+## E04 Sliceの関連度tierに1ホップ展開を追加（2026年10月29日、実装の精緻化・測定未実施）
+
+E04初回測定の準備で、連鎖した質問（multi-session分類、「検索APIが依存しているAPIの担当者は？」型）では必要な主張のentity名が質問文に現れず、従来の2段tier（質問に名前が出る／出ない）では予算で落ちることが分かった。`buildSlice`の並び替えだけを次のとおり変更した。supersede、保留様式の除外、予算の停止規則、返すフィールドは無変更。
+
+- tier 1: 主体・対象の名前（aliasを含む）が質問文に現れる主張（従来どおり）。
+- tier 1.5（新設・1ホップ展開）: tier 1の主張が参照するentity ID（解決済みの主体・対象ID）の集合に、主体IDまたは対象IDが含まれる主張。
+- tier 2: 残り全部。並びは tier 1 → 1.5 → 2、各tier内は従来どおり発話の新しさ順。
+
+試験は `test/eval/e04.test.ts` に2件追加（連鎖質問fixtureで、名前が質問に出ない主張が無関係なtier 2主張より先に並び、予算で落ちないこと。tier順序 1 < 1.5 < 2 が新しさ・入力順によらないこと）。仕様側は `spec/decision-evaluation.md` のE04節に3段tierを記載した。実モデル測定・対照測定の結果はまだ無い。既存A46/A50・`p5Accepted` の意味と閾値は変更していない。
+
+
+## E04 探索的測定（2026年10月29日、エージェント対照・正式受入ではない）
+
+P5-04.aのLocal正式受入に先立ち、同じ遠隔対照法（Museを読み手・抽出役）でE04を探索的に実施した。suite `e04-ja-v1`（独自作成の4エピソード×4問=16問、分類は更新7・時間2・棄却4・複数session3、LongMemEvalの分類を借用した独立セットで公式データの流用ではない）。予算は推定token共通上限150（当初240では全episodeに効かなかったため、読み手の結果を見る前に150へ変更して固定）。H-budgetの切詰めは「直近を残す」ルールを事前固定。W-sliceは実抽出（指示v2）から決定的に構築し、関連付けは名称一致＋1ホップ拡張（commit a6fa527）。W-oracleは診断専用。
+
+- 主比較（同予算）: H-budget 正答 12/16（0.750）に対し W-slice 16/16（1.000）。平均入力は slice 142 に対し履歴切詰め 154 で、sliceは少ない入力で全問正答した。
+- H-budgetの失敗4件は全て「切詰めで根拠が文脈から消え、読み手が正しく不明と保留した」ケースで、根拠recallは失敗した問いで0〜0.5だった。複数session分類は H-budget 0/3 に対し slice 3/3。失敗は読み手でなく検索側に帰属する。
+- 参考アーム: H-full（無制限、平均240）は16/16、W-oracle（平均27）は16/16。W-sliceとoracleの差は0で、この規模では抽出・Slice構築による読解側の損失は観測されなかった。旧値の混入（contamination）は全アーム0件。
+- 解釈の範囲: 履歴が短く全量が文脈に収まる規模では生履歴でも全問正答しており、「同予算ではSliceが勝つ」は支持されたが「Sliceが全履歴に勝つ」は本測定の対象外。標本16問・生成と読み手が同系統という探索的限界つき。p5Acceptedは変わらない（正式受入はLocal実モデル待ち）。
+- 証拠: repo外 `~/workspace/dev/e04-run/`（抽出・文脈・回答・採点詳細）。repo側はsuite・ハーネス・本記録。
+
+
+## P5-04.a1 対照測定（2026年10月29日、remote対照・正式受入ではない）
+
+decision harnessにremote証拠種別を追加し（commit済み、受入には絶対に使えない柵つき）、既存20仕事×4条件をエージェント対照で初測定した。プロンプトはharness自身のbuildPromptをそのまま使い、予算2000、落下セル0。証拠: repo外 `~/workspace/dev/decision-run/run1/`（report.json/md）。
+
+- 条件別合計（20仕事・各80点満点換算の素点合計）: memory-only 49、memory-related 52、memory-plain-facts 77、memory-world 76。安全違反は only/related に各6件、plain/world は0件。
+- 評価15仕事の world対only: 改善11・悪化0・同点3・判定不能1（D19）。ゲート参考値は「悪化2」で不成立だが、その2件は調整用仕事D03/D04（world 3点に対しonly 4点/3点）で、評価仕事の悪化ではない。harnessの集計が調整用の悪化も数える現行仕様のまま記録する。
+- framing（world対plain-facts）: 改善0・悪化1（D12）・同点19で **not-demonstrated**。強い読み手では、効いているのは事実の供給そのもので、Worldの枠組み表示（条件・置換・保留）の上乗せは観測されなかった。計画の規定どおり、枠組みの寄与は主張しない。D12の差はrubric必須語句への言い換え不一致（両回答とも保留自体は正しい）で、人手注記として残す（rubricは緩めない）。
+- D19の要判定2件（「2名の承認でマージできる」の過剰一般化）は運営者判定で両件とも禁止主張に該当する（レビュー依頼の規則を認証処理の修正へ根拠なく拡張）。harness上の未解決扱いは変えず、注記として記録する。これによりD19は実質world改善側だが、公式集計は判定不能のまま。
+- 解釈: 条件の明示と安全は plain/world 両方で確保され、差が出たのは必須条件の言い回し程度。枠組みの価値は弱い読み手（LFM2.5）でこそ出る可能性があるが未測定。p5Acceptedは不変。
+
+
+## E04長履歴版の探索的測定（2026年10月29日、エージェント対照・受入ではない）
+
+suite `e04-ja-v2`（v1の事実連鎖と16問を保持し、各episode約64発言・全履歴 約1,400推定tokenへ拡大、gold根拠は前半〜中盤に配置、時間分類にas-of質問を追加し18問）で同じ4アームを再測定した。予算は推定150tokenで据え置き。証拠: repo外 `~/workspace/dev/e04-run2/`。
+
+- 結果: H-full 18/18（平均1,411token）、H-budget 4/18（棄却4問のみ正答、根拠recall 0.0）、W-slice 15/18（平均151token、根拠recall 0.89）、W-oracle 18/18。旧値混入は全アーム0件。
+- 読み: この規模でも強い読み手＋全履歴は崩れなかった。Sliceの優位は予算が効く条件に限られることが改めて確認できた（同予算で 0.833 対 0.222）。H-budgetのrecall 0は根拠を前半〜中盤に置いた配置上の最悪条件であることも併記する。
+- Sliceとoracleの差3件は原因が特定できた。(1) 連鎖質問2件（ep-a-q4、ep-d-q2）: 1ホップ先の主張が、同じ対象の周辺主張との予算競合で落ちた（根拠recall 0.5）。Slice内の優先付けの問題。(2) as-of質問1件（ep-d-q5）: 抽出規約とSliceの置換が「現在の値だけ」を残すため過去時点の状態を提示できず、読み手は誤答せず保留した（安全な失敗）。時点指定の質問には有効期間を意識したSlice選択が要るという設計上の指摘として残す。
+- 事故の開示: 本測定の抽出指示で候補の包み形式（kind付きunion）を誤って別形式で指示し、初回のSliceが全空になった。生成内容自体は正しかったため、決定的な形式変換で包みだけを直して再構築した（変換前の生成物も証拠側に残る形で上書き前に確認済み）。数値への影響はない。
+
+
+## P5-04.a2 対照測定（2026年10月29日、remote対照・ゲート未達、理由は構造的）
+
+.a1と同じ20仕事について、質問を見せない抽出役が各仕事の原典（memory+related）だけから主張を導出し、明示した採用規則（根拠idが実在しmemory範囲内、重複除去）で44件を採用（棄却0）、実パイプライン（buildWorldSlice）を通して判断させた。証拠: repo外 `~/workspace/dev/decision-run/run2/`。
+
+- 合計: 抽出由来world 38、抽出由来plain 43（.a1の手書きworld 76、手書きplain 77、memory-only 49）。安全違反は由来world 1件・由来plain 2件。評価15仕事の由来world対memory-onlyは改善1・悪化6・同点6・判定不能2で、計画の.a2ゲート（抽出由来で既存ゲート達成）は未達。
+- ただし差の主因は抽出の失敗ではない。確認した仕事では、手書きWorld主張の決定的な条件が原典のどこにも無い。例: D01「在庫20個以上なら3営業日、未満は7営業日」は原典に無く、D07「バックアップは平日のみ（週末はメンテナンス窓）」も原典に無い（原典は毎晩実行とだけ言う）。D12「10万件は2025年度契約の値」も同様。原典だけからは原理的に導出できず、忠実な抽出は罠に落ちる。手書き主張が原典の言い換えに留まる仕事（D16）では由来worldも満点で、手書きと一致した。
+- 帰結: .a1で観測されたWorldの改善（評価で11件）は、枠組みや導出の効果というより、運営者の知識を主張として注入した効果が大きい。製品配線では、条件・限定のような運営者知識の入力経路を一級の設計対象にすべきで、原典からの抽出だけで代替できるとは想定しない。これはworld-pipelineが手書き部分を開示してきたことの定量的な裏付けである。
+- framingはここでも由来world≒由来plainで未実証のまま。
+
+
+## E01規約v3の測定（2026年10月29日、エージェント対照・suite基準指示として採用）
+
+JacREDの注釈規約（地理的・行政的包含はP527 HasPartで注釈する、P131のチェーン、入閣はP463所属など、E01/E03の分析で判明した分）を薄い用語集v1に足した規約v3を、dev30と未見test60で測定した。証拠: repo外 `~/workspace/dev/jacred-run/run3/`。
+
+- dev30: F1 0.377（v1）→ 0.407（v2）→ 0.427（v3）。内訳は precision 0.439 / recall 0.415。狙った分類ははっきり動いた: P527 tp 0→21（fn 36→15、fp 18）、P131 tp 21→31（fn 31→21、fp 19）。
+- test60（未見）: F1 0.319（v1）→ 0.301（v2）→ 0.363（v3）。recall +0.085、precision +0.011 で、規約の効果は未見でも再現した。用語集v2と違い、今回は採用する。ただしこれはJacRED suite専用の基準指示であり、WorldModel本体の抽出指示（eval-extract-instruction-2）とは分離したままにする。
+- 動かなかったもの: P361 PartOf は dev/test ともほぼ不動（test tp 4→2）で、私の規約仮説（組織所属）ではgoldの用法を説明できていない。未解明として残し、これ以上の指示いじりはdevへの過適合になるため打ち切る。P170も小幅。残る差は関係の意味判断とgold欠落（E03で意味支持precision 0.639と定量化済み）。

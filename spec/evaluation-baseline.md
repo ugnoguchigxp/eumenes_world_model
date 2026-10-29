@@ -197,3 +197,32 @@ bun --env-file=../eumenes/.env eval/extraction/local-smoke.ts --host ../eumenes
 実資料のpayloadは日本語指示に対して英語を保持したため、日本語生成品質も正式受入では引き続き評価が必要。
 初回のreasoning=offはProvider契約で拒否、ストリーミングでは接続切断を観測した。
 このrunnerは確認できたreasoning=low・非ストリーミングを使う。一般的な転送の耐久性を主張しない。
+
+## 抽出指示の規約（eval-extract-instruction-2で採用、2026年10月29日）
+
+共有指示文（`eval/extraction/providers.ts`）へ次の2規約を明示し、版を`eval-extract-instruction-2`へ上げた。根拠はエージェントをremote対照モデルにした実測（進捗台帳2026年10月29日の2記録）で、規約なし（v1相当）→規約明示（v2相当）でdev採用precision 0.597→0.906、holdout（2回目参照）0.609→0.818、引用不一致は両splitで0件になった。閾値・dataset・採点は不変で、Local正式受入の証拠ではない。
+
+1. 訂正: 後続の発話が同一subject/predicateの主張を訂正したら、訂正後の主張だけを`asserted`で1件出す。真偽反転の訂正はmodalityでなく値（boolean）で表す。値は常に訂正後の最終値。
+2. 引用範囲: 主張を述べる最小の範囲とし、主語から始める。前置き・ framing 節（確認したところ、／メモとして、／すみません、／訂正です。等）は範囲に含めない。
+
+## JacRED外部妥当性suite（E01、`jacred-ja-v1`）
+
+`ext-ja-v2`／A46とは**別のsuite**であり、閾値・受入判定には使わない。合成200件では見えない日本語の失敗を外部文書で診断するためのもので、実装は`eval/extraction/jacred.ts`（変換・選定）、`jacred-scoring.ts`（採点）、`jacred-runner.ts`（実行）、試験は`test/eval/jacred.test.ts`。上流はJacRED（train/dev/test、DocRED形式）で、suite IDは`jacred-ja-v1`。
+
+- 測定条件は「対象候補を与えた関係抽出」（given-candidate relation extraction）: entity候補とpredicate（rel2idの`Na`を除く35コード、rel_infoの英語名を併記）を渡して関係を抽出させる。entity発見の性能は測らず、P4-05.aの供給不足分析とも混ぜない。
+- 入力表現: 文の本文は上流tokenを`""`で結合したものとし、発話IDは`s<文index>`。結合した文は元文書の生バイトではない（この定義はsuiteメタデータに明記する）。
+- goldは根拠文がちょうど1文のrelationだけを表現可能とし、(subject, relation, object)で重複を除く。複数根拠・`Na`・重複はunsupportedとして件数を出し、存在しないものとして扱わず、モデルの失敗にも数えない。
+- 選定は凍結: seed `jacred-e01-v1`で`sha256(seed:split:上流index)`昇順に並べ、文数>16・結合bytes>6000・entity>24・表現可能なrelationなしの順に除外し、上限はdev 30文書・test 60文書。選定前後の件数と除外理由はmanifestに残す。
+- 指標: relation precision/recall/F1（micro集計）、正解tripleに対する根拠文一致率、無効な予測（未知のentity id・relationコード）の件数、引用なしの件数。失敗・エラー・不正出力のケースは分母から外さない。
+
+## 引用の意味支持の補助分析（E03）
+
+E03は、バイト位置の一致だけでは見えない「引用が主張の内容を支えているか」を、既存の取得済み出力への追加分析として別々に数える。実装は`eval/extraction/quote-support.ts`（検証・集計のみの純粋モジュール）、試験は`test/eval/quote-support.test.ts`。意味判定そのものはrepo外（judgeモデルまたは人手）でJSON文書として作り、本モジュールはその検証と集計だけを行う。
+
+3層を混ぜない。
+
+1. **契約の検証（層1）**: 引用の範囲・digest・source/版・UTF-8境界の既存の必須検査。呼び出し側が候補ごとに`contractValid`として渡し、`contractValidRate`として報告する。
+2. **意味の支持（層2）**: 引用が主張の主体・関係・否定・条件を支えるかを支持／反証／証拠不足で判定する。位置が合っていても内容を支えない候補は層1を通り層2で落ちるものとして数える（`supportRateAmongContractValid`）。
+3. **原子単位の精度（層3）**: 判定済み候補のうち引用が意味的に支持する割合を`atomicPrecision`とする。これはgoldに対するrecallとは別の数であり、本モジュールはrecallを計算しない。出さない方式が有利に見えないよう、呼び出し側が自らのrecallを併記する。
+
+判定と主採点の食い違い（gold一致だが支持なし／gold不一致だが支持あり）も件数として残す。意味判定は**補助指標であり採用権限を持たない**。A46/A50の閾値・凍結dataset・主採点（`scoring.ts`）は変更しない。判定文書は`{suiteId, items: [{itemId, verdict, rationale?}]}`の厳密検証を通し、未知のverdict・itemId重複・欠落はエラーにする。

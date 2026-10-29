@@ -21,6 +21,11 @@
  * --provider-module <path>, --fixture <variant>, --timeout-ms <n>,
  * --json <file> (dev: overwritten; holdout: <stem>.<stamp>.json, append-only),
  * --show-failures (dev only).
+ *
+ * --remote selects the chat-completions contrast provider (P4-05.b, kind
+ * "remote", e.g. Luna). It fails closed: --endpoint <url> and --model-id
+ * <id> are both required (there is no built-in endpoint), --model-version
+ * <v> defaults to "unknown", and a remote run is never acceptance-eligible.
  */
 import { appendFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -39,6 +44,7 @@ import {
 	ManualClock,
 	type FixtureVariant,
 } from "./fixture-provider.ts";
+import { ChatCompletionsProvider } from "./providers.ts";
 import {
 	defaultTimeoutMs,
 	diagnosticCaseText,
@@ -84,6 +90,10 @@ interface Args {
 	promptVersion: string | undefined;
 	providerModule: string | undefined;
 	fixture: FixtureVariant | undefined;
+	remote: boolean;
+	endpoint: string | undefined;
+	modelId: string | undefined;
+	modelVersion: string | undefined;
 	timeoutMs: number;
 	jsonPath: string | undefined;
 	showFailures: boolean;
@@ -98,6 +108,10 @@ function parseArgs(
 		promptVersion: undefined,
 		providerModule: env["EUMENES_EVAL_EXTRACTION_PROVIDER"] || undefined,
 		fixture: undefined,
+		remote: false,
+		endpoint: undefined,
+		modelId: undefined,
+		modelVersion: undefined,
 		timeoutMs: defaultTimeoutMs,
 		jsonPath: undefined,
 		showFailures: false,
@@ -122,8 +136,20 @@ function parseArgs(
 			const n = Number(value());
 			if (!Number.isInteger(n) || n <= 0) return "bad --timeout-ms";
 			args.timeoutMs = n;
-		} else return `unknown argument: ${flag}`;
+		} else if (flag === "--remote") args.remote = true;
+		else if (flag === "--endpoint") args.endpoint = value();
+		else if (flag === "--model-id") args.modelId = value();
+		else if (flag === "--model-version") args.modelVersion = value();
+		else return `unknown argument: ${flag}`;
 	}
+	if (args.remote) {
+		if (args.fixture) return "--remote and --fixture are exclusive";
+		if (args.providerModule)
+			return "--remote and --provider-module are exclusive";
+		if (!args.endpoint) return "--remote requires --endpoint <url>";
+		if (!args.modelId) return "--remote requires --model-id <id>";
+	} else if (args.endpoint || args.modelId || args.modelVersion)
+		return "--endpoint/--model-id/--model-version need --remote";
 	return args;
 }
 
@@ -253,6 +279,18 @@ async function resolveProvider(
 			clock,
 		};
 	}
+	if (args.remote) {
+		// parseArgs has already refused a remote run without an endpoint
+		// and a model id: there is no default endpoint to fall back to.
+		return {
+			provider: new ChatCompletionsProvider({
+				endpoint: args.endpoint!,
+				modelId: args.modelId!,
+				modelVersion: args.modelVersion ?? "unknown",
+				kind: "remote",
+			}),
+		};
+	}
 	if (!args.providerModule) {
 		io.err(
 			"not accepted: provider unavailable (no provider configured; pass --provider-module or set EUMENES_EVAL_EXTRACTION_PROVIDER)",
@@ -307,8 +345,10 @@ export async function main(
 	const resolved = await resolveProvider(args, dataset, io);
 	if (typeof resolved === "number") return resolved;
 	const { provider, clock } = resolved;
-	if (provider.info.kind === "local" && !args.promptVersion) {
-		io.err("--prompt-version is required for a provider declared local");
+	if (provider.info.kind !== "fixture" && !args.promptVersion) {
+		io.err(
+			"--prompt-version is required for a real-model provider (local or remote)",
+		);
 		return exitCodes.usage;
 	}
 	// dev is the prompt-tuning path and can never see the holdout.

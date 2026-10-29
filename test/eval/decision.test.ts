@@ -690,6 +690,16 @@ describe("main entry", () => {
 		expect(first.output.corrections).toBe(1);
 		expect(first.inputTokens).toBe(20);
 	});
+
+	test("remote provider is labelled remote and can never satisfy P5 acceptance", async () => {
+		const { report } = await run("evaluation", "good", {
+			wrap: (p) => ({ ...p, kind: "remote" as const }),
+		});
+		expect(report.evidence).toBe("remote");
+		expect(report.provider.kind).toBe("remote");
+		expect(report.acceptance.p5Accepted).toBe(false);
+		expect(report.acceptance.note).toContain("remote対照");
+	});
 });
 
 describe("real provider helpers", () => {

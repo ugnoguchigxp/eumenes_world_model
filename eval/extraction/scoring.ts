@@ -359,6 +359,14 @@ export function evaluateSample(
 	};
 }
 
+/** True when the evaluation is exactly the gold outcome for the case. */
+export function evaluationMatched(e: CaseEvaluation): boolean {
+	return (
+		(e.adoptExpected && e.adoptedCorrectly) ||
+		(e.holdExpected && e.heldCorrectly)
+	);
+}
+
 export interface RateMetric {
 	readonly numerator: number;
 	readonly denominator: number;
