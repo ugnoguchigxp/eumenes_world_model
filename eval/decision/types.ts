@@ -132,7 +132,12 @@ export interface ProviderOutput {
 
 export interface Provider {
 	readonly id: string;
-	readonly kind: "fixture" | "real";
+	/**
+	 * "remote" is a contrast run (e.g. an agent standing in as the model).
+	 * Its evidence is labelled separately and can never satisfy acceptance,
+	 * which stays reserved for a local real model ("real").
+	 */
+	readonly kind: "fixture" | "real" | "remote";
 	readonly model: string;
 	complete(request: ProviderRequest): Promise<ProviderOutput>;
 }

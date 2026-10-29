@@ -145,11 +145,11 @@ export interface AcceptanceBlock {
 export interface Report {
 	readonly schema: typeof REPORT_SCHEMA;
 	readonly mode: Mode;
-	readonly evidence: "fixture" | "real-model";
+	readonly evidence: "fixture" | "real-model" | "remote";
 	readonly generatedAt: string;
 	readonly provider: {
 		readonly id: string;
-		readonly kind: "fixture" | "real";
+		readonly kind: "fixture" | "real" | "remote";
 		readonly model: string;
 	};
 	readonly settings: RunSettings;
@@ -179,7 +179,9 @@ export function renderMarkdown(report: Report): string {
 	const evidenceLabel =
 		report.evidence === "fixture"
 			? "fixture（模擬providerの結果。実モデルの受入ではない）"
-			: "real-model";
+			: report.evidence === "remote"
+				? "remote（対照測定。Local実モデルの受入ではない）"
+				: "real-model";
 	out.push("# World意味品質比較レポート（P5-04 / A50）", "");
 	out.push(`- schema: ${report.schema}`);
 	out.push(`- mode: ${report.mode}`);

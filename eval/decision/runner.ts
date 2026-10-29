@@ -285,7 +285,9 @@ function framingEvidenceFor(
 	const fixtureCaveat =
 		evidence === "fixture"
 			? "【fixture】模擬providerはWorld枠組みのメタデータ（置換・保留）を機械的に使うため、この判定はharnessの動作確認でありWorldの効果の証拠ではない。 "
-			: "";
+			: evidence === "remote"
+				? "【remote対照】生成はエージェントがモデル相当として行ったがLocal実モデルではないため、枠組み寄与の参考証拠に留まる。 "
+				: "";
 	return {
 		status: demonstrated ? "demonstrated" : "not-demonstrated",
 		note: `${fixtureCaveat}${
@@ -333,9 +335,11 @@ function acceptanceFor(
 		note:
 			evidence === "fixture"
 				? "fixture providerの結果であり実モデルの受入ではない。G5は未充足、P5は未受入のまま。"
-				: result.accepted
-					? "実モデルでの初期受入基準を満たした。G5の他の条件は別途確認する。"
-					: "実モデルでの初期受入基準を満たさない。P5は未受入。",
+				: evidence === "remote"
+					? "remote対照（エージェントをモデルに見立てた測定）の結果であり、Local実モデルの受入ではない。ゲートの数値は参考値で、P5は未受入のまま。"
+					: result.accepted
+						? "実モデルでの初期受入基準を満たした。G5の他の条件は別途確認する。"
+						: "実モデルでの初期受入基準を満たさない。P5は未受入。",
 	};
 }
 
@@ -407,7 +411,12 @@ export async function runDecisionEval(options: RunOptions): Promise<Report> {
 			),
 		});
 	}
-	const evidence = options.provider.kind === "real" ? "real-model" : "fixture";
+	const evidence =
+		options.provider.kind === "real"
+			? "real-model"
+			: options.provider.kind === "remote"
+				? "remote"
+				: "fixture";
 	const summary = summarize(results);
 	return {
 		schema: REPORT_SCHEMA,
