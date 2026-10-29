@@ -1,0 +1,2146 @@
+{
+ "budgetTokens": 150,
+ "episodes": [
+  {
+   "entities": [
+    {
+     "aliases": [],
+     "displayName": "検索API",
+     "id": "ent-search-api"
+    },
+    {
+     "aliases": [],
+     "displayName": "検索機能",
+     "id": "ent-search-fn"
+    },
+    {
+     "aliases": [],
+     "displayName": "分析API",
+     "id": "ent-analytics-api"
+    },
+    {
+     "aliases": [],
+     "displayName": "レコメンド機能",
+     "id": "ent-recommend-fn"
+    },
+    {
+     "aliases": [],
+     "displayName": "翻訳機能",
+     "id": "ent-translate-fn"
+    },
+    {
+     "aliases": [],
+     "displayName": "画像API",
+     "id": "ent-image-api"
+    },
+    {
+     "aliases": [
+      "佐藤さん"
+     ],
+     "displayName": "佐藤",
+     "id": "ent-sato"
+    },
+    {
+     "aliases": [
+      "鈴木さん"
+     ],
+     "displayName": "鈴木",
+     "id": "ent-suzuki"
+    },
+    {
+     "aliases": [
+      "田中さん"
+     ],
+     "displayName": "田中",
+     "id": "ent-tanaka"
+    },
+    {
+     "aliases": [
+      "山田さん"
+     ],
+     "displayName": "山田",
+     "id": "ent-yamada"
+    }
+   ],
+   "id": "ep-a",
+   "sessions": [
+    {
+     "date": "2026-08-05",
+     "id": "s1",
+     "utterances": [
+      {
+       "id": "u1",
+       "speaker": "佐藤",
+       "text": "検索インデックスの再構築は夜間に実行しています。"
+      },
+      {
+       "id": "u2",
+       "speaker": "山田",
+       "text": "来週のリリースノートのドラフトを共有しました。"
+      },
+      {
+       "id": "u3",
+       "speaker": "山田",
+       "text": "検索APIの応答時間は平均300ミリ秒です。"
+      },
+      {
+       "id": "u4",
+       "speaker": "鈴木",
+       "text": "検索APIのドキュメントサイトを更新しました。"
+      },
+      {
+       "id": "u5",
+       "speaker": "中村",
+       "text": "障害対応の振り返り資料は金曜までにまとめます。"
+      },
+      {
+       "id": "u6",
+       "speaker": "田中",
+       "text": "サジェスト機能の辞書は月次で更新します。"
+      },
+      {
+       "id": "u7",
+       "speaker": "伊藤",
+       "text": "新しいオンボーディング資料のレビューをお願いします。"
+      },
+      {
+       "id": "u8",
+       "speaker": "佐藤",
+       "text": "検索機能の担当は佐藤です。"
+      },
+      {
+       "id": "u9",
+       "speaker": "山田",
+       "text": "検索結果のプレビュー画像はCDNから配信しています。"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-19",
+     "id": "s2",
+     "utterances": [
+      {
+       "id": "u10",
+       "speaker": "渡辺",
+       "text": "来月の予算申請の締切は25日です。"
+      },
+      {
+       "id": "u11",
+       "speaker": "中村",
+       "text": "分析APIの負荷試験は来週予定です。"
+      },
+      {
+       "id": "u12",
+       "speaker": "加藤",
+       "text": "定期メンテナンスの告知文面を確認しました。"
+      },
+      {
+       "id": "u13",
+       "speaker": "山田",
+       "text": "検索APIは分析APIに依存しています。"
+      },
+      {
+       "id": "u14",
+       "speaker": "伊藤",
+       "text": "翻訳機能の対応言語一覧をWikiに載せました。"
+      },
+      {
+       "id": "u15",
+       "speaker": "小林",
+       "text": "採用面接の日程調整が3件残っています。"
+      },
+      {
+       "id": "u16",
+       "speaker": "渡辺",
+       "text": "画像APIのサンプルコードをリポジトリに追加しました。"
+      },
+      {
+       "id": "u17",
+       "speaker": "高橋",
+       "text": "セキュリティ研修の受講期限は今月末です。"
+      },
+      {
+       "id": "u18",
+       "speaker": "山田",
+       "text": "翻訳機能の担当は山田です。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-02",
+     "id": "s3",
+     "utterances": [
+      {
+       "id": "u19",
+       "speaker": "加藤",
+       "text": "検索の同義語辞書に今月は40件追加しました。"
+      },
+      {
+       "id": "u20",
+       "speaker": "佐藤",
+       "text": "週次の進捗報告フォーマットを少し変えました。"
+      },
+      {
+       "id": "u21",
+       "speaker": "小林",
+       "text": "レコメンドのABテスト結果は来週共有します。"
+      },
+      {
+       "id": "u22",
+       "speaker": "鈴木",
+       "text": "社内Wikiの目次を整理しました。"
+      },
+      {
+       "id": "u23",
+       "speaker": "佐藤",
+       "text": "画像APIの応答時間は平均120ミリ秒です。"
+      },
+      {
+       "id": "u24",
+       "speaker": "高橋",
+       "text": "キャッシュのヒット率はダッシュボードで見られます。"
+      },
+      {
+       "id": "u25",
+       "speaker": "田中",
+       "text": "テスト環境のディスク使用率が上がってきています。"
+      },
+      {
+       "id": "u26",
+       "speaker": "佐藤",
+       "text": "検索APIのエラー率は先週より下がっています。"
+      },
+      {
+       "id": "u27",
+       "speaker": "山田",
+       "text": "来週は祝日があるので定例を火曜に移します。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-16",
+     "id": "s4",
+     "utterances": [
+      {
+       "id": "u28",
+       "speaker": "鈴木",
+       "text": "訂正です。検索APIの応答時間は正しくは180ミリ秒でした。"
+      },
+      {
+       "id": "u29",
+       "speaker": "鈴木",
+       "text": "キーワード広告との連携仕様は検討中です。"
+      },
+      {
+       "id": "u30",
+       "speaker": "中村",
+       "text": "顧客向けFAQの更新案を作成中です。"
+      },
+      {
+       "id": "u31",
+       "speaker": "田中",
+       "text": "検索ログの保持ポリシーは法務に確認中です。"
+      },
+      {
+       "id": "u32",
+       "speaker": "伊藤",
+       "text": "アクセシビリティ対応のチェックリストを共有しました。"
+      },
+      {
+       "id": "u33",
+       "speaker": "山田",
+       "text": "検索機能の担当は鈴木さんに交代しました。"
+      },
+      {
+       "id": "u34",
+       "speaker": "山田",
+       "text": "分析APIの集計ジョブは深夜に回しています。"
+      },
+      {
+       "id": "u35",
+       "speaker": "渡辺",
+       "text": "依存ライブラリの更新は来週まとめて行います。"
+      },
+      {
+       "id": "u36",
+       "speaker": "中村",
+       "text": "翻訳メモリの共有範囲を決めました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-30",
+     "id": "s5",
+     "utterances": [
+      {
+       "id": "u37",
+       "speaker": "加藤",
+       "text": "バックアップの復旧訓練を来月実施します。"
+      },
+      {
+       "id": "u38",
+       "speaker": "佐藤",
+       "text": "レコメンド機能の提供期間は2026年12月末までです。"
+      },
+      {
+       "id": "u39",
+       "speaker": "伊藤",
+       "text": "画像のサムネイル生成は非同期処理です。"
+      },
+      {
+       "id": "u40",
+       "speaker": "小林",
+       "text": "会議室の予約ルールが来月から変わります。"
+      },
+      {
+       "id": "u41",
+       "speaker": "渡辺",
+       "text": "検索UIの改善案を3つ作りました。"
+      },
+      {
+       "id": "u42",
+       "speaker": "高橋",
+       "text": "ドキュメントの用語統一について相談があります。"
+      },
+      {
+       "id": "u43",
+       "speaker": "鈴木",
+       "text": "翻訳機能の応答時間は平均250ミリ秒です。"
+      },
+      {
+       "id": "u44",
+       "speaker": "加藤",
+       "text": "レコメンドの除外リストは週次で見直します。"
+      },
+      {
+       "id": "u45",
+       "speaker": "佐藤",
+       "text": "監視アラートの閾値見直しは別途起票しました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-07",
+     "id": "s6",
+     "utterances": [
+      {
+       "id": "u46",
+       "speaker": "小林",
+       "text": "検索APIのバージョニング方針を決めました。"
+      },
+      {
+       "id": "u47",
+       "speaker": "鈴木",
+       "text": "新メンバーのメンター担当を決めました。"
+      },
+      {
+       "id": "u48",
+       "speaker": "鈴木",
+       "text": "分析APIの担当は田中さんです。"
+      },
+      {
+       "id": "u49",
+       "speaker": "高橋",
+       "text": "定例の議題は事前にシートへ記入してください。"
+      },
+      {
+       "id": "u50",
+       "speaker": "田中",
+       "text": "四半期の振り返り会は来週金曜です。"
+      },
+      {
+       "id": "u51",
+       "speaker": "佐藤",
+       "text": "検索基盤の監視項目に1件追加しました。"
+      },
+      {
+       "id": "u52",
+       "speaker": "山田",
+       "text": "外部レビューの指摘事項をチケット化しました。"
+      },
+      {
+       "id": "u53",
+       "speaker": "山田",
+       "text": "検索APIのキャッシュ有効期限は10分です。"
+      },
+      {
+       "id": "u54",
+       "speaker": "鈴木",
+       "text": "分析APIのレスポンス形式はJSONです。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-14",
+     "id": "s7",
+     "utterances": [
+      {
+       "id": "u55",
+       "speaker": "中村",
+       "text": "開発環境のセットアップ手順を更新しました。"
+      },
+      {
+       "id": "u56",
+       "speaker": "田中",
+       "text": "翻訳機能の用語集を更新しました。"
+      },
+      {
+       "id": "u57",
+       "speaker": "伊藤",
+       "text": "年末年始の運用体制は11月に決めます。"
+      },
+      {
+       "id": "u58",
+       "speaker": "佐藤",
+       "text": "定例会議は毎週月曜10時からです。"
+      },
+      {
+       "id": "u59",
+       "speaker": "山田",
+       "text": "画像APIの利用申請はフォームから行います。"
+      },
+      {
+       "id": "u60",
+       "speaker": "渡辺",
+       "text": "社内勉強会の次回テーマを募集しています。"
+      },
+      {
+       "id": "u61",
+       "speaker": "加藤",
+       "text": "ライセンス更新の申請を通しました。"
+      },
+      {
+       "id": "u62",
+       "speaker": "小林",
+       "text": "ペアプロの時間を週2回に増やす案があります。"
+      },
+      {
+       "id": "u63",
+       "speaker": "高橋",
+       "text": "リリース手順のチェックリストを改訂しました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-21",
+     "id": "s8",
+     "utterances": [
+      {
+       "id": "u64",
+       "speaker": "佐藤",
+       "text": "問い合わせ対応の当番表を来月分まで作りました。"
+      },
+      {
+       "id": "u65",
+       "speaker": "鈴木",
+       "text": "負荷試験の環境は来週払い出されます。"
+      },
+      {
+       "id": "u66",
+       "speaker": "田中",
+       "text": "コードレビューの平均所要時間を集計しました。"
+      }
+     ]
+    }
+   ],
+   "title": "検索基盤チーム"
+  },
+  {
+   "entities": [
+    {
+     "aliases": [],
+     "displayName": "アプリ",
+     "id": "ent-app"
+    },
+    {
+     "aliases": [
+      "プッシュ通知"
+     ],
+     "displayName": "通知機能",
+     "id": "ent-notify-fn"
+    },
+    {
+     "aliases": [],
+     "displayName": "決済機能",
+     "id": "ent-pay-fn"
+    },
+    {
+     "aliases": [],
+     "displayName": "地図機能",
+     "id": "ent-map-fn"
+    },
+    {
+     "aliases": [
+      "高橋さん"
+     ],
+     "displayName": "高橋",
+     "id": "ent-takahashi"
+    },
+    {
+     "aliases": [
+      "中村さん"
+     ],
+     "displayName": "中村",
+     "id": "ent-nakamura"
+    }
+   ],
+   "id": "ep-b",
+   "sessions": [
+    {
+     "date": "2026-08-06",
+     "id": "s1",
+     "utterances": [
+      {
+       "id": "u1",
+       "speaker": "佐藤",
+       "text": "プッシュ通知の文面ガイドラインを更新しました。"
+      },
+      {
+       "id": "u2",
+       "speaker": "山田",
+       "text": "来週のリリースノートのドラフトを共有しました。"
+      },
+      {
+       "id": "u3",
+       "speaker": "高橋",
+       "text": "アプリのプッシュ通知はFirebase経由です。"
+      },
+      {
+       "id": "u4",
+       "speaker": "鈴木",
+       "text": "アプリのストア掲載文を差し替えました。"
+      },
+      {
+       "id": "u5",
+       "speaker": "中村",
+       "text": "障害対応の振り返り資料は金曜までにまとめます。"
+      },
+      {
+       "id": "u6",
+       "speaker": "田中",
+       "text": "地図のピン表示デザインを調整中です。"
+      },
+      {
+       "id": "u7",
+       "speaker": "伊藤",
+       "text": "新しいオンボーディング資料のレビューをお願いします。"
+      },
+      {
+       "id": "u8",
+       "speaker": "高橋",
+       "text": "通知機能の担当は高橋です。"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-20",
+     "id": "s2",
+     "utterances": [
+      {
+       "id": "u9",
+       "speaker": "山田",
+       "text": "決済画面の入力チェックを強化しました。"
+      },
+      {
+       "id": "u10",
+       "speaker": "渡辺",
+       "text": "来月の予算申請の締切は25日です。"
+      },
+      {
+       "id": "u11",
+       "speaker": "中村",
+       "text": "クラッシュレポートは毎朝確認しています。"
+      },
+      {
+       "id": "u12",
+       "speaker": "加藤",
+       "text": "定期メンテナンスの告知文面を確認しました。"
+      },
+      {
+       "id": "u13",
+       "speaker": "中村",
+       "text": "アプリのクラッシュ率は0.8%です。"
+      },
+      {
+       "id": "u14",
+       "speaker": "伊藤",
+       "text": "起動画面のスプラッシュを新しいロゴに変えました。"
+      },
+      {
+       "id": "u15",
+       "speaker": "小林",
+       "text": "採用面接の日程調整が3件残っています。"
+      },
+      {
+       "id": "u16",
+       "speaker": "渡辺",
+       "text": "通知の配信結果は管理画面で確認できます。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-03",
+     "id": "s3",
+     "utterances": [
+      {
+       "id": "u17",
+       "speaker": "高橋",
+       "text": "セキュリティ研修の受講期限は今月末です。"
+      },
+      {
+       "id": "u18",
+       "speaker": "中村",
+       "text": "地図機能の担当は中村です。"
+      },
+      {
+       "id": "u19",
+       "speaker": "加藤",
+       "text": "オフライン時の表示文言を統一しました。"
+      },
+      {
+       "id": "u20",
+       "speaker": "佐藤",
+       "text": "週次の進捗報告フォーマットを少し変えました。"
+      },
+      {
+       "id": "u21",
+       "speaker": "小林",
+       "text": "地図の検索履歴は端末内に保存されます。"
+      },
+      {
+       "id": "u22",
+       "speaker": "鈴木",
+       "text": "社内Wikiの目次を整理しました。"
+      },
+      {
+       "id": "u23",
+       "speaker": "中村",
+       "text": "訂正します。アプリのクラッシュ率は正しくは0.5%です。"
+      },
+      {
+       "id": "u24",
+       "speaker": "高橋",
+       "text": "アプリの容量削減に取り組んでいます。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-17",
+     "id": "s4",
+     "utterances": [
+      {
+       "id": "u25",
+       "speaker": "田中",
+       "text": "テスト環境のディスク使用率が上がってきています。"
+      },
+      {
+       "id": "u26",
+       "speaker": "佐藤",
+       "text": "決済の領収書メール文面を見直しました。"
+      },
+      {
+       "id": "u27",
+       "speaker": "山田",
+       "text": "来週は祝日があるので定例を火曜に移します。"
+      },
+      {
+       "id": "u28",
+       "speaker": "高橋",
+       "text": "通知の送信上限は1日3回までです。"
+      },
+      {
+       "id": "u29",
+       "speaker": "鈴木",
+       "text": "プッシュの許可率を週次で追っています。"
+      },
+      {
+       "id": "u30",
+       "speaker": "中村",
+       "text": "顧客向けFAQの更新案を作成中です。"
+      },
+      {
+       "id": "u31",
+       "speaker": "田中",
+       "text": "ベータ版の配布は来週再開します。"
+      },
+      {
+       "id": "u32",
+       "speaker": "伊藤",
+       "text": "アクセシビリティ対応のチェックリストを共有しました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-01",
+     "id": "s5",
+     "utterances": [
+      {
+       "id": "u33",
+       "speaker": "中村",
+       "text": "決済機能は2026年10月から利用可能になります。"
+      },
+      {
+       "id": "u34",
+       "speaker": "山田",
+       "text": "ダークモードの配色を微調整しました。"
+      },
+      {
+       "id": "u35",
+       "speaker": "渡辺",
+       "text": "依存ライブラリの更新は来週まとめて行います。"
+      },
+      {
+       "id": "u36",
+       "speaker": "中村",
+       "text": "通知音のカスタム対応は見送りになりました。"
+      },
+      {
+       "id": "u37",
+       "speaker": "加藤",
+       "text": "バックアップの復旧訓練を来月実施します。"
+      },
+      {
+       "id": "u38",
+       "speaker": "高橋",
+       "text": "地図機能の表示上限は100件です。"
+      },
+      {
+       "id": "u39",
+       "speaker": "伊藤",
+       "text": "地図データの更新頻度は月1回です。"
+      },
+      {
+       "id": "u40",
+       "speaker": "小林",
+       "text": "会議室の予約ルールが来月から変わります。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-08",
+     "id": "s6",
+     "utterances": [
+      {
+       "id": "u41",
+       "speaker": "渡辺",
+       "text": "アプリ内課金のテスト環境を用意しました。"
+      },
+      {
+       "id": "u42",
+       "speaker": "高橋",
+       "text": "ドキュメントの用語統一について相談があります。"
+      },
+      {
+       "id": "u43",
+       "speaker": "高橋",
+       "text": "決済機能の担当は中村さんです。"
+      },
+      {
+       "id": "u44",
+       "speaker": "加藤",
+       "text": "クラッシュの再現手順を共有しました。"
+      },
+      {
+       "id": "u45",
+       "speaker": "佐藤",
+       "text": "監視アラートの閾値見直しは別途起票しました。"
+      },
+      {
+       "id": "u46",
+       "speaker": "小林",
+       "text": "起動計測のダッシュボードを作りました。"
+      },
+      {
+       "id": "u47",
+       "speaker": "鈴木",
+       "text": "新メンバーのメンター担当を決めました。"
+      },
+      {
+       "id": "u48",
+       "speaker": "中村",
+       "text": "アプリの起動時間は平均1.2秒です。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-15",
+     "id": "s7",
+     "utterances": [
+      {
+       "id": "u49",
+       "speaker": "高橋",
+       "text": "ストアのスクリーンショットを差し替えます。"
+      },
+      {
+       "id": "u50",
+       "speaker": "田中",
+       "text": "四半期の振り返り会は来週金曜です。"
+      },
+      {
+       "id": "u51",
+       "speaker": "佐藤",
+       "text": "プッシュ基盤の証明書は来月更新です。"
+      },
+      {
+       "id": "u52",
+       "speaker": "山田",
+       "text": "外部レビューの指摘事項をチケット化しました。"
+      },
+      {
+       "id": "u53",
+       "speaker": "鈴木",
+       "text": "多言語対応の文言チェックを進めています。"
+      },
+      {
+       "id": "u54",
+       "speaker": "中村",
+       "text": "開発環境のセットアップ手順を更新しました。"
+      },
+      {
+       "id": "u55",
+       "speaker": "田中",
+       "text": "地図のオフラインキャッシュ仕様を決めました。"
+      },
+      {
+       "id": "u56",
+       "speaker": "伊藤",
+       "text": "年末年始の運用体制は11月に決めます。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-22",
+     "id": "s8",
+     "utterances": [
+      {
+       "id": "u57",
+       "speaker": "山田",
+       "text": "決済フローの離脱率を集計中です。"
+      },
+      {
+       "id": "u58",
+       "speaker": "渡辺",
+       "text": "社内勉強会の次回テーマを募集しています。"
+      },
+      {
+       "id": "u59",
+       "speaker": "加藤",
+       "text": "ライセンス更新の申請を通しました。"
+      },
+      {
+       "id": "u60",
+       "speaker": "小林",
+       "text": "ペアプロの時間を週2回に増やす案があります。"
+      },
+      {
+       "id": "u61",
+       "speaker": "高橋",
+       "text": "リリース手順のチェックリストを改訂しました。"
+      },
+      {
+       "id": "u62",
+       "speaker": "佐藤",
+       "text": "問い合わせ対応の当番表を来月分まで作りました。"
+      },
+      {
+       "id": "u63",
+       "speaker": "鈴木",
+       "text": "負荷試験の環境は来週払い出されます。"
+      },
+      {
+       "id": "u64",
+       "speaker": "田中",
+       "text": "コードレビューの平均所要時間を集計しました。"
+      }
+     ]
+    }
+   ],
+   "title": "モバイルアプリ"
+  },
+  {
+   "entities": [
+    {
+     "aliases": [],
+     "displayName": "ポータル",
+     "id": "ent-portal"
+    },
+    {
+     "aliases": [],
+     "displayName": "旧ポータル",
+     "id": "ent-old-portal"
+    },
+    {
+     "aliases": [],
+     "displayName": "勤怠機能",
+     "id": "ent-attendance-fn"
+    },
+    {
+     "aliases": [],
+     "displayName": "ニュース機能",
+     "id": "ent-news-fn"
+    },
+    {
+     "aliases": [
+      "伊藤さん"
+     ],
+     "displayName": "伊藤",
+     "id": "ent-ito"
+    },
+    {
+     "aliases": [
+      "渡辺さん"
+     ],
+     "displayName": "渡辺",
+     "id": "ent-watanabe"
+    }
+   ],
+   "id": "ep-c",
+   "sessions": [
+    {
+     "date": "2026-08-04",
+     "id": "s1",
+     "utterances": [
+      {
+       "id": "u1",
+       "speaker": "佐藤",
+       "text": "ポータルのトップページのレイアウト案を作りました。"
+      },
+      {
+       "id": "u2",
+       "speaker": "山田",
+       "text": "来週のリリースノートのドラフトを共有しました。"
+      },
+      {
+       "id": "u3",
+       "speaker": "伊藤",
+       "text": "ポータルのログインはSSOのみです。"
+      },
+      {
+       "id": "u4",
+       "speaker": "鈴木",
+       "text": "勤怠の打刻端末は各フロアに置いてあります。"
+      },
+      {
+       "id": "u5",
+       "speaker": "中村",
+       "text": "障害対応の振り返り資料は金曜までにまとめます。"
+      },
+      {
+       "id": "u6",
+       "speaker": "田中",
+       "text": "ニュースの投稿権限は各部署の担当者にあります。"
+      },
+      {
+       "id": "u7",
+       "speaker": "伊藤",
+       "text": "新しいオンボーディング資料のレビューをお願いします。"
+      },
+      {
+       "id": "u8",
+       "speaker": "伊藤",
+       "text": "勤怠機能の担当は伊藤です。"
+      },
+      {
+       "id": "u9",
+       "speaker": "山田",
+       "text": "SSOの証明書更新は来月予定です。"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-18",
+     "id": "s2",
+     "utterances": [
+      {
+       "id": "u10",
+       "speaker": "渡辺",
+       "text": "来月の予算申請の締切は25日です。"
+      },
+      {
+       "id": "u11",
+       "speaker": "中村",
+       "text": "ポータルのお知らせ欄は週次で更新します。"
+      },
+      {
+       "id": "u12",
+       "speaker": "加藤",
+       "text": "定期メンテナンスの告知文面を確認しました。"
+      },
+      {
+       "id": "u13",
+       "speaker": "渡辺",
+       "text": "ポータルの保守時間は毎週日曜2時から4時です。"
+      },
+      {
+       "id": "u14",
+       "speaker": "伊藤",
+       "text": "保守時間の周知メールを送りました。"
+      },
+      {
+       "id": "u15",
+       "speaker": "小林",
+       "text": "採用面接の日程調整が3件残っています。"
+      },
+      {
+       "id": "u16",
+       "speaker": "渡辺",
+       "text": "勤怠の集計は月末に締めます。"
+      },
+      {
+       "id": "u17",
+       "speaker": "高橋",
+       "text": "セキュリティ研修の受講期限は今月末です。"
+      },
+      {
+       "id": "u18",
+       "speaker": "渡辺",
+       "text": "ニュース機能の担当は渡辺です。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-01",
+     "id": "s3",
+     "utterances": [
+      {
+       "id": "u19",
+       "speaker": "加藤",
+       "text": "ニュースのアーカイブは年度別に整理しました。"
+      },
+      {
+       "id": "u20",
+       "speaker": "佐藤",
+       "text": "週次の進捗報告フォーマットを少し変えました。"
+      },
+      {
+       "id": "u21",
+       "speaker": "小林",
+       "text": "利用言語の追加要望は人事と相談中です。"
+      },
+      {
+       "id": "u22",
+       "speaker": "鈴木",
+       "text": "社内Wikiの目次を整理しました。"
+      },
+      {
+       "id": "u23",
+       "speaker": "渡辺",
+       "text": "勤怠機能の担当は渡辺に変わりました。"
+      },
+      {
+       "id": "u24",
+       "speaker": "高橋",
+       "text": "ポータルの検索窓は右上にあります。"
+      },
+      {
+       "id": "u25",
+       "speaker": "田中",
+       "text": "テスト環境のディスク使用率が上がってきています。"
+      },
+      {
+       "id": "u26",
+       "speaker": "佐藤",
+       "text": "パスワードポリシーの案内を更新しました。"
+      },
+      {
+       "id": "u27",
+       "speaker": "山田",
+       "text": "来週は祝日があるので定例を火曜に移します。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-15",
+     "id": "s4",
+     "utterances": [
+      {
+       "id": "u28",
+       "speaker": "伊藤",
+       "text": "旧ポータルの提供は2026年9月末で終了しました。"
+      },
+      {
+       "id": "u29",
+       "speaker": "鈴木",
+       "text": "勤怠データのエクスポート手順を書きました。"
+      },
+      {
+       "id": "u30",
+       "speaker": "中村",
+       "text": "顧客向けFAQの更新案を作成中です。"
+      },
+      {
+       "id": "u31",
+       "speaker": "田中",
+       "text": "旧ポータルの移行案内を掲示しました。"
+      },
+      {
+       "id": "u32",
+       "speaker": "伊藤",
+       "text": "アクセシビリティ対応のチェックリストを共有しました。"
+      },
+      {
+       "id": "u33",
+       "speaker": "渡辺",
+       "text": "勤怠データの保存期間は5年です。"
+      },
+      {
+       "id": "u34",
+       "speaker": "山田",
+       "text": "ニュースの画像サイズ上限を決めました。"
+      },
+      {
+       "id": "u35",
+       "speaker": "渡辺",
+       "text": "依存ライブラリの更新は来週まとめて行います。"
+      },
+      {
+       "id": "u36",
+       "speaker": "中村",
+       "text": "多要素認証の案内ページを作りました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-29",
+     "id": "s5",
+     "utterances": [
+      {
+       "id": "u37",
+       "speaker": "加藤",
+       "text": "バックアップの復旧訓練を来月実施します。"
+      },
+      {
+       "id": "u38",
+       "speaker": "伊藤",
+       "text": "ニュース機能の更新は平日9時です。"
+      },
+      {
+       "id": "u39",
+       "speaker": "伊藤",
+       "text": "ポータルのアクセス数は月次で報告しています。"
+      },
+      {
+       "id": "u40",
+       "speaker": "小林",
+       "text": "会議室の予約ルールが来月から変わります。"
+      },
+      {
+       "id": "u41",
+       "speaker": "渡辺",
+       "text": "勤怠の申請フロー図を更新しました。"
+      },
+      {
+       "id": "u42",
+       "speaker": "高橋",
+       "text": "ドキュメントの用語統一について相談があります。"
+      },
+      {
+       "id": "u43",
+       "speaker": "伊藤",
+       "text": "ポータルの応答時間は平均450ミリ秒です。"
+      },
+      {
+       "id": "u44",
+       "speaker": "加藤",
+       "text": "ヘルプデスクの受付時間は平日9時からです。"
+      },
+      {
+       "id": "u45",
+       "speaker": "佐藤",
+       "text": "監視アラートの閾値見直しは別途起票しました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-06",
+     "id": "s6",
+     "utterances": [
+      {
+       "id": "u46",
+       "speaker": "小林",
+       "text": "ニュースの予約投稿機能を有効化しました。"
+      },
+      {
+       "id": "u47",
+       "speaker": "鈴木",
+       "text": "新メンバーのメンター担当を決めました。"
+      },
+      {
+       "id": "u48",
+       "speaker": "渡辺",
+       "text": "訂正です。ポータルの応答時間は正しくは380ミリ秒です。"
+      },
+      {
+       "id": "u49",
+       "speaker": "高橋",
+       "text": "ポータルの障害時はメーリングリストで連絡します。"
+      },
+      {
+       "id": "u50",
+       "speaker": "田中",
+       "text": "四半期の振り返り会は来週金曜です。"
+      },
+      {
+       "id": "u51",
+       "speaker": "佐藤",
+       "text": "言語切替の文言レビューを依頼しました。"
+      },
+      {
+       "id": "u52",
+       "speaker": "山田",
+       "text": "外部レビューの指摘事項をチケット化しました。"
+      },
+      {
+       "id": "u53",
+       "speaker": "伊藤",
+       "text": "ポータルの利用言語は日本語と英語です。"
+      },
+      {
+       "id": "u54",
+       "speaker": "鈴木",
+       "text": "保守作業の手順書を改訂しました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-13",
+     "id": "s7",
+     "utterances": [
+      {
+       "id": "u55",
+       "speaker": "中村",
+       "text": "開発環境のセットアップ手順を更新しました。"
+      },
+      {
+       "id": "u56",
+       "speaker": "田中",
+       "text": "勤怠の修正申請は翌月5日までです。"
+      },
+      {
+       "id": "u57",
+       "speaker": "伊藤",
+       "text": "年末年始の運用体制は11月に決めます。"
+      },
+      {
+       "id": "u58",
+       "speaker": "山田",
+       "text": "ポータルの新デザインは来月公開です。"
+      },
+      {
+       "id": "u59",
+       "speaker": "渡辺",
+       "text": "社内勉強会の次回テーマを募集しています。"
+      },
+      {
+       "id": "u60",
+       "speaker": "加藤",
+       "text": "ライセンス更新の申請を通しました。"
+      },
+      {
+       "id": "u61",
+       "speaker": "小林",
+       "text": "ペアプロの時間を週2回に増やす案があります。"
+      },
+      {
+       "id": "u62",
+       "speaker": "高橋",
+       "text": "リリース手順のチェックリストを改訂しました。"
+      },
+      {
+       "id": "u63",
+       "speaker": "佐藤",
+       "text": "問い合わせ対応の当番表を来月分まで作りました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-20",
+     "id": "s8",
+     "utterances": [
+      {
+       "id": "u64",
+       "speaker": "鈴木",
+       "text": "負荷試験の環境は来週払い出されます。"
+      },
+      {
+       "id": "u65",
+       "speaker": "田中",
+       "text": "コードレビューの平均所要時間を集計しました。"
+      }
+     ]
+    }
+   ],
+   "title": "社内ポータル"
+  },
+  {
+   "entities": [
+    {
+     "aliases": [],
+     "displayName": "ETLジョブ",
+     "id": "ent-etl"
+    },
+    {
+     "aliases": [],
+     "displayName": "売上レポート",
+     "id": "ent-sales-report"
+    },
+    {
+     "aliases": [],
+     "displayName": "在庫レポート",
+     "id": "ent-inventory-report"
+    },
+    {
+     "aliases": [],
+     "displayName": "データ基盤",
+     "id": "ent-data-platform"
+    },
+    {
+     "aliases": [
+      "小林さん"
+     ],
+     "displayName": "小林",
+     "id": "ent-kobayashi"
+    },
+    {
+     "aliases": [
+      "加藤さん"
+     ],
+     "displayName": "加藤",
+     "id": "ent-kato"
+    }
+   ],
+   "id": "ep-d",
+   "sessions": [
+    {
+     "date": "2026-02-10",
+     "id": "s1",
+     "utterances": [
+      {
+       "id": "u1",
+       "speaker": "佐藤",
+       "text": "ETLのログは日次でアーカイブしています。"
+      },
+      {
+       "id": "u2",
+       "speaker": "山田",
+       "text": "来週のリリースノートのドラフトを共有しました。"
+      },
+      {
+       "id": "u3",
+       "speaker": "小林",
+       "text": "ETLジョブは毎朝5時に実行されます。"
+      },
+      {
+       "id": "u4",
+       "speaker": "鈴木",
+       "text": "売上レポートの様式は営業と調整中です。"
+      },
+      {
+       "id": "u5",
+       "speaker": "中村",
+       "text": "障害対応の振り返り資料は金曜までにまとめます。"
+      },
+      {
+       "id": "u6",
+       "speaker": "田中",
+       "text": "在庫レポートの配布先を更新しました。"
+      },
+      {
+       "id": "u7",
+       "speaker": "伊藤",
+       "text": "新しいオンボーディング資料のレビューをお願いします。"
+      },
+      {
+       "id": "u8",
+       "speaker": "小林",
+       "text": "データ基盤の担当は小林です。"
+      },
+      {
+       "id": "u9",
+       "speaker": "山田",
+       "text": "顧客データのマスキングルールを文書化しました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-05",
+     "id": "s2",
+     "utterances": [
+      {
+       "id": "u10",
+       "speaker": "渡辺",
+       "text": "来月の予算申請の締切は25日です。"
+      },
+      {
+       "id": "u11",
+       "speaker": "中村",
+       "text": "バックアップの保管先は2拠点です。"
+      },
+      {
+       "id": "u12",
+       "speaker": "加藤",
+       "text": "定期メンテナンスの告知文面を確認しました。"
+      },
+      {
+       "id": "u13",
+       "speaker": "加藤",
+       "text": "売上レポートはETLジョブの出力を使います。"
+      },
+      {
+       "id": "u14",
+       "speaker": "伊藤",
+       "text": "データ基盤の監視項目を見直しました。"
+      },
+      {
+       "id": "u15",
+       "speaker": "小林",
+       "text": "採用面接の日程調整が3件残っています。"
+      },
+      {
+       "id": "u16",
+       "speaker": "渡辺",
+       "text": "レポートの自動配信は平日朝です。"
+      },
+      {
+       "id": "u17",
+       "speaker": "高橋",
+       "text": "セキュリティ研修の受講期限は今月末です。"
+      },
+      {
+       "id": "u18",
+       "speaker": "加藤",
+       "text": "在庫レポートは毎週金曜に作成されます。"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-08",
+     "id": "s3",
+     "utterances": [
+      {
+       "id": "u19",
+       "speaker": "加藤",
+       "text": "ETLの失敗時はアラートが飛びます。"
+      },
+      {
+       "id": "u20",
+       "speaker": "佐藤",
+       "text": "週次の進捗報告フォーマットを少し変えました。"
+      },
+      {
+       "id": "u21",
+       "speaker": "小林",
+       "text": "売上データの取り込みは日次です。"
+      },
+      {
+       "id": "u22",
+       "speaker": "鈴木",
+       "text": "社内Wikiの目次を整理しました。"
+      },
+      {
+       "id": "u23",
+       "speaker": "加藤",
+       "text": "ETLジョブの実行時刻は毎朝4時半に変更されました。"
+      },
+      {
+       "id": "u24",
+       "speaker": "高橋",
+       "text": "在庫の集計定義は経理と確認済みです。"
+      },
+      {
+       "id": "u25",
+       "speaker": "田中",
+       "text": "テスト環境のディスク使用率が上がってきています。"
+      },
+      {
+       "id": "u26",
+       "speaker": "佐藤",
+       "text": "データ品質チェックの項目を増やしました。"
+      },
+      {
+       "id": "u27",
+       "speaker": "山田",
+       "text": "来週は祝日があるので定例を火曜に移します。"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-12",
+     "id": "s4",
+     "utterances": [
+      {
+       "id": "u28",
+       "speaker": "小林",
+       "text": "売上レポートの担当は加藤さんです。"
+      },
+      {
+       "id": "u29",
+       "speaker": "鈴木",
+       "text": "バックアップの復元手順を訓練しました。"
+      },
+      {
+       "id": "u30",
+       "speaker": "中村",
+       "text": "顧客向けFAQの更新案を作成中です。"
+      },
+      {
+       "id": "u31",
+       "speaker": "田中",
+       "text": "顧客データの取り扱い研修を実施しました。"
+      },
+      {
+       "id": "u32",
+       "speaker": "伊藤",
+       "text": "アクセシビリティ対応のチェックリストを共有しました。"
+      },
+      {
+       "id": "u33",
+       "speaker": "加藤",
+       "text": "顧客データのマスキングは必須です。"
+      },
+      {
+       "id": "u34",
+       "speaker": "山田",
+       "text": "レポート基盤の容量計画を立てました。"
+      },
+      {
+       "id": "u35",
+       "speaker": "渡辺",
+       "text": "依存ライブラリの更新は来週まとめて行います。"
+      },
+      {
+       "id": "u36",
+       "speaker": "中村",
+       "text": "ETLの並列度はジョブごとに設定します。"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-09",
+     "id": "s5",
+     "utterances": [
+      {
+       "id": "u37",
+       "speaker": "加藤",
+       "text": "バックアップの復旧訓練を来月実施します。"
+      },
+      {
+       "id": "u38",
+       "speaker": "小林",
+       "text": "在庫レポートの担当は小林です。"
+      },
+      {
+       "id": "u39",
+       "speaker": "伊藤",
+       "text": "売上の速報値は翌朝に確定します。"
+      },
+      {
+       "id": "u40",
+       "speaker": "小林",
+       "text": "会議室の予約ルールが来月から変わります。"
+      },
+      {
+       "id": "u41",
+       "speaker": "渡辺",
+       "text": "在庫レポートの様式変更は来月からです。"
+      },
+      {
+       "id": "u42",
+       "speaker": "高橋",
+       "text": "ドキュメントの用語統一について相談があります。"
+      },
+      {
+       "id": "u43",
+       "speaker": "小林",
+       "text": "ETLジョブの処理時間は約40分です。"
+      },
+      {
+       "id": "u44",
+       "speaker": "加藤",
+       "text": "マスキングの例外申請手順を決めました。"
+      },
+      {
+       "id": "u45",
+       "speaker": "佐藤",
+       "text": "監視アラートの閾値見直しは別途起票しました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-07",
+     "id": "s6",
+     "utterances": [
+      {
+       "id": "u46",
+       "speaker": "小林",
+       "text": "データ辞書の整備を進めています。"
+      },
+      {
+       "id": "u47",
+       "speaker": "鈴木",
+       "text": "新メンバーのメンター担当を決めました。"
+      },
+      {
+       "id": "u48",
+       "speaker": "加藤",
+       "text": "訂正します。ETLジョブの処理時間は正しくは55分です。"
+      },
+      {
+       "id": "u49",
+       "speaker": "高橋",
+       "text": "基盤の定期点検は四半期ごとです。"
+      },
+      {
+       "id": "u50",
+       "speaker": "田中",
+       "text": "四半期の振り返り会は来週金曜です。"
+      },
+      {
+       "id": "u51",
+       "speaker": "佐藤",
+       "text": "レポートの閲覧権限は部署単位です。"
+      },
+      {
+       "id": "u52",
+       "speaker": "山田",
+       "text": "外部レビューの指摘事項をチケット化しました。"
+      },
+      {
+       "id": "u53",
+       "speaker": "小林",
+       "text": "データ基盤のバックアップは日次です。"
+      },
+      {
+       "id": "u54",
+       "speaker": "鈴木",
+       "text": "ETLの開発環境を新しくしました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-04",
+     "id": "s7",
+     "utterances": [
+      {
+       "id": "u55",
+       "speaker": "中村",
+       "text": "開発環境のセットアップ手順を更新しました。"
+      },
+      {
+       "id": "u56",
+       "speaker": "田中",
+       "text": "バックアップの世代管理は7世代です。"
+      },
+      {
+       "id": "u57",
+       "speaker": "伊藤",
+       "text": "年末年始の運用体制は11月に決めます。"
+      },
+      {
+       "id": "u58",
+       "speaker": "山田",
+       "text": "データ連携の仕様書を更新しました。"
+      },
+      {
+       "id": "u59",
+       "speaker": "渡辺",
+       "text": "社内勉強会の次回テーマを募集しています。"
+      },
+      {
+       "id": "u60",
+       "speaker": "加藤",
+       "text": "ライセンス更新の申請を通しました。"
+      },
+      {
+       "id": "u61",
+       "speaker": "小林",
+       "text": "ペアプロの時間を週2回に増やす案があります。"
+      },
+      {
+       "id": "u62",
+       "speaker": "高橋",
+       "text": "リリース手順のチェックリストを改訂しました。"
+      },
+      {
+       "id": "u63",
+       "speaker": "佐藤",
+       "text": "問い合わせ対応の当番表を来月分まで作りました。"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-01",
+     "id": "s8",
+     "utterances": [
+      {
+       "id": "u64",
+       "speaker": "鈴木",
+       "text": "負荷試験の環境は来週払い出されます。"
+      },
+      {
+       "id": "u65",
+       "speaker": "田中",
+       "text": "コードレビューの平均所要時間を集計しました。"
+      }
+     ]
+    }
+   ],
+   "title": "データ基盤"
+  }
+ ],
+ "questions": [
+  {
+   "category": "update",
+   "episodeId": "ep-a",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u28"
+    ],
+    "forbidden": [
+     "300ミリ秒"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "180ミリ秒",
+      "180 ミリ秒",
+      "180ms"
+     ]
+    ]
+   },
+   "id": "ep-a-q1",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u28",
+     "text": "検索APIの応答時間は平均180ミリ秒です"
+    }
+   ],
+   "question": "検索APIの現在の応答時間は平均何ミリ秒ですか？"
+  },
+  {
+   "category": "update",
+   "episodeId": "ep-a",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u33"
+    ],
+    "forbidden": [
+     "担当は佐藤"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "鈴木"
+     ]
+    ]
+   },
+   "id": "ep-a-q2",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u33",
+     "text": "検索機能の担当は鈴木です"
+    }
+   ],
+   "question": "検索機能の現在の担当者は誰ですか？"
+  },
+  {
+   "category": "rejection",
+   "episodeId": "ep-a",
+   "gold": {
+    "evidenceUtteranceIds": [],
+    "forbidden": [],
+    "holdExpected": true,
+    "requiredGroups": []
+   },
+   "id": "ep-a-q3",
+   "oracleClaims": [],
+   "question": "検索APIの月額費用はいくらですか？"
+  },
+  {
+   "category": "multi-session",
+   "episodeId": "ep-a",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u13",
+     "u48"
+    ],
+    "forbidden": [],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "田中"
+     ]
+    ]
+   },
+   "id": "ep-a-q4",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u13",
+     "text": "検索APIは分析APIに依存しています"
+    },
+    {
+     "evidenceUtteranceId": "u48",
+     "text": "分析APIの担当は田中です"
+    }
+   ],
+   "question": "検索APIが依存しているAPIの担当者は誰ですか？"
+  },
+  {
+   "category": "update",
+   "episodeId": "ep-b",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u23"
+    ],
+    "forbidden": [
+     "0.8%",
+     "0.8％"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "0.5%",
+      "0.5％"
+     ]
+    ]
+   },
+   "id": "ep-b-q1",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u23",
+     "text": "アプリのクラッシュ率は0.5%です"
+    }
+   ],
+   "question": "アプリの現在のクラッシュ率は何%ですか？"
+  },
+  {
+   "category": "temporal",
+   "episodeId": "ep-b",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u33"
+    ],
+    "forbidden": [
+     "利用可能でした"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "まだ利用可能ではない",
+      "利用可能ではない",
+      "利用できません",
+      "10月から"
+     ]
+    ]
+   },
+   "id": "ep-b-q2",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u33",
+     "text": "決済機能は2026年10月から利用可能になります"
+    }
+   ],
+   "question": "決済機能は2026年9月時点で利用可能でしたか？"
+  },
+  {
+   "category": "multi-session",
+   "episodeId": "ep-b",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u3",
+     "u28"
+    ],
+    "forbidden": [],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "3回"
+     ],
+     [
+      "Firebase"
+     ]
+    ]
+   },
+   "id": "ep-b-q3",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u3",
+     "text": "アプリのプッシュ通知はFirebase経由です"
+    },
+    {
+     "evidenceUtteranceId": "u28",
+     "text": "通知の送信上限は1日3回までです"
+    }
+   ],
+   "question": "プッシュ通知の送信上限は1日何回までで、基盤は何経由ですか？"
+  },
+  {
+   "category": "rejection",
+   "episodeId": "ep-b",
+   "gold": {
+    "evidenceUtteranceIds": [],
+    "forbidden": [],
+    "holdExpected": true,
+    "requiredGroups": []
+   },
+   "id": "ep-b-q4",
+   "oracleClaims": [],
+   "question": "アプリの月間アクティブユーザー数は何人ですか？"
+  },
+  {
+   "category": "update",
+   "episodeId": "ep-c",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u48"
+    ],
+    "forbidden": [
+     "450ミリ秒"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "380ミリ秒"
+     ]
+    ]
+   },
+   "id": "ep-c-q1",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u48",
+     "text": "ポータルの応答時間は平均380ミリ秒です"
+    }
+   ],
+   "question": "ポータルの現在の応答時間は平均何ミリ秒ですか？"
+  },
+  {
+   "category": "temporal",
+   "episodeId": "ep-c",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u28"
+    ],
+    "forbidden": [
+     "提供されていました"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "終了",
+      "提供されていない",
+      "提供していません",
+      "9月末"
+     ]
+    ]
+   },
+   "id": "ep-c-q2",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u28",
+     "text": "旧ポータルの提供は2026年9月末で終了しました"
+    }
+   ],
+   "question": "旧ポータルは2026年10月時点で提供されていましたか？"
+  },
+  {
+   "category": "update",
+   "episodeId": "ep-c",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u23"
+    ],
+    "forbidden": [
+     "担当は伊藤"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "渡辺"
+     ]
+    ]
+   },
+   "id": "ep-c-q3",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u23",
+     "text": "勤怠機能の担当は渡辺です"
+    }
+   ],
+   "question": "勤怠機能の現在の担当者は誰ですか？"
+  },
+  {
+   "category": "rejection",
+   "episodeId": "ep-c",
+   "gold": {
+    "evidenceUtteranceIds": [],
+    "forbidden": [],
+    "holdExpected": true,
+    "requiredGroups": []
+   },
+   "id": "ep-c-q4",
+   "oracleClaims": [],
+   "question": "ポータルの利用者満足度は何%ですか？"
+  },
+  {
+   "category": "update",
+   "episodeId": "ep-d",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u23"
+    ],
+    "forbidden": [
+     "毎朝5時"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "4時半",
+      "4:30",
+      "4時30分"
+     ]
+    ]
+   },
+   "id": "ep-d-q1",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u23",
+     "text": "ETLジョブの実行時刻は毎朝4時半です"
+    }
+   ],
+   "question": "ETLジョブの現在の実行時刻は毎朝何時ですか？"
+  },
+  {
+   "category": "multi-session",
+   "episodeId": "ep-d",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u13",
+     "u23"
+    ],
+    "forbidden": [
+     "毎朝5時"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "4時半",
+      "4:30",
+      "4時30分"
+     ]
+    ]
+   },
+   "id": "ep-d-q2",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u13",
+     "text": "売上レポートはETLジョブの出力を使います"
+    },
+    {
+     "evidenceUtteranceId": "u23",
+     "text": "ETLジョブの実行時刻は毎朝4時半です"
+    }
+   ],
+   "question": "売上レポートが使っているジョブの現在の実行時刻は毎朝何時ですか？"
+  },
+  {
+   "category": "update",
+   "episodeId": "ep-d",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u48"
+    ],
+    "forbidden": [
+     "40分"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "55分"
+     ]
+    ]
+   },
+   "id": "ep-d-q3",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u48",
+     "text": "ETLジョブの処理時間は約55分です"
+    }
+   ],
+   "question": "ETLジョブの現在の処理時間は約何分ですか？"
+  },
+  {
+   "category": "rejection",
+   "episodeId": "ep-d",
+   "gold": {
+    "evidenceUtteranceIds": [],
+    "forbidden": [],
+    "holdExpected": true,
+    "requiredGroups": []
+   },
+   "id": "ep-d-q4",
+   "oracleClaims": [],
+   "question": "顧客データの保持期間は何年ですか？"
+  },
+  {
+   "category": "temporal",
+   "episodeId": "ep-a",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u38"
+    ],
+    "forbidden": [
+     "提供されています",
+     "提供されている"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "提供されていない",
+      "提供されていません",
+      "終了"
+     ]
+    ]
+   },
+   "id": "ep-a-q5",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u38",
+     "text": "レコメンド機能の提供期間は2026年12月末までです"
+    }
+   ],
+   "question": "レコメンド機能は2027年2月時点で提供されていますか？"
+  },
+  {
+   "category": "temporal",
+   "episodeId": "ep-d",
+   "gold": {
+    "evidenceUtteranceIds": [
+     "u3",
+     "u23"
+    ],
+    "forbidden": [
+     "4時半"
+    ],
+    "holdExpected": false,
+    "requiredGroups": [
+     [
+      "5時"
+     ]
+    ]
+   },
+   "id": "ep-d-q5",
+   "oracleClaims": [
+    {
+     "evidenceUtteranceId": "u3",
+     "text": "ETLジョブの実行時刻は毎朝5時です"
+    },
+    {
+     "evidenceUtteranceId": "u23",
+     "text": "ETLジョブの実行時刻は2026年4月から毎朝4時半に変更されました"
+    }
+   ],
+   "question": "ETLジョブは2026年3月時点で毎朝何時に実行されていましたか？"
+  }
+ ],
+ "suiteId": "e04-ja-v2"
+}
