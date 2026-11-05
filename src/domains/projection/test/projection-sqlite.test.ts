@@ -37,6 +37,41 @@ const edge = (id: string, from: string, to: string): EdgeRow => ({
 
 for (const mode of ["file", "memory"] as const) {
 	describe(`projection repository (${mode})`, () => {
+		test("epoch exhaustion aborts replacement and preserves the prior projection", () => {
+			const store = openTestStore({ mode });
+			try {
+				store.write((db) => {
+					replaceProjection(db, A, {
+						entries: [cur("old", "svc")],
+						edges: [],
+						materialDigest: d("a"),
+					});
+					db.query(
+						"UPDATE world_scope_epoch SET epoch = ? WHERE principal = ? AND scope_key = ?",
+					).run(Number.MAX_SAFE_INTEGER, A.principal, A.scopeKey);
+				});
+				expect(() =>
+					store.write((db) =>
+						replaceProjection(db, A, {
+							entries: [cur("new", "svc")],
+							edges: [],
+							materialDigest: d("b"),
+						}),
+					),
+				).toThrow("epoch exhausted");
+				store.read((db) => {
+					expect(getEpoch(db, A)).toEqual({
+						epoch: Number.MAX_SAFE_INTEGER,
+						materialDigest: d("a"),
+					});
+					expect(
+						readCurrent(db, A, { limit: 10 }).rows.map((r) => r.assertionId),
+					).toEqual(["old"]);
+				});
+			} finally {
+				store.close();
+			}
+		});
 		test("A12/A24 replace advances the epoch only on a changed digest; Scopes are isolated", () => {
 			const store = openTestStore({ mode });
 			try {

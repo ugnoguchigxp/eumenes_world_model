@@ -97,6 +97,7 @@ interface Args {
 	timeoutMs: number;
 	jsonPath: string | undefined;
 	showFailures: boolean;
+	recordDev: string | undefined;
 }
 
 function parseArgs(
@@ -115,6 +116,7 @@ function parseArgs(
 		timeoutMs: defaultTimeoutMs,
 		jsonPath: undefined,
 		showFailures: false,
+		recordDev: undefined,
 	};
 	for (let i = 0; i < argv.length; i++) {
 		const flag = argv[i]!;
@@ -127,7 +129,10 @@ function parseArgs(
 		} else if (flag === "--prompt-version") args.promptVersion = value();
 		else if (flag === "--provider-module") args.providerModule = value();
 		else if (flag === "--json") args.jsonPath = value();
-		else if (flag === "--fixture") {
+		else if (flag === "--record-dev") {
+			args.recordDev = value();
+			if (!args.recordDev) return "--record-dev needs a new file";
+		} else if (flag === "--fixture") {
 			const v = value();
 			if (!fixtureVariants.includes(v as FixtureVariant))
 				return `bad --fixture: ${v}`;
@@ -313,6 +318,7 @@ async function resolveProvider(
 			provider.info?.kind !== "local" ||
 			typeof provider.extract !== "function"
 		) {
+			await provider.close?.();
 			io.err(
 				"not accepted: provider unavailable (provider does not declare itself local)",
 			);
@@ -341,120 +347,163 @@ export async function main(
 		io.err("--show-failures is refused for the holdout");
 		return exitCodes.usage;
 	}
+	if (args.recordDev && args.split !== "dev") {
+		io.err("--record-dev is refused for the holdout");
+		return exitCodes.usage;
+	}
 	const dataset = loadDataset();
 	const resolved = await resolveProvider(args, dataset, io);
 	if (typeof resolved === "number") return resolved;
 	const { provider, clock } = resolved;
-	if (provider.info.kind !== "fixture" && !args.promptVersion) {
-		io.err(
-			"--prompt-version is required for a real-model provider (local or remote)",
-		);
-		return exitCodes.usage;
-	}
-	// dev is the prompt-tuning path and can never see the holdout.
-	const mode: RunMode = args.split === "dev" ? "tuning" : "acceptance";
-	const promptVersion = args.promptVersion ?? `fixture-${args.fixture}`;
-	// Every holdout look by a non-fixture provider is logged before it happens;
-	// when the log cannot be written the holdout is not run.
-	const audited = args.split === "holdout" && provider.info.kind !== "fixture";
-	const auditBase = {
-		evaluationVersion: EVALUATION_VERSION,
-		datasetVersion: dataset.version,
-		datasetSha256: DATASET_SHA256,
-		split: args.split,
-		promptVersion,
-		modelId: provider.info.modelId,
-		modelVersion: provider.info.modelVersion,
-	};
-	const audit = (entry: Record<string, unknown>) =>
-		io.appendLine(
-			io.holdoutLogPath,
-			JSON.stringify({
-				at: new Date(io.now()).toISOString(),
-				...auditBase,
-				...entry,
-			}),
-		);
-	if (audited)
-		try {
-			audit({ event: "start" });
-		} catch {
-			io.err("holdout not run: the audit log could not be written");
+	const evaluate = async (): Promise<number> => {
+		if (provider.info.kind !== "fixture" && !args.promptVersion) {
+			io.err(
+				"--prompt-version is required for a real-model provider (local or remote)",
+			);
+			return exitCodes.usage;
+		}
+		// dev is the prompt-tuning path and can never see the holdout.
+		const mode: RunMode = args.split === "dev" ? "tuning" : "acceptance";
+		const promptVersion = args.promptVersion ?? `fixture-${args.fixture}`;
+		if (
+			args.recordDev &&
+			!io.writeNewFile(
+				args.recordDev,
+				`${JSON.stringify({ schema: "world-extraction-dev/1", datasetSha256: DATASET_SHA256, promptVersion, provider: provider.info })}\n`,
+			)
+		) {
+			io.err("dev recording file already exists");
 			return exitCodes.auditFailed;
 		}
-	let report: RunReport;
-	try {
-		report = await runEvaluation({
-			dataset,
-			provider,
+		// Every holdout look by a non-fixture provider is logged before it happens;
+		// when the log cannot be written the holdout is not run.
+		const audited =
+			args.split === "holdout" && provider.info.kind !== "fixture";
+		const auditBase = {
+			evaluationVersion: EVALUATION_VERSION,
+			datasetVersion: dataset.version,
+			datasetSha256: DATASET_SHA256,
 			split: args.split,
-			mode,
 			promptVersion,
-			timeoutMs: args.timeoutMs,
-			...(clock ? { clock } : {}),
-		});
-	} catch (error) {
-		const name = error instanceof Error ? error.name : "error";
-		try {
-			if (audited) audit({ event: "abort", reason: name });
-		} catch {
-			// The start entry already counts this look.
-		}
-		io.err(`not accepted: provider unavailable (${name})`);
-		return exitCodes.providerUnavailable;
-	}
-	if (audited)
-		try {
-			audit({
-				event: "finish",
-				thresholdsMet: report.score.thresholdsMet,
-				adoptedPrecision: `${report.score.adoptedPrecision.numerator}/${report.score.adoptedPrecision.denominator}`,
-				holdRecall: `${report.score.holdRecall.numerator}/${report.score.holdRecall.denominator}`,
-				classificationAccuracy: `${report.score.classificationAccuracy.numerator}/${report.score.classificationAccuracy.denominator}`,
-				adoptRecall: `${report.score.adoptRecall.numerator}/${report.score.adoptRecall.denominator}`,
-			});
-		} catch {
-			io.err("warning: the holdout audit log finish entry was not written");
-		}
-	if (provider.info.kind === "fixture")
-		io.out(
-			"FIXTURE RUN: deterministic harness check only. Not a model result; G5 is not satisfied by this output.",
-		);
-	io.out(`dataset sha256 ${DATASET_SHA256}`);
-	for (const text of renderReport(report)) io.out(text);
-	io.out(`thresholds ${JSON.stringify(thresholds)}`);
-	if (args.showFailures) {
-		for (const sample of report.samples)
-			if (
-				sample.evaluation.wrongAdopted > 0 ||
-				(!sample.evaluation.heldCorrectly && sample.evaluation.holdExpected) ||
-				(sample.evaluation.adoptExpected && !sample.evaluation.adoptedCorrectly)
-			)
-				io.out(
-					`${sample.caseId}: ${diagnosticCaseText(dataset, sample.caseId)}`,
-				);
-	}
-	if (args.jsonPath) {
-		if (report.split === "dev")
-			io.writeFile(args.jsonPath, `${JSON.stringify(report, null, "\t")}\n`);
-		else {
-			// Append-only: a holdout result is never overwritten.
-			const content = `${JSON.stringify(redactHoldoutReport(report), null, "\t")}\n`;
-			const at = io.now();
-			let written: string | undefined;
-			for (let attempt = 0; attempt < 100 && written === undefined; attempt++) {
-				const path = stampedResultPath(args.jsonPath, at, attempt);
-				if (io.writeNewFile(path, content)) written = path;
-			}
-			if (written === undefined) {
-				io.err("holdout result file could not be created");
+			modelId: provider.info.modelId,
+			modelVersion: provider.info.modelVersion,
+		};
+		const audit = (entry: Record<string, unknown>) =>
+			io.appendLine(
+				io.holdoutLogPath,
+				JSON.stringify({
+					at: new Date(io.now()).toISOString(),
+					...auditBase,
+					...entry,
+				}),
+			);
+		if (audited)
+			try {
+				audit({ event: "start" });
+			} catch {
+				io.err("holdout not run: the audit log could not be written");
 				return exitCodes.auditFailed;
 			}
-			io.out(`holdout result written ${written}`);
+		let report: RunReport;
+		try {
+			report = await runEvaluation({
+				...(args.recordDev
+					? {
+							onDevSample: (sample) =>
+								io.appendLine(args.recordDev!, JSON.stringify(sample)),
+						}
+					: {}),
+				dataset,
+				provider,
+				split: args.split,
+				mode,
+				promptVersion,
+				timeoutMs: args.timeoutMs,
+				...(clock ? { clock } : {}),
+			});
+		} catch (error) {
+			const name = error instanceof Error ? error.name : "error";
+			try {
+				if (audited) audit({ event: "abort", reason: name });
+			} catch {
+				// The start entry already counts this look.
+			}
+			io.err(`not accepted: provider unavailable (${name})`);
+			return exitCodes.providerUnavailable;
 		}
+		if (audited)
+			try {
+				audit({
+					event: "finish",
+					thresholdsMet: report.score.thresholdsMet,
+					adoptedPrecision: `${report.score.adoptedPrecision.numerator}/${report.score.adoptedPrecision.denominator}`,
+					holdRecall: `${report.score.holdRecall.numerator}/${report.score.holdRecall.denominator}`,
+					classificationAccuracy: `${report.score.classificationAccuracy.numerator}/${report.score.classificationAccuracy.denominator}`,
+					adoptRecall: `${report.score.adoptRecall.numerator}/${report.score.adoptRecall.denominator}`,
+				});
+			} catch {
+				io.err("warning: the holdout audit log finish entry was not written");
+			}
+		if (provider.info.kind === "fixture")
+			io.out(
+				"FIXTURE RUN: deterministic harness check only. Not a model result; G5 is not satisfied by this output.",
+			);
+		io.out(`dataset sha256 ${DATASET_SHA256}`);
+		for (const text of renderReport(report)) io.out(text);
+		io.out(`thresholds ${JSON.stringify(thresholds)}`);
+		if (args.showFailures) {
+			for (const sample of report.samples)
+				if (
+					sample.evaluation.wrongAdopted > 0 ||
+					(!sample.evaluation.heldCorrectly &&
+						sample.evaluation.holdExpected) ||
+					(sample.evaluation.adoptExpected &&
+						!sample.evaluation.adoptedCorrectly)
+				)
+					io.out(
+						`${sample.caseId}: ${diagnosticCaseText(dataset, sample.caseId)}`,
+					);
+		}
+		if (args.jsonPath) {
+			if (report.split === "dev")
+				io.writeFile(args.jsonPath, `${JSON.stringify(report, null, "\t")}\n`);
+			else {
+				// Append-only: a holdout result is never overwritten.
+				const content = `${JSON.stringify(redactHoldoutReport(report), null, "\t")}\n`;
+				const at = io.now();
+				let written: string | undefined;
+				for (
+					let attempt = 0;
+					attempt < 100 && written === undefined;
+					attempt++
+				) {
+					const path = stampedResultPath(args.jsonPath, at, attempt);
+					if (io.writeNewFile(path, content)) written = path;
+				}
+				if (written === undefined) {
+					io.err("holdout result file could not be created");
+					return exitCodes.auditFailed;
+				}
+				io.out(`holdout result written ${written}`);
+			}
+		}
+		if (report.split === "dev") return exitCodes.ok;
+		return report.score.thresholdsMet ? exitCodes.ok : exitCodes.notAccepted;
+	};
+	let code: number;
+	try {
+		code = await evaluate();
+	} catch (error) {
+		await provider.close?.();
+		throw error;
 	}
-	if (report.split === "dev") return exitCodes.ok;
-	return report.score.thresholdsMet ? exitCodes.ok : exitCodes.notAccepted;
+	try {
+		await provider.close?.();
+	} catch {
+		io.err("not accepted: provider cleanup failed");
+		return exitCodes.providerUnavailable;
+	}
+	return code;
 }
 
 if (import.meta.main) {

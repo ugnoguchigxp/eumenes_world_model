@@ -205,10 +205,19 @@ export function buildWorldSlice(
 		);
 
 	const focus = new Set(request.focusSubjectIds ?? []);
+	const refKey = (id: string, revision: number) =>
+		JSON.stringify([id, revision]);
+	const focusRefs = new Set(
+		(request.focusAssertionRefs ?? []).map((ref) =>
+			refKey(ref.id, ref.revision),
+		),
+	);
 	const ranked = entries
 		.map((entry) => ({
 			entry,
-			focused: focus.has(entry.subjectId),
+			focused:
+				focus.has(entry.subjectId) ||
+				focusRefs.has(refKey(entry.id, entry.revision)),
 		}))
 		.sort((a, b) => {
 			if (a.focused !== b.focused) return a.focused ? -1 : 1;
@@ -222,7 +231,7 @@ export function buildWorldSlice(
 		});
 	// Required = focus units; without focus, the single top-ranked unit.
 	const requiredCount =
-		focus.size > 0
+		focus.size > 0 || focusRefs.size > 0
 			? ranked.filter((r) => r.focused).length
 			: Math.min(1, ranked.length);
 
@@ -262,6 +271,13 @@ export function buildWorldSlice(
 	// A requested subject without any eligible unit is not silently "ready".
 	if ([...focus].some((id) => !ranked.some((r) => r.entry.subjectId === id)))
 		reasons.push("FOCUS_NOT_FOUND");
+	if (
+		[...focusRefs].some(
+			(key) =>
+				!ranked.some((r) => refKey(r.entry.id, r.entry.revision) === key),
+		)
+	)
+		reasons.push("FOCUS_ASSERTION_NOT_FOUND");
 	const status: SliceStatus = reasons.length > 0 ? "partial" : "ready";
 
 	const { assertionVersions, sourceVersions } = versionsOf(chosen);

@@ -10,6 +10,8 @@ import { createHash, randomUUID } from "node:crypto";
 import {
 	prepareExtraction,
 	validateCandidates,
+	canonicalBytes,
+	extractionLimits,
 	type CanonicalHasher,
 	type Entity,
 } from "../../src/index.ts";
@@ -37,6 +39,8 @@ import {
 	buildSupplyManifest,
 	classifySupply,
 	summarizeSupply,
+	visibleRequestOf,
+	type VisibleRequestContent,
 	type SupplyClass,
 	type SupplyManifest,
 	type SupplySummary,
@@ -63,23 +67,13 @@ export interface ProviderInfo {
  * Exactly what the model may see. Gold, the case id, the group and the split
  * never appear in a request.
  */
-export interface ProviderRequest {
+export interface ProviderRequest extends VisibleRequestContent {
 	/**
 	 * Opaque per-run key (salted hash of the call index). It only correlates a
 	 * request with its response; the runner alone maps it back to a case. Real
 	 * providers must ignore it.
 	 */
 	readonly requestKey: string;
-	readonly window: readonly {
-		readonly utteranceId: string;
-		readonly text: string;
-	}[];
-	readonly entities: readonly {
-		readonly id: string;
-		readonly displayName: string;
-		readonly aliases: readonly string[];
-	}[];
-	readonly predicates: readonly string[];
 	readonly timeoutMs: number;
 }
 export interface ProviderResponse {
@@ -92,6 +86,8 @@ export interface ProviderResponse {
 }
 export interface ExtractionProvider {
 	readonly info: ProviderInfo;
+	/** Optional resource owner; the CLI releases it after evaluation. */
+	close?(): Promise<void>;
 	/** False when the backend cannot be reached; the run is then not started. */
 	isAvailable?(): Promise<boolean>;
 	extract(
@@ -162,6 +158,8 @@ export interface Clock {
 export const systemClock: Clock = { now: () => performance.now() };
 
 export interface RunOptions {
+	/** Dev-only, after each first response. Throwing aborts the run, never retries. */
+	readonly onDevSample?: (sample: DevSample) => void;
 	readonly dataset: Dataset;
 	readonly provider: ExtractionProvider;
 	readonly split: Split;
@@ -179,6 +177,15 @@ export interface RunOptions {
 	readonly requestKeySalt?: string;
 	readonly clock?: Clock;
 	readonly hasher?: CanonicalHasher;
+}
+
+export interface DevSample {
+	readonly caseId: string;
+	readonly request: ProviderRequest | null;
+	readonly output: unknown;
+	readonly outputOmitted: boolean;
+	readonly status: SampleStatus;
+	readonly usage: ProviderResponse["usage"] | null;
 }
 
 export interface SampleRecord {
@@ -267,7 +274,7 @@ interface Prepared {
 	readonly validationInput: (output: unknown) => unknown;
 }
 
-function prepare(
+export function prepareEvaluationCase(
 	dataset: Dataset,
 	tc: EvalCase,
 	hasher: CanonicalHasher,
@@ -311,18 +318,7 @@ function prepare(
 		prepared.value.window.length !== tc.utterances.length
 	)
 		return undefined;
-	const visible = {
-		window: tc.utterances.map((u) => ({
-			utteranceId: u.utteranceId,
-			text: u.text,
-		})),
-		entities: dataset.entitySets[tc.entitySet].map((e) => ({
-			id: e.id,
-			displayName: e.displayName,
-			aliases: e.aliases,
-		})),
-		predicates: dataset.predicates,
-	};
+	const visible = visibleRequestOf(dataset, tc);
 	const window = prepared.value.window;
 	const manifest = prepared.value.manifest;
 	const entities = buildEntities(dataset, tc);
@@ -405,6 +401,8 @@ async function callWithTimeout(
 /** Runs the selected split through the provider and scores every case. */
 export async function runEvaluation(options: RunOptions): Promise<RunReport> {
 	const { dataset, provider, split, mode } = options;
+	if (options.onDevSample && split !== "dev")
+		throw new HoldoutAccessError("raw response capture is dev-only");
 	// Refuses (before any provider call) when tuning would touch the holdout.
 	const cases = selectCases(dataset, split, mode);
 	if (options.promptVersion.length === 0)
@@ -425,12 +423,15 @@ export async function runEvaluation(options: RunOptions): Promise<RunReport> {
 	let abandoned = 0;
 	let index = 0;
 	for (const tc of cases) {
-		const prepared = prepare(dataset, tc, hasher);
+		const prepared = prepareEvaluationCase(dataset, tc, hasher);
 		const started = clock.now();
 		let status: SampleStatus = "error";
 		let outcome: SampleOutcome = { status: "error" };
 		let usage: ProviderResponse["usage"] | null = null;
 		let outputBytes: number | null = null;
+		let traceRequest: ProviderRequest | null = null;
+		let traceOutput: unknown = null;
+		let outputOmitted = false;
 		// After an abandoned call the provider is not called again: the stuck call
 		// may still be running and a second one would break concurrency 1.
 		if (prepared && abandoned === 0) {
@@ -440,13 +441,25 @@ export async function runEvaluation(options: RunOptions): Promise<RunReport> {
 				16,
 			);
 			try {
+				traceRequest = { requestKey, ...prepared.visible, timeoutMs };
 				const response = await callWithTimeout(
 					provider,
-					{ requestKey, ...prepared.visible, timeoutMs },
+					traceRequest,
 					timeoutMs,
 					graceMs,
 				);
 				usage = response.usage ?? null;
+				if (options.onDevSample) {
+					outputOmitted =
+						typeof response.output === "string"
+							? encoder.encode(response.output).length >
+								extractionLimits.maxOutputBytes
+							: !canonicalBytes(
+									response.output,
+									extractionLimits.maxOutputBytes,
+								).ok;
+					traceOutput = outputOmitted ? null : response.output;
+				}
 				outputBytes =
 					typeof response.output === "string"
 						? encoder.encode(response.output).length
@@ -480,6 +493,16 @@ export async function runEvaluation(options: RunOptions): Promise<RunReport> {
 		}
 		status = outcome.status;
 		const latencyMs = Math.max(0, clock.now() - started);
+		// Deliberately outside the provider-error catch: a storage failure must
+		// stop further calls and cannot masquerade as a model failure.
+		options.onDevSample?.({
+			caseId: tc.caseId,
+			request: traceRequest,
+			output: traceOutput,
+			outputOmitted,
+			status,
+			usage,
+		});
 		samples.push({
 			caseId: tc.caseId,
 			status,

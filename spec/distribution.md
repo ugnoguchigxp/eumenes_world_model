@@ -10,7 +10,7 @@
 | `eumenes-memory-<version>.tgz` | `vendor/eumenes-memory`(ローカル生成・非公式、G1) |
 | `*.tgz.sha256` / `pack-result.json` | 各tgzのSHA-256、ソースdigest |
 
-配布用`package.json`だけがJS/d.tsを指す。開発用のTS exportsはルートの`package.json`に残る。`exports`は`.`、`./sqlite`、manifestとpackage.jsonのみ。Memoryは`peerDependencies`に固定版で宣言する(consumerが固定tgzを`overrides`で解決する)。
+配布用`package.json`だけがJS/d.tsを指す。開発用のTS exportsはルートの`package.json`に残る。`exports`は`.`、`./sqlite`、manifestとpackage.jsonのみ。Memoryは実行時依存ではなく型要件としてmanifestへ記録し、`peerDependencies`は宣言しない。consumerはWorldと固定Memoryの両tgzを明示して導入する（必要時は`overrides`で固定tgzを解決する）。
 
 ## distribution-manifest.json
 

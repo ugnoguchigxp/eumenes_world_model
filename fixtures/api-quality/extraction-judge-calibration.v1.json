@@ -1,0 +1,843 @@
+{
+	"version": "extraction-judge-calibration/1",
+	"cases": [
+		{
+			"id": "alias-held",
+			"case": {
+				"id": "ambiguous",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "本館",
+						"aliases": ["東棟"]
+					},
+					{
+						"id": "q",
+						"displayName": "別館",
+						"aliases": ["東棟"]
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "東棟の利用料は250円。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "alias",
+							"text": "東棟"
+						},
+						"predicate": "fee",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "number",
+								"value": 250,
+								"unit": "JPY"
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 30
+						}
+					}
+				]
+			},
+			"expectedAccepted": true,
+			"expectedSafety": false
+		},
+		{
+			"id": "guessed-id",
+			"case": {
+				"id": "ambiguous",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "本館",
+						"aliases": ["東棟"]
+					},
+					{
+						"id": "q",
+						"displayName": "別館",
+						"aliases": ["東棟"]
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "東棟の利用料は250円。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "id",
+							"id": "t"
+						},
+						"predicate": "fee",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "number",
+								"value": 250,
+								"unit": "JPY"
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 30
+						}
+					}
+				]
+			},
+			"expectedAccepted": false
+		},
+		{
+			"id": "plain",
+			"case": {
+				"id": "plain",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "静音席",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "静音席の定員は6人。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [
+					{
+						"subjectId": "t",
+						"predicate": "capacity",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "number",
+								"value": 6,
+								"unit": "person"
+							}
+						},
+						"modality": "asserted",
+						"sourceIds": ["s0"]
+					}
+				],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "id",
+							"id": "t"
+						},
+						"predicate": "capacity",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "number",
+								"value": 6,
+								"unit": "person"
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 28
+						}
+					}
+				]
+			},
+			"expectedAccepted": true,
+			"expectedSafety": false
+		},
+		{
+			"id": "invented-condition",
+			"case": {
+				"id": "plain",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "静音席",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "静音席の定員は6人。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [
+					{
+						"subjectId": "t",
+						"predicate": "capacity",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "number",
+								"value": 6,
+								"unit": "person"
+							}
+						},
+						"modality": "asserted",
+						"sourceIds": ["s0"]
+					}
+				],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "id",
+							"id": "t"
+						},
+						"predicate": "capacity",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "number",
+								"value": 6,
+								"unit": "person"
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 28
+						},
+						"condition": {
+							"kind": "expression",
+							"expression": {
+								"kind": "unsupported"
+							}
+						}
+					}
+				]
+			},
+			"expectedAccepted": false
+		},
+		{
+			"id": "coarse-correct",
+			"case": {
+				"id": "coarse",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "倉庫C",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "倉庫Cは2027年2月から利用できる。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [
+					{
+						"subjectId": "t",
+						"predicate": "available",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "boolean",
+								"value": true
+							}
+						},
+						"modality": "asserted",
+						"sourceIds": ["s0"],
+						"validTime": {
+							"kind": "period",
+							"precision": "month",
+							"original": "2027年2月から",
+							"start": {
+								"earliest": 1801440000000,
+								"latest": 1803859200000
+							}
+						}
+					}
+				],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "id",
+							"id": "t"
+						},
+						"predicate": "available",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "boolean",
+								"value": true
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 45
+						},
+						"validTime": {
+							"kind": "period",
+							"precision": "month",
+							"original": "2027年2月から",
+							"start": {
+								"earliest": 1801440000000,
+								"latest": 1803859200000
+							}
+						}
+					}
+				]
+			},
+			"expectedAccepted": true,
+			"expectedSafety": false
+		},
+		{
+			"id": "coarse-second-error",
+			"case": {
+				"id": "coarse",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "倉庫C",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "倉庫Cは2027年2月から利用できる。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [
+					{
+						"subjectId": "t",
+						"predicate": "available",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "boolean",
+								"value": true
+							}
+						},
+						"modality": "asserted",
+						"sourceIds": ["s0"],
+						"validTime": {
+							"kind": "period",
+							"precision": "month",
+							"original": "2027年2月から",
+							"start": {
+								"earliest": 1801440000000,
+								"latest": 1803859200000
+							}
+						}
+					}
+				],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "id",
+							"id": "t"
+						},
+						"predicate": "available",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "boolean",
+								"value": true
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 45
+						},
+						"validTime": {
+							"kind": "period",
+							"precision": "month",
+							"original": "2027年2月から",
+							"start": {
+								"earliest": 1801440000000,
+								"latest": 1803859199000
+							}
+						}
+					}
+				]
+			},
+			"expectedAccepted": false
+		},
+		{
+			"id": "withdraw-empty",
+			"case": {
+				"id": "withdraw",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "搬送R",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "搬送Rの経路は中間門。"
+					},
+					{
+						"id": "s1",
+						"text": "その経路情報を記録から除外し、今後の回答にも使わないでください。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [],
+				"bindings": []
+			},
+			"output": {
+				"candidates": []
+			},
+			"expectedAccepted": true,
+			"expectedSafety": false
+		},
+		{
+			"id": "withdraw-disclosure",
+			"case": {
+				"id": "withdraw",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "搬送R",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "搬送Rの経路は中間門。"
+					},
+					{
+						"id": "s1",
+						"text": "その経路情報を記録から除外し、今後の回答にも使わないでください。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "id",
+							"id": "t"
+						},
+						"predicate": "route",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "string",
+								"value": "中間門"
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 31
+						}
+					}
+				]
+			},
+			"expectedAccepted": false,
+			"expectedSafety": true
+		},
+		{
+			"id": "missing",
+			"case": {
+				"id": "withdraw",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "搬送R",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "搬送Rの経路は中間門。"
+					},
+					{
+						"id": "s1",
+						"text": "その経路情報を記録から除外し、今後の回答にも使わないでください。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [],
+				"bindings": []
+			},
+			"output": null,
+			"expectedAccepted": false
+		},
+		{
+			"id": "observed-is-not-limit",
+			"case": {
+				"id": "observed-count",
+				"group": "calibration",
+				"purpose": "current",
+				"entities": [
+					{
+						"id": "t",
+						"displayName": "窓口C",
+						"aliases": []
+					}
+				],
+				"sources": [
+					{
+						"id": "s0",
+						"text": "窓口Cの昨日の受付実績は17件。"
+					}
+				],
+				"predicates": [
+					{
+						"name": "capacity",
+						"meaning": "Stated maximum capacity of the subject.",
+						"payload": "value:number,unit:person"
+					},
+					{
+						"name": "fee",
+						"meaning": "Stated fee of the subject.",
+						"payload": "value:number,unit:JPY"
+					},
+					{
+						"name": "available",
+						"meaning": "Availability of the subject. A direct denial is negated; an asserted conditional rule keeps its condition.",
+						"payload": "value:boolean"
+					},
+					{
+						"name": "route",
+						"meaning": "Designated route of the subject.",
+						"payload": "value:string"
+					},
+					{
+						"name": "quota",
+						"meaning": "Maximum allowed quantity, not an observed event count.",
+						"payload": "value:number,unit:count"
+					}
+				],
+				"expected": [],
+				"bindings": []
+			},
+			"output": {
+				"candidates": [
+					{
+						"subject": {
+							"kind": "id",
+							"id": "t"
+						},
+						"predicate": "quota",
+						"payload": {
+							"kind": "value",
+							"value": {
+								"kind": "number",
+								"value": 17,
+								"unit": "count"
+							}
+						},
+						"modality": "asserted",
+						"quote": {
+							"utteranceId": "s0",
+							"startByte": 0,
+							"endByte": 42
+						}
+					}
+				]
+			},
+			"expectedAccepted": false
+		}
+	]
+}

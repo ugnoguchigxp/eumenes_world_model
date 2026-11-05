@@ -1,0 +1,146 @@
+{
+	"rubric_version": "1.1.0",
+	"technical_profile": "library",
+	"mode": "technical",
+	"assessment_kind": "expected",
+	"target": {
+		"locator": "/Users/y.noguchi/Code/eumenes_world_model",
+		"snapshot": "Expected scenario after Q00-Q08, conditional on required evidence; baseline HEAD 06e948047b34361e6ac469f33747601869522af4 + tracked/untracked working tree; SHA256 e860fce79884c9bcf5133bf436d4eaed990a11495cf6dac5dbcaecb67df134e4",
+		"reviewed_at": "2026-11-05",
+		"stage": "Expected improvements to the same pre-production embedded library; no production-stage promotion",
+		"scope": "Full/deep/library current review. Snapshot contains 683 tracked and nonignored untracked files. Primary paths sampled: extraction validation → inbox/settle → explicit adoption → SQLite projection/snapshot → Slice/receipt revalidation, plus correction/forget/restore and reasoning. Bun 1.4.4 darwin arm64, existing pinned node_modules shared read-only by symlink. Runtime side effects confined to disposable snapshot/test stores. Excluded: live host/product DB/config/secrets, new paid/live model calls, real Memory/process-crash/24h acceptance, exhaustive research-experiment and grokbot-kit audit, market-size/user-retention survey. Host/remote-model historical outcomes are repository reports, not newly executed acceptance. No production certification. Expected scenario: same applicability and weights. Target anchors are acceptance requirements, not achieved observations. High confidence for target anchor4 means future evidence must be High before awarding that value. Claude/Luna external API evidence never substitutes for existing Local acceptance."
+	},
+	"depth": "deep",
+	"tracks": {
+		"technical": {
+			"raw_observed_score": 80.4,
+			"provisional_score": 80.4,
+			"score": null,
+			"score_status": "provisional",
+			"coverage_percent": 100.0,
+			"excluded_dimension_weight_percent": 0.0,
+			"raw_bounds": [80.4, 80.4],
+			"bounds": [80.4, 80.4],
+			"confidence": "Medium",
+			"required_dimensions_complete": true,
+			"incomplete_required_dimensions": [],
+			"unresolved_severe_suspicions": [],
+			"gates": [],
+			"production_readiness": "hypothetical: no blocker identified in reviewed scope",
+			"dimensions": {
+				"architecture": {
+					"status": "assessed",
+					"score": 8.3,
+					"coverage_percent": 100.0,
+					"bounds": [8.3, 8.3],
+					"base_weight": 12,
+					"confidence": "High",
+					"effective_weight_percent": 12.0
+				},
+				"correctness": {
+					"status": "assessed",
+					"score": 9.2,
+					"coverage_percent": 100.0,
+					"bounds": [9.2, 9.2],
+					"base_weight": 20,
+					"confidence": "Medium",
+					"effective_weight_percent": 20.0
+				},
+				"security": {
+					"status": "assessed",
+					"score": 7.5,
+					"coverage_percent": 100.0,
+					"bounds": [7.5, 7.5],
+					"base_weight": 10,
+					"confidence": "Medium",
+					"effective_weight_percent": 10.0
+				},
+				"reliability": {
+					"status": "assessed",
+					"score": 8.3,
+					"coverage_percent": 100.0,
+					"bounds": [8.3, 8.3],
+					"base_weight": 8,
+					"confidence": "High",
+					"effective_weight_percent": 8.0
+				},
+				"maintainability": {
+					"status": "assessed",
+					"score": 7.5,
+					"coverage_percent": 100.0,
+					"bounds": [7.5, 7.5],
+					"base_weight": 12,
+					"confidence": "Medium",
+					"effective_weight_percent": 12.0
+				},
+				"common_components": {
+					"status": "assessed",
+					"score": 7.5,
+					"coverage_percent": 100.0,
+					"bounds": [7.5, 7.5],
+					"base_weight": 5,
+					"confidence": "Medium",
+					"effective_weight_percent": 5.0
+				},
+				"testing": {
+					"status": "assessed",
+					"score": 8.3,
+					"coverage_percent": 100.0,
+					"bounds": [8.3, 8.3],
+					"base_weight": 15,
+					"confidence": "Medium",
+					"effective_weight_percent": 15.0
+				},
+				"supply_chain": {
+					"status": "assessed",
+					"score": 6.7,
+					"coverage_percent": 100.0,
+					"bounds": [6.7, 6.7],
+					"base_weight": 10,
+					"confidence": "Medium",
+					"effective_weight_percent": 10.0
+				},
+				"performance": {
+					"status": "assessed",
+					"score": 7.5,
+					"coverage_percent": 100.0,
+					"bounds": [7.5, 7.5],
+					"base_weight": 5,
+					"confidence": "High",
+					"effective_weight_percent": 5.0
+				},
+				"operability": {
+					"status": "assessed",
+					"score": 7.5,
+					"coverage_percent": 100.0,
+					"bounds": [7.5, 7.5],
+					"base_weight": 3,
+					"confidence": "Medium",
+					"effective_weight_percent": 3.0
+				}
+			}
+		}
+	},
+	"confirmed_findings": {
+		"Critical": 0,
+		"High": 0,
+		"Medium": 0,
+		"Low": 0
+	},
+	"priorities": {
+		"P0": 0,
+		"P1": 0,
+		"P2": 0,
+		"P3": 0
+	},
+	"suspected_findings": 0,
+	"baseline_snapshot": "HEAD 06e948047b34361e6ac469f33747601869522af4 + tracked/untracked working tree; SHA256 e860fce79884c9bcf5133bf436d4eaed990a11495cf6dac5dbcaecb67df134e4",
+	"scenario_conditions": [
+		"Q01-Q03 remove the confirmed freshness-information loss, verify complete inbox deletion reachability under the host contract, and synchronize distribution documentation. Baseline findings remain confirmed in the preserved current ledger.",
+		"Q06 validates all17 update operations and public read/usage contracts, representative boundaries, single-writer/WAL race windows, process-exit and every-DML rollback with defect-detecting negative controls. Only direct complete evidence allows contracts/concurrency/failure/risk_coverage targets4.",
+		"Q03 demonstrates actual CI on the assessed revision, reachable-dependency risk review and a proportionate ownership/use/distribution-rights record. Unknown rights remain unknown if records cannot be obtained.",
+		"Q04-Q05 complete direct Claude Sonnet5.5 and GPT-6 Luna API trials using common source-backed tasks, frozen protocol and budgets; log failed first attempts and judge disagreements without weakening Local A46/A50 gates.",
+		"Q07 demonstrates applicable install/update/recovery/rollback and developer tasks, including needed actual host/Memory boundary evidence. Missing permissions, contracts or operation records block dependent anchor upgrades.",
+		"No criterion exclusions, weight changes, weakened thresholds, business-potential blending, invented approvals, per-example semantic branches, or current-score inflation. Q08 recalculates the actual Current ledger; failure to reach80 remains incomplete."
+	]
+}

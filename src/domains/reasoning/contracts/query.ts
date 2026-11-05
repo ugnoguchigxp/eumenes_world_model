@@ -15,6 +15,8 @@ import {
 	type ScopeRef,
 } from "../../../contracts/index.ts";
 import {
+	freshnessStates,
+	type Freshness,
 	relationKinds,
 	type RelationKind,
 } from "../../assertions/contracts/index.ts";
@@ -65,6 +67,8 @@ export interface ReasoningEdge {
 	readonly status: EdgeStatus;
 	/** Only adopted, undisputed claims propagate causally. */
 	readonly causalEligible: boolean;
+	/** Omitted legacy input is unknown, never evidence of freshness. */
+	readonly freshness?: Freshness;
 	readonly condition: ConditionSpec;
 	readonly validTime?: ValidTime;
 	readonly axis?: ComparisonAxis;
@@ -107,6 +111,7 @@ export function edgesFromEntries(
 			relation: payload.relation,
 			status: entry.status,
 			causalEligible: entry.causalEligible,
+			freshness: entry.freshness,
 			condition: entry.assertion.condition,
 			...(entry.assertion.validTime
 				? { validTime: entry.assertion.validTime }
@@ -155,6 +160,7 @@ const edgeKeys = [
 	"relation",
 	"status",
 	"causalEligible",
+	"freshness",
 	"condition",
 	"validTime",
 	"axis",
@@ -184,6 +190,12 @@ function checkEdge(value: unknown, path: string): Checked<ReasoningEdge> {
 		`${path}.causalEligible`,
 	);
 	if (!eligible.ok) return eligible;
+	const freshness = object["freshness"];
+	if (
+		freshness !== undefined &&
+		!freshnessStates.includes(freshness as Freshness)
+	)
+		return fail("INVALID_INPUT", `${path}.freshness`);
 	const condition = checkConditionSpec(
 		object["condition"],
 		`${path}.condition`,
@@ -215,6 +227,7 @@ function checkEdge(value: unknown, path: string): Checked<ReasoningEdge> {
 		relation: relation as RelationKind,
 		status: status as EdgeStatus,
 		causalEligible: eligible.value,
+		...(freshness === undefined ? {} : { freshness: freshness as Freshness }),
 		condition: condition.value,
 		...(validTime ? { validTime } : {}),
 		...(axis ? { axis } : {}),

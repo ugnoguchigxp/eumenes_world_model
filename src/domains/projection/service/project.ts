@@ -248,5 +248,7 @@ export function planScopeEpoch(
 	if (!Number.isSafeInteger(currentEpoch) || currentEpoch < 0)
 		throw new RangeError("invalid epoch");
 	const changed = currentMaterialDigest !== nextMaterialDigest;
+	if (changed && currentEpoch === Number.MAX_SAFE_INTEGER)
+		throw new RangeError("epoch exhausted");
 	return { epoch: changed ? currentEpoch + 1 : currentEpoch, changed };
 }

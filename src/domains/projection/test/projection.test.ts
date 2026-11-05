@@ -234,6 +234,18 @@ function ledgerOf() {
 }
 
 describe("A24 scope epoch material", () => {
+	test("the largest safe epoch can be replayed but never advanced", () => {
+		const top = Number.MAX_SAFE_INTEGER;
+		expect(planScopeEpoch(top - 1, "old", "new")).toEqual({
+			epoch: top,
+			changed: true,
+		});
+		expect(planScopeEpoch(top, "same", "same")).toEqual({
+			epoch: top,
+			changed: false,
+		});
+		expect(() => planScopeEpoch(top, "old", "new")).toThrow("epoch exhausted");
+	});
 	test("a new refutation changes the material digest and advances the epoch once", () => {
 		const before = ok(project([rec("c1")]));
 		const after = ok(

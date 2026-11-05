@@ -5,12 +5,15 @@
  * local-only.
  */
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { loadDataset } from "../../eval/extraction/dataset.ts";
 import { exitCodes, main, type MainIo } from "../../eval/extraction/main.ts";
 import {
 	ChatCompletionsProvider,
 	EXTRACTION_INSTRUCTION,
 	EXTRACTION_INSTRUCTION_VERSION,
+	HISTORY_INSTRUCTION,
+	HISTORY_INSTRUCTION_VERSION,
 	type FetchImpl,
 } from "../../eval/extraction/providers.ts";
 import {
@@ -47,6 +50,32 @@ const makeProvider = (fetchImpl: FetchImpl, kind: "local" | "remote") =>
 		kind,
 		fetchImpl,
 	});
+
+test("history purpose is explicit and preserves the frozen current-state instruction", async () => {
+	expect(
+		createHash("sha256").update(EXTRACTION_INSTRUCTION).digest("hex"),
+	).toBe("16390c5b03e4f945cd79618990f6c17b18c37cd421423c90191c1c142db0c515");
+	let body = "";
+	const raw = '{"candidates":[{"original":"old"},{"original":"new"}]}';
+	const provider = new ChatCompletionsProvider({
+		endpoint: "http://127.0.0.1:9",
+		modelId: "probe",
+		modelVersion: "1",
+		kind: "remote",
+		purpose: "history",
+		fetchImpl: async (_url, init) => {
+			body = init.body;
+			return jsonResponse(okBody(raw));
+		},
+	});
+	const result = await provider.extract(request, new AbortController().signal);
+	expect(JSON.parse(body).messages[0].content).toBe(HISTORY_INSTRUCTION);
+	expect(provider.info.config["instructionVersion"]).toBe(
+		HISTORY_INSTRUCTION_VERSION,
+	);
+	expect(result.output).toBe(raw);
+	expect(HISTORY_INSTRUCTION).not.toContain("report ONLY the final corrected");
+});
 
 describe("ChatCompletionsProvider", () => {
 	test("sends the frozen instruction and the visible request as JSON", async () => {

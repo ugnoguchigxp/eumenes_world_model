@@ -57,6 +57,13 @@ SourceRef自体に所有Scopeはない。ホストが提供する検証済みSou
 
 ## C4 純粋APIと状態遷移
 
+2026年10月31日M1/M3追補: 本体readで全根拠を取得済みでも、同じ対象の全主張を必須扱いするSliceが予算超過する再現を得た。
+SliceRequestへ任意の`focusAssertionRefs: readonly {id, revision}[]`（最大64、重複は正規化）を追加する。
+対象・主張・必要な関係を意味的に選ぶ責務はhost/LLMに残し、codeは既に権限検査済みsnapshot内のIDと版の一致だけを調べる。
+既存focusSubjectIdsとは必須集合の和とし、指定refが無い/版不一致/終端除外ならpartialの`FOCUS_ASSERTION_NOT_FOUND`を返す。必要な単位が収まらなければ既存overflow。
+空配列と未指定は既存動作を維持。Scope/原典/restoreのblocked/disabledが優先し、失効した主張を復活させない。
+説明単位・版manifest・出力上限・receipt・schemaは変更せず、入力の任意フィールド追加としてcontractVersion/sliceVersionは1を維持する。
+
 全純粋APIは同期、入力immutable、出力deterministicとする。同じ入力から同じ配列順と理由コードを返す。末尾の同順位はID昇順で解決。runtime schema検査は公開入口で行い、型assertionで入力を通さない。
 
 | 所有domain | 初版公開操作 | 入力→出力の要点 |
@@ -170,3 +177,9 @@ canonical payloadはkey順を固定し、UTF-8、JSON有限値、集合のsort�
 消す対象は主張内容、引用、派生説明、条件に含む本文、manifest内素材、予測/結果の派生本文、候補、検索投影、利用cache。残すのは不透明なScope付き対象ID・forget操作ID・最小状態・版など再出現防止に必要なメタデータのみ。保持可能な理由codeは列挙値にし、自由文で本文を残さない。
 
 World単独でjournalの耐久保存を実装しない。ホストは同じforgetIdで最新journalの耐久化→DBへの適用→Memory external deletion確認を進め、全段階完了までpendingを保持する。古いDBの復元時はgateを閉じ、restoreEpoch更新、cursor破棄、依存再登録、最新墓標照合、投影再構築の順で進める。照合不能ならclosedのまま。切り戻しで墓標を戻さない。
+
+## 2026年11月5日 Q01 探索の鮮度診断
+
+ReasoningEdgeは任意のfreshness（fresh/stale/unknown）を受け、edgesFromEntriesはProjectionEntryの値を必ず引き継ぐ。旧入力の未指定は診断上unknownとする。因果PathEdge・関連・依存のbasis・Gapは鮮度を保持し、InfluencePath.basisFreshnessは一つでもstaleならstale、全てfreshならfresh、それ以外unknown。confirmedは従来どおり条件充足のみを表す。staleをfalseに変換せず、host/LLMへ根拠の古さを明示する。scope・予算・採用・反証・validTimeの既存規則を変更しない。scenarioは同じ経路を再利用する。
+
+Q07の配布consumerで、source rootの生成に既存の`sourceIdentityKey`が必要なことを確認した。既存実装をrootの公開exportへ追加する。呼出側に識別子の符号化を複製させず、sourceの意味判断や新しい同一性規則は追加しない。

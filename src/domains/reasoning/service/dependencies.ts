@@ -1,3 +1,4 @@
+import type { Freshness } from "../../assertions/index.ts";
 import {
 	asRecord,
 	checkId,
@@ -24,6 +25,11 @@ export interface DependencyItem {
 	readonly entityId: string;
 	readonly depth: number;
 	readonly viaEdgeId: string;
+	readonly basis: readonly {
+		readonly edgeId: string;
+		readonly revision: number;
+		readonly freshness: Freshness;
+	}[];
 	readonly state: ResourceState;
 	readonly reasonCode?: DependencyReason;
 }
@@ -156,6 +162,11 @@ export function checkDependencies(input: unknown): Checked<DependencyResult> {
 			entityId: entityKey,
 			depth: aggregate.depth,
 			viaEdgeId: edges[0]!.id,
+			basis: edges.map((e) => ({
+				edgeId: e.id,
+				revision: e.revision,
+				freshness: e.freshness ?? "unknown",
+			})),
 			state,
 			...(reasonCode ? { reasonCode } : {}),
 		});

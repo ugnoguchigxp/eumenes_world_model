@@ -35,6 +35,7 @@ export {
 	lifecycles,
 	origins,
 	relationKinds,
+	sourceIdentityKey,
 	transitionActions,
 	planAssertionTransition,
 	terminalLifecycles,

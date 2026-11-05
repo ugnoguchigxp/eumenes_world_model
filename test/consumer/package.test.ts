@@ -213,3 +213,36 @@ export { v, count, history };
 	);
 	expect(checked.code, checked.stdout + checked.stderr).toBe(0);
 }, 120_000);
+
+test("MIT notices ship in both tarballs without changing the vendor pin", async () => {
+	for (const tarball of [worldTgz, memoryTgz]) {
+		const license = await run(
+			["tar", "-xOf", tarball, "package/LICENSE"],
+			repo,
+		);
+		expect(license.code, license.stderr).toBe(0);
+		expect(license.stdout).toContain("MIT License");
+		expect(license.stdout).toContain("Permission is hereby granted");
+	}
+	const notices = await run(
+		["tar", "-xOf", worldTgz, "package/THIRD_PARTY_NOTICES.md"],
+		repo,
+	);
+	expect(notices.code, notices.stderr).toBe(0);
+	expect(notices.stdout).toContain("Eumenes Memory");
+});
+
+test("installed consumer: adopt, Slice, receipt, denial, host rollback, forget and process restart", async () => {
+	writeFileSync(
+		join(consumer, "lifecycle.mjs"),
+		readFileSync(join(repo, "test/support/consumer-lifecycle.mjs")),
+	);
+	for (const phase of ["create", "reopen"]) {
+		const ran = await run([process.execPath, "lifecycle.mjs", phase], consumer);
+		expect(ran.code, ran.stdout + ran.stderr).toBe(0);
+		const result = JSON.parse(ran.stdout.trim());
+		if (phase === "create") expect(result.forgotten).toBe(true);
+		else
+			expect(result).toEqual({ restarted: true, gateClosed: true, bodies: 0 });
+	}
+}, 60_000);

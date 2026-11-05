@@ -36,6 +36,7 @@ export interface VisibleRequestContent {
 	readonly window: readonly {
 		readonly utteranceId: string;
 		readonly text: string;
+		readonly origin?: EvalCase["utterances"][number]["origin"];
 	}[];
 	readonly entities: readonly {
 		readonly id: string;
@@ -54,6 +55,7 @@ export function visibleRequestOf(
 		window: tc.utterances.map((u) => ({
 			utteranceId: u.utteranceId,
 			text: u.text,
+			origin: u.origin,
 		})),
 		entities: dataset.entitySets[tc.entitySet].map((e) => ({
 			id: e.id,

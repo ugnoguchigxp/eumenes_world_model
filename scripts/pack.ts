@@ -39,7 +39,7 @@ async function run(command: string[], cwd: string): Promise<string> {
 
 const rootPackage = JSON.parse(
 	readFileSync(resolve(root, "package.json"), "utf8"),
-) as { name: string; version: string };
+) as { name: string; version: string; license: string };
 const memoryPackage = JSON.parse(
 	readFileSync(resolve(root, "vendor/eumenes-memory/package.json"), "utf8"),
 ) as { name: string; version: string };
@@ -74,6 +74,8 @@ const dirty = commit
 	: undefined;
 
 cpSync(resolve(root, "dist"), resolve(stage, "dist"), { recursive: true });
+for (const notice of ["LICENSE", "THIRD_PARTY_NOTICES.md"])
+	cpSync(resolve(root, notice), resolve(stage, notice));
 const leaked = walk(resolve(stage, "dist")).filter(
 	(file) =>
 		isTest(file.replace(/\.d\.ts$/, ".ts")) ||
@@ -144,6 +146,7 @@ writeFileSync(
 		{
 			name: rootPackage.name,
 			version: rootPackage.version,
+			license: rootPackage.license,
 			description: "Eumenes WorldModel (local distribution, unpublished).",
 			type: "module",
 			sideEffects: false,
@@ -156,7 +159,12 @@ writeFileSync(
 				"./distribution-manifest.json": "./distribution-manifest.json",
 				"./package.json": "./package.json",
 			},
-			files: ["dist", "distribution-manifest.json"],
+			files: [
+				"dist",
+				"distribution-manifest.json",
+				"LICENSE",
+				"THIRD_PARTY_NOTICES.md",
+			],
 			// eumenes-memory is a types-only requirement recorded in the manifest;
 			// a peerDependency would make bun resolve it from the registry.
 		},
@@ -172,7 +180,16 @@ async function pack(directory: string, destination: string) {
 	);
 }
 await pack(stage, out);
-await pack(resolve(root, "vendor/eumenes-memory"), out);
+const memoryStage = resolve(out, "memory-stage");
+cpSync(resolve(root, "vendor/eumenes-memory"), memoryStage, {
+	recursive: true,
+});
+cpSync(
+	resolve(root, "legal/eumenes-memory.LICENSE"),
+	resolve(memoryStage, "LICENSE"),
+);
+await pack(memoryStage, out);
+rmSync(memoryStage, { recursive: true, force: true });
 const tarballs = readdirSync(out).filter((name) => name.endsWith(".tgz"));
 const checksums: Record<string, string> = {};
 for (const name of tarballs) {

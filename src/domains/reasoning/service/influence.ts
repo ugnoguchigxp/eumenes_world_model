@@ -1,3 +1,4 @@
+import type { Freshness } from "../../assertions/index.ts";
 import { checkId, fail, ok, type Checked } from "../../../contracts/index.ts";
 import {
 	causalRelations,
@@ -24,6 +25,7 @@ export interface PathEdge {
 	readonly from: string;
 	readonly to: string;
 	readonly relation: ReasoningEdge["relation"];
+	readonly freshness: Freshness;
 }
 export interface InfluencePath {
 	/** Entities in the edges' own direction: cause first, effect last. */
@@ -34,6 +36,8 @@ export interface InfluencePath {
 	readonly effectReasons: readonly EffectReason[];
 	/** False when some edge condition is unknown. */
 	readonly confirmed: boolean;
+	/** Claim basis age, independent of condition satisfaction. */
+	readonly basisFreshness: Freshness;
 }
 export interface InfluenceResult {
 	status: "complete" | "partial";
@@ -145,10 +149,16 @@ export function traceInfluence(input: unknown): Checked<InfluenceResult> {
 					from: e.from,
 					to: e.to,
 					relation: e.relation,
+					freshness: e.freshness ?? "unknown",
 				})),
 				effect: composed.effect,
 				effectReasons: composed.reasons,
 				confirmed,
+				basisFreshness: chain.some((e) => e.freshness === "stale")
+					? "stale"
+					: chain.every((e) => e.freshness === "fresh")
+						? "fresh"
+						: "unknown",
 			});
 			seen.add(next);
 			visit(next, chain, seen);

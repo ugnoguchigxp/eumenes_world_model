@@ -1,3 +1,4 @@
+import type { Freshness } from "../../assertions/index.ts";
 import { checkId, ok, type Checked } from "../../../contracts/index.ts";
 import {
 	causalRelations,
@@ -20,6 +21,7 @@ export interface RelatedRelation {
 	readonly status: ReasoningEdge["status"];
 	/** True only for adopted causal edges; correlation is never causal. */
 	readonly causalPropagation: boolean;
+	readonly freshness: Freshness;
 }
 export interface RelevanceResult {
 	status: "complete" | "partial";
@@ -88,6 +90,7 @@ export function explainRelevance(input: unknown): Checked<RelevanceResult> {
 						to: edge.to,
 						relation: edge.relation,
 						status: edge.status,
+						freshness: edge.freshness ?? "unknown",
 						causalPropagation:
 							causalRelations.includes(edge.relation) &&
 							edge.causalEligible &&

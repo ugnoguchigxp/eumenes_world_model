@@ -21,7 +21,7 @@ import {
 
 /** Frozen instruction identity; any wording change is a new version. */
 export const EXTRACTION_INSTRUCTION_VERSION = "eval-extract-instruction-2";
-export const EXTRACTION_INSTRUCTION = [
+const CANDIDATE_INSTRUCTION = [
 	"You extract candidate claims from a window of utterances.",
 	'Answer with one JSON object of the form {"candidates": [...]} and',
 	"nothing else. Each candidate is an object with:",
@@ -39,6 +39,9 @@ export const EXTRACTION_INSTRUCTION = [
 	"be resolved to a given entity, or a claim is negated, hypothetical or",
 	"a question, still report it with the matching modality instead of",
 	"dropping it or guessing an entity.",
+];
+export const EXTRACTION_INSTRUCTION = [
+	...CANDIDATE_INSTRUCTION,
 	"Conventions (v2, from the agent-model contrast runs in progress.md):",
 	"- Corrections: when a later utterance corrects an earlier claim about",
 	"  the same subject and predicate, report ONLY the final corrected",
@@ -50,6 +53,31 @@ export const EXTRACTION_INSTRUCTION = [
 	"  the claim, starting at the claim's subject. Exclude discourse",
 	"  lead-ins and framing clauses (e.g. 確認したところ、 / メモとして、 /",
 	"  すみません、 / 訂正です。) from the span.",
+].join("\n");
+
+/** Explicit host choice; never inferred from words in a question or source. */
+export const HISTORY_INSTRUCTION_VERSION = "eval-extract-history-1";
+export const HISTORY_INSTRUCTION = [
+	...CANDIDATE_INSTRUCTION,
+	"Purpose: retain source-supported history, rather than only current state.",
+	"Keep distinct dated claims, later corrections, and different relation objects",
+	"as separate candidates. Do not collapse by subject and predicate or invent",
+	"replacement links, adoption state, dates, or missing facts.",
+	"Preserve source conditions with optional condition:",
+	'{"kind":"expression","expression":{"kind":"compare","key":<observation key>,',
+	'"op":"eq|ne|lt|lte|gt|gte","value":<typed value>}}.',
+	'Use {"kind":"unsupported"} inside the expression when it cannot be',
+	"represented. Number values require an explicit unit. Missing condition",
+	"means unknown; never issue explicitly_unconditional or adoption evidence.",
+	"Optional validTime is either {kind:'instant',at:<epoch ms>} or",
+	"{kind:'period',precision:'exact|day|month|year',original:<source phrase>,",
+	" start?:{earliest:<epoch ms>,latest:<epoch ms>},end?:{earliest:<epoch ms>,latest:<epoch ms>}}.",
+	"A period includes its start and excludes its end. Exact bounds have equal",
+	"earliest/latest. At least one bound is needed. Preserve coarse precision;",
+	"when the source/context cannot determine bounds, omit validTime instead of",
+	"guessing a year or an instant. Use valid JSON with double-quoted keys.",
+	"Quote the minimal supporting source span in UTF-8 bytes, retaining the",
+	"condition and time qualification needed to support the whole claim.",
 ].join("\n");
 
 /** The fetch shape this provider needs (the global fetch satisfies it). */
@@ -68,6 +96,8 @@ export type FetchImpl = (
 }>;
 
 export interface ChatCompletionsProviderOptions {
+	/** Defaults to the frozen current-state instruction used by A46. */
+	readonly purpose?: "current" | "history";
 	/** Full chat-completions endpoint URL, supplied by the operator. */
 	readonly endpoint: string;
 	readonly modelId: string;
@@ -88,17 +118,25 @@ export class ChatCompletionsProvider implements ExtractionProvider {
 	private readonly endpoint: string;
 	private readonly fetchImpl: FetchImpl;
 	private readonly apiKey: string | undefined;
+	private readonly instruction: string;
 
 	constructor(options: ChatCompletionsProviderOptions) {
 		this.endpoint = options.endpoint;
 		this.fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchImpl);
 		this.apiKey = options.apiKey;
+		this.instruction =
+			options.purpose === "history"
+				? HISTORY_INSTRUCTION
+				: EXTRACTION_INSTRUCTION;
 		this.info = {
 			kind: options.kind,
 			modelId: options.modelId,
 			modelVersion: options.modelVersion,
 			config: {
-				instructionVersion: EXTRACTION_INSTRUCTION_VERSION,
+				instructionVersion:
+					options.purpose === "history"
+						? HISTORY_INSTRUCTION_VERSION
+						: EXTRACTION_INSTRUCTION_VERSION,
 				temperature: 0,
 			},
 		};
@@ -112,7 +150,7 @@ export class ChatCompletionsProvider implements ExtractionProvider {
 			model: this.info.modelId,
 			temperature: 0,
 			messages: [
-				{ role: "system", content: EXTRACTION_INSTRUCTION },
+				{ role: "system", content: this.instruction },
 				{
 					role: "user",
 					content: JSON.stringify({

@@ -1,5 +1,7 @@
 # WorldModel 実装進捗
 
+2026年10月31日追補: M0に続き、M1の本体再生経路、M2の保持/履歴目的の指示、M3の主張単位の必須指定、M4の登録provider接続基盤を実装・検証した。実装と意味品質・実モデル・hostの正式受入は分ける。改善の実装順は[次段階計画のM0〜M5](next-stage.md#0-計測しながら改善する実装順2026年10月31日追補)、最終実績は本台帳末尾を参照。
+
 2026年10月28日更新。P0〜P2とP3-01は実装・検証済み。P3のhost結合およびP4/P5の一部は下表の条件で実施済み。実モデルの正式評価・実運用は未受入。以下は実装作業票の台帳であり、計画書の完成を機能の完成として記録しない。P0の22試験は[準備状況](../preparation-status.md)を参照。
 
 状態は未着手、進行中、待機、完了。待機には不足する契約/配布物/許可範囲を具体的に記す。完了には実行結果へのリンクが必要。
@@ -48,6 +50,12 @@
 | P6-02 | CapabilityとToolchainと自己改善への証拠 | 未着手 | — |
 | P6-03 | 複数Scopeと長期運用 | 待機 | 条件のみ固定: spec/operational-acceptance.md。24時間実測は未実施(H runnerが必要) |
 | P6-04 | 運用手順と最終受入 | 待機 | 手順骨子: spec/operations-runbook.md。全手順が未実施 |
+| M0 | 計測の入口・保全・再生・比較 | 完了（fixtureと合成実SQLite） | eval/measurement、専用6件、verify 1040件、build、既存3CLIと実性能2runの保全・比較。詳細は末尾 |
+| M1 | 情報量/本体経路・dev原出力再生 | 完了（決定的fixture/実SQLite診断） | eval/pipeline、dev-trace、同一評価器の旧/新Slice比較、M06。最終verify 1058件。実LLMの有効性は未受入 |
+| M2 | 条件/時点の保持 | 進行中（保持・表示・履歴目的の指示は実装/検証済み） | 既存validTime/condition/evaluateConditionsを再利用。既定指示v2は本文同一。履歴指示の実モデル意味品質・完全な過去時点監査は未受入 |
+| M3 | 必須根拠の選択 | 進行中（本体契約と固定診断は実装/検証済み） | focusAssertionRefs、出典catalogの可逆表示、全表示4096bytesで3連鎖群の必要根拠6/6。実LLMの選択・未見品質はM4待ち |
+| M4 | 実モデルによる採否 | 待機（登録provider adapterは実装/検証済み） | catalogのprofile=lfm2.5だがmodel=ornith1.5-strix、版情報なし。計画対象の固定モデル/版を同定できず正式生成未実施。モデルID照合・終了処理はstubで検証 |
+| M5 | 運営者知識/実物一巡 | 待機 | M4の品質ゲートと既存のH/A公開契約が先行。兄弟repoは参照専用。M0/M1成功で親P4/P5を完了にしない |
 
 P2-03は.a identity、.b assertions、.c projection、.d scenariosを個別記録し、4件とも完了してから親票を完了へ変える。
 
@@ -991,3 +999,207 @@ JacREDの注釈規約（地理的・行政的包含はP527 HasPartで注釈す�
 - dev30: F1 0.377（v1）→ 0.407（v2）→ 0.427（v3）。内訳は precision 0.439 / recall 0.415。狙った分類ははっきり動いた: P527 tp 0→21（fn 36→15、fp 18）、P131 tp 21→31（fn 31→21、fp 19）。
 - test60（未見）: F1 0.319（v1）→ 0.301（v2）→ 0.363（v3）。recall +0.085、precision +0.011 で、規約の効果は未見でも再現した。用語集v2と違い、今回は採用する。ただしこれはJacRED suite専用の基準指示であり、WorldModel本体の抽出指示（eval-extract-instruction-2）とは分離したままにする。
 - 動かなかったもの: P361 PartOf は dev/test ともほぼ不動（test tp 4→2）で、私の規約仮説（組織所属）ではgoldの用法を説明できていない。未解明として残し、これ以上の指示いじりはdevへの過適合になるため打ち切る。P170も小幅。残る差は関係の意味判断とgold欠落（E03で意味支持precision 0.639と定量化済み）。
+
+## M0：計測基盤と改善の実装計画（2026年10月31日）
+
+- 対象: `06e9480`を起点に、ブランチ評価の改善案をM0〜M5へ具体化。今回はM0のみ実装。共有指示・API・本体経路を再利用する方針を先に示し、新しい採点器・意味判定・DB接続機構は作っていない。
+- 変更: `eval/measurement/{main,run,report}.ts`、package.jsonの`measure:world`、`test/eval/measurement.test.ts`、計画・受入索引・eval/README・構造文書。
+- 公開契約・migration・本体src・兄弟repo・既存閾値の変更: なし。既存の未追跡bundleは変更していない。commit/push・マージも未実施。
+- 機能: 既存extraction/decision/performance CLIを実行し、元レポート・stdout/stderr・exit・引数・コード/入力hash・環境を新規directoryへ保存。再使用拒否。失敗・invalidated・品質不合格を分ける。元データのchecksum検査と指標再計算、同条件の比較、変更ファイル・prompt版の表示。
+- 受入: M01〜M05。実子プロセス、匿名化、失敗分母、未知usage、部分性能標本、コード/条件/環境/モデル/datasetの差、編集と復元、中断相当の未完了記録、改変・summary再計算を専用試験で確認。通常試験のモデル要求0。
+- 部分→結合→全体: 専用 **6 pass / 0 fail / 55 assertions**。評価系 **380 pass / 0 fail**。最終`bun run verify` **1040 pass / 0 fail / 19084 assertions / 81 files**、`bun run build`成功。型・lint・境界・配布consumerはverifyに含む。
+
+基準測定はコードを固定して保存した。下記はローカルのgitignored成果物で、共有・移送するときはdirectory全体を保全する。git commitだけでは今回の未commitコードを識別できないためmanifestのsource digestを正本とする。コード本文のsnapshotは保存しない。
+
+| 実行（`bun run measure:world run --suite ... --out ... -- ...`） | 成果物 | 結果 |
+|---|---|---|
+| extraction、`--fixture oracle --split dev` | [ext baseline](../../artifacts/measurement/2026-10-31-m0-extraction-baseline/result.json) | completed、exit 0、fixture、正式受入false |
+| decision、`--fixture good --mode evaluation` | [decision baseline](../../artifacts/measurement/2026-10-31-m0-decision-baseline/result.json) | completed、exit 0、fixture、p5Accepted false |
+| performance、`--sizes 1000,10000,100000` | [performance baseline](../../artifacts/measurement/2026-10-31-m0-performance-baseline/result.json) | completed、exit 0、合成実SQLite |
+| performance、同じ引数・同じコードでもう1run | [repeat](../../artifacts/measurement/2026-10-31-m0-performance-repeat/result.json) | completed、exit 0。ばらつきと比較経路を確認する対照 |
+
+性能2runのsource digestはともに`5f295cbe3405719e9c118c6c98bc78cc90f80a86544ba579ef72877cf8f412b0`。
+protocol digestは`d6fdae071afa1ae257c5164e30bb2dbe6a6337ca03da1543fcd432ee08781d4e`。
+環境は各manifest参照（Bun 1.4.4、同じOS/CPU、seed 42、warmup 10＋100標本）。他の検証と重ねず性能計測を実行。
+
+| 主張数 | Slice p95 run1/run2 ms | writer p95 run1/run2 ms | 最大取得行数 |
+|---|---|---|---|
+| 1,000 | 13.889 / 12.816 | 2.957 / 1.466 | 500 |
+| 10,000 | 12.025 / 21.518 | 0.828 / 0.961 | 500 |
+| 100,000 | 14.796 / 21.702 | 0.368 / 1.014 | 500 |
+
+既存10k Slice<=50ms・通常writer<=20msの基準内。両者は同じ実装なので高速化実績ではなく基準のばらつき。
+`measure:world compare --baseline ...performance-baseline --candidate ...performance-repeat --out ...performance-comparison.json`は[comparable、changedFiles=[]](../../artifacts/measurement/2026-10-31-m0-performance-comparison.json)。`replay --run ...performance-baseline`も追加モデル要求なしで成功。
+
+- 実装: M0完了。fixture: 成功。実SQLite: 成功。host結合・実モデル・実運用: 未実施。正式A46/A50の受入は変更なし。
+- 制約: 金額・正確なモデル呼出し数・host待ち時間は未計測。未報告tokensはnull。抽出raw生成文の追加保存はなく、既存holdoutの非保存・監査を維持。provider自己申告や外部モデルserverの不変性はこの基盤では証明しない。
+- 差分点検: 個別語句・質問・資料IDで意味判断を代替する製品処理は追加していない。固定分岐は既存CLI/レポート契約・比較条件・安全な保全のためだけ。source/モデル/評価条件が変わった比較は改善の証拠にしない。
+- 次の票: M1で同じsourceをplain/本体Sliceへ通す診断を実装し、現在のE04から本体へ持ち込むべき不足だけを再現する。M2/M3の本体変更・M4の有料モデル実行はまだ開始していない。
+
+## 継続実装：M1〜M3とM4接続基盤（2026年10月31日）
+
+ユーザーの継続実装・検証依頼により、World内で先行条件を満たす作業を実施。以下を最終版の証拠とする。上のM0記録は当時の到達点。
+
+- M1: `eval/pipeline/{types,fixtures,replay,main}.ts`を追加。既存prepare/validate、公開inbox/candidate.settle、明示adopt、履歴読取、snapshot/Sliceを実ファイルWAL上で実行。引用検証だけで採用せず、採用は固定したfixture hostの操作。原典外の手書き知識やoracleを混ぜて効果を測らない。旧E04/decisionは独立して維持。
+- 入力のraw候補、全verdict、供給/検証/保存/採用/取得/表示の根拠と欠落段階を保存。goldは採点だけに使う。plainとWorld表示はkind以外同じ素材を持ち、引用・条件・有効期間・状態・出典版・評価理由・探索coverageを保持。JSON全体のbytesを測る。
+- M2: 既存のcondition/validTimeは本体経路で消えず、境界前/境界時点でsatisfied/violatedを正しく分けた。複数時点の主張を一律に最新一件へ潰す処理は追加していない。履歴用指示`eval-extract-history-1`はproviderのpurposeで明示選択。A46の既定v2本文はsha256 `16390c5b03e4f945cd79618990f6c17b18c37cd421423c90191c1c142db0c515`のまま。新指示の実モデル意味品質は未測定。
+- M3: `SliceRequest.focusAssertionRefs`（最大64、ID/版一致、対象focusとの和）を追加。欠落/旧版/終端除外はpartialで明示し、必須単位が入らなければoverflow。既存の権限・source/restore・whole-unit・receipt・SQL境界を維持。schema/migrationと接続生成の変更なし。
+- 表示は`indexed-sources/1`で重複する出典refを共通catalogへの整数参照にする。元のunitを完全復元できることを試験し、本体WorldSliceの形式は変えない。探索打切りのcoverageもモデル向け表示に残し、完全性を過大表示しない。
+- dev原出力: `--record-dev`とM0自動連携を追加。最初の要求/出力/状態/usageのみを保全。holdoutは生成前に拒否、過大出力は省略を明示、記録失敗は後続要求を停止。`eval:replay-extraction`はdataset/要求/100件coverageを照合し、モデル要求0で既存採点を再生。再生providerは常にfixture。
+- M4接続: `eval/extraction/larm-provider.ts`は既存host clientとreadonly設定読取を利用。期待モデルIDとの厳密一致、途中変更拒否、確認済みモデル版の明示指定を要求する。モデル版自体はcatalogで照合できず、operator由来と明記する。出力は無加工、取消signalを渡し、通常終了・早期拒否・例外で接続を解放。解放失敗は成功codeを返さない。設定・秘密のコピーやhost変更はない。
+
+### 検証と最終版の比較
+
+- 部分: 新規focus 4件、pipeline 7件、dev再生3件、登録provider3件、既存providerの履歴目的1件。主張の欠落/旧版/終端・入力上限・空集合互換・順序/重複・権限、引用不正、採用分離、可逆表示、期間境界、探索打切り、raw保全/省略/記録失敗、model不一致/途中変更/cleanup失敗を検証。
+- 結合: projection・eval・scenario **623 pass / 0 fail**の後、追加したcoverage/接続終了の試験も最終全体へ含めた。
+- 最終`bun run verify`: **1058 pass / 0 fail / 19187 assertions / 85 files**。整形・lint・型・境界・配布consumerを含む。`bun run build`成功。
+- 対照は同じ最終harness/入力を使い、main `06e9480`の`projection/contracts/slice.ts`と`projection/service/slice.ts`だけへ戻した隔離コピー。新APIの未対応は診断として記録し、旧コードで新規API試験が合格したとは主張しない。
+- [最終対照](../../artifacts/measurement/2026-10-31-final-control/result.json)、[最終候補](../../artifacts/measurement/2026-10-31-final-candidate/result.json)、[比較](../../artifacts/measurement/2026-10-31-final-comparison.json)はcomparable。差は上記2本体ファイルのみ。protocol digestは双方`3c410cd3914cf80b00b996976f5ee53e9d9ce198e7a3d96464020726699d7044`。
+- source digest: 対照`f18b5aded39c3d02644a11f3bcc080c6145093e05a08472e7e881d0609843b42`、候補`5ec6dbff234098116060f6f6f3032f7a682cdcf80b65e90b20eca3156b23de6c`。未commitのコードはcommit番号だけで識別しない。
+
+固定診断は3連鎖群＋時点境界2問（必要根拠8）。旧対象指定は両版2/8、新主張指定は候補8/8。旧版の新フィールド拒否による0/8をモデル誤答率と呼ばない。
+3連鎖群の全表示は2825/2842/2844 bytesで共通4096以下、時点2問は各3096 bytesで8192以下。plain/Worldは同じ根拠を持つ。
+rawは双方8/8であり、この小規模測定はWorldが原文より優れることや、実LLMの選択・未見の意味品質を証明しない。M3の意味品質ゲートは維持する。
+
+性能も上記と同じ最終source/protocolの[対照](../../artifacts/measurement/2026-10-31-final-control-perf/result.json)/[候補](../../artifacts/measurement/2026-10-31-final-candidate-perf/result.json)を、他の検証と重ねず測定。[比較](../../artifacts/measurement/2026-10-31-final-performance-comparison.json)はcomparable。
+
+| 主張数 | Slice p95 対照/候補 ms | writer p95 対照/候補 ms | 最大取得行数 |
+|---|---|---|---|
+| 1,000 | 9.763 / 8.671 | 0.992 / 0.992 | 500 |
+| 10,000 | 8.813 / 8.850 | 0.777 / 0.316 | 500 |
+| 100,000 | 11.254 / 11.583 | 0.227 / 0.773 | 500 |
+
+10k Slice<=50ms・通常writer<=20msを維持。小差は実行ばらつきの範囲として扱い、高速化実績とはしない。
+devの100件保全・再生もコマンド経由で実施済み。採点一致を確認（fixture、追加生成0、正式受入false）。実行例とコマンドはeval/README.mdを参照。
+
+### 実モデルのゲート・残作業
+
+[公開catalog確認](../../artifacts/measurement/2026-10-31-g5-catalog.json)では、profile名lfm2.5に対してmodel IDはornith1.5-strix。公開profile一覧もこの1件で、固定版・重みdigestは得られない。
+設定名だけでは計画対象LFM2.5の固定モデル/版を同定できないため、正式200件/400生成とA46/A50は未実施。別モデルへ置換した結果でゲートを通していない。catalog確認は生成要求0。
+M4の再開条件は、対象モデルの同定根拠と期待ID・確認済み版・予算を固定できること。adapterの準備は完了しているが、自己申告を実物の版証明とは扱わない。
+M5のhost配線・実仕事一巡はM4と外部公開契約が先行し、兄弟repoは引き続き参照専用。parent P4/P5は未受入のまま。
+
+俯瞰での方針修正: (1)単位選択だけで最終表示が入らない根拠を得て、上限を上げず出典catalogへ変更。(2)合成時刻資料の月表記に対応根拠が不足していたため、原典にUTC境界・単位を明記して両armを再測定。旧runは履歴として残し、最終採否の証拠はfinal-*だけを使う。(3)接続ownerの早期終了/例外/解放失敗を追加確認し、成功の誤表示を防いだ。
+閾値・期待値を弱めず、正常な長時間処理を中断していない。source編集中の結果を最終根拠にせず、評価器を変えた際は対照も取り直した。
+差分点検では個別の質問・名前・資料IDによる意味判断の代替、独自writer/queue/HTTP、製品DB・設定・秘密の変更はない。既存bundleと兄弟repoは不変。commit/push/mergeは未実施。
+
+## Eumenes本体の更新と根拠保持（2026年10月31日）
+
+ユーザーが「eumenes本体側を更新」「必要な改修も行って構わない」と明示許可したため、前節までの兄弟repo参照専用からEumenesだけを改修対象へ追加した。他の兄弟repo・製品DB・設定・秘密、サーバー操作は対象外。M4の正式品質ゲート、M5の実仕事一巡は未受入のまま。
+
+- World配布物を`eumenes-world-model-0.0.1-be38c74a8016.tgz`へ固定し、hostのpackage/lock/manifest/checksumとインストール済みsource digestを照合。tgz SHA-256 `be38c74a80166f32c53b4bbe3bada3c9280a42980bc0be132ed4c4cf804e8769`、配布source digest `f5963ee9152fae95dd18ef566a967718f4798ef0230d7c47221a0f0537ba801e`。後者は配布対象srcのdigestであり、harness込みのM0 source digestとは対象範囲が異なる。
+- 新旧のmigration 7本/hashと公開export集合は同一。旧tgz・他依存・本体の多数の既存差分を保持した。新規モデル向けツールや主張選択の既定動作は追加していない。
+- host既存`world.query`/`sourceOf`を再利用。値120字・条件100字・述語60字での切断を再現し、全文保持へ修正。期間は条件計算の有無によらず提示。版manifestはdigest/representationを保持し、引用range/quote digestは元のEvidenceとして別に保持する。意味の採否・選択はLLM、codeは構造・権限・版・上限を検査する。
+- host実SQLiteで主張ID/版のSlice選択と訂正後の旧receipt拒否を検証。登録済み調査経路から引用片・報告採用まで長文と条件が届き、予算超過のpartialも維持。実モデルではなくscripted fixture。
+- 同入力の表示比較で値/述語/条件末尾の欠落が解消。有効期間は両版保持。Source本文1035→1524 bytesであり、最終要求全体の量や速度改善・モデル正答率とは扱わない。上限の増加はない。
+- 変更前World結合212 pass。改修後は新規5件を含め217 pass / 0 fail、配布/migration/steward利用側133 pass / 0 fail。
+- 本体作業ツリーの領域検証は途中のソース変更を検出しinvalidated。固定コピーでworld/agent-runtime/tool-runtime/stewardを再検証し、457 pass / 0 fail、UI 17 pass / 0 fail。format/lint/型/境界/SystemContext/SQL境界とDesignSystem buildを含めpass。前後revision `a88f297e7516ce55271d374bd989b8827ff14e2e3205e9b39cbfe01c58d0c9e1`一致。今回の実装・依存・試験ファイル11本と現ツリーをhash照合した。
+- 担当外の境界4件・サイズ6件は別記し修正していない。新writer/queue/HTTPや例題・語句の意味分岐は追加なし。正式モデル比較・実運用・稼働サーバー反映・commit/pushは未実施。
+
+正本は[Eumenes実装・検証記録](../../../eumenes/spec/world-evidence-integration-2026-10-31.md)。同repoの`verification-reports/world-integration-2026-10-31/`に変更前snapshot、再現/結合/利用側ログ、保持計測、固定verify report、対象ファイルhashと今回だけのpatchを保存した（gitignored）。全体の未確定変更を今回の差分として扱っていない。
+
+## 技術品質80点に向けた改善（2026年11月5日）
+
+ユーザーが改善・Claude/Lunaの有料比較・同一基準で80点以上の確認を明示依頼。
+branch確認後、ローカルmain `06e9480`と既存の未コミット変更を前提に再開した。
+開始時hashと今回差分を照合し、先行作業のprojection/focus、M0〜M4接続、bundle等を保持。
+兄弟repoは参照専用のまま、検証はsourceだけの使い捨てコピーで実施した。
+
+| 票 | 今回の実績 | 未受入・適用限界 |
+|---|---|---|
+| Q00 | 開始時全ファイルhash、固定API版・dataset・予算台帳、最終固定ソース前後hash一致 | serving重み・請求明細の完全同一性は証明しない |
+| Q01 | 鮮度をedgeから影響/関連/依存/Gap/scenarioへ保持。旧版3 fail→修正後4 pass | confirmedは条件充足。鮮度から意味の採否をcodeで決めない |
+| Q02 | 4 inbox状態のcandidate root、遅着拒否、実hostのsource由来root供給を確認 | 任意host/state→manifestなしinboxの自動発見は保証しない。新索引/migrationなし |
+| Q03 | 配布文書同期、MIT通知を両tgzへ同梱、固定vendor維持、依存確認、clean consumer/frozen install、CI定義 | ホストされたCI runは未実行。そのアンカーは2のまま |
+| Q04 | 共通API transport、zprofileキー継承、予算10 USD、失敗/不明usageの予約保持、fake5件と両社実接続 | 通常verifyで有料APIを呼ばない |
+| Q05 | 対照・契約追補の抽出比較とdev診断、既存20仕事の判断比較を別記録 | 正式品質ゲートは別判定。独立60件、新40仕事の交差pipeline/盲検judgeは未実施 |
+| Q06 | 全17種の共通境界、公開read/usage、split往復/全DML rollback、実process終了、3変異の検出 | 全17×全DML×全競合窓の直積や電源断は未検証 |
+| Q07 | clean tgz導入→採用→Slice→拒否/rollback→forget→別process再起動、同DBを旧配布物へ戻して閉gate/本文0、実host/Memory journal復元 | 稼働host反映・実仕事・24時間運用は未実施 |
+| Q08 | 同じrubric1.1.0/library全30項目で正式技術80.3点、根拠100%、確信度Medium | 計画全体の完了、API意味品質やLocal正式受入の合格とは区別 |
+
+最終固定コピーで新規frozen install14パッケージ、verify **1078 pass / 0 fail / 19532 assertions / 90 files**、build成功。
+最終tgzによる実host/Memory結合 **62 pass / 0 fail / 796 assertions**。
+最終M0 source digest `4a826c7737b196ddc96a8ef94560257b9684a1a34a9972a8715237f674e9b5f7`、前後一致。
+
+[再評価](quality-80-review.md)に30項目の根拠・評点と限界、[検証範囲](quality-80-evidence.md)にリスク行列を記録。
+証拠は`artifacts/quality-80/2026-11-05/`。Expected80.4をCurrentへ流用せず、保守負債2・自動化2を維持。
+CLIの意味修復や質問別分岐は追加せず、schema拒否は双方同じJSON生成へ固定し直した別runとして保存。
+API追補は検証専用であり、既存の正式providerや製品の自動採用経路へ採用していない。
+
+俯瞰評価の記録: hostコピーの依存不足3回を受けて実行環境の閉包を修正し、62件成功。
+APIでは旧指示の型不足→native schemaの外部制約→非制約JSONの契約説明不足を根拠に方針を更新。
+進捗のある長時間API処理を時間だけで再起動せず、固定コピーを維持した。
+公開allowlistやconsumerの引数/返却状態/再migration等のfixture誤りは失敗記録を残して訂正し、期待を弱めて通していない。
+
+initial_instructions 1回、context_compile累計4回、compile_eval累計4回。
+
+最終API集計: 抽出1000評価、判断20仕事×4条件×両社160評価、接続/診断7要求で合計1167 POST。
+usageからの保守的計上0.656022 USDと未確定2件の予約0.013605 USDを合わせ上限0.669627 USD。
+台帳lock解放済み、10 USD以内。抽出は全版で95%/0許容を満たさず、追補3はdevで停止。
+判断も両社で悪化・比較不能・要判定が残り未受入。独立60件/新40仕事/盲検judge/hosted CIは未実施。
+技術80.3は確認したが、Q05や計画全体・Local/実運用の受入を完了扱いにはしない。
+
+最後の全体確認で既存measurementの変更→復元をOS通知が取りこぼすケースを確認。
+実行前後のinode/size/mtimeNs/ctimeNs照合を補い、portable source/protocol digestは内容hashのまま維持。
+通知なしでも既存試験成功、時刻照合も外す変異では失敗。期待値/待ち時間は緩めず、最終固定verify1078件・build成功。
+直接APIのprovenanceは旧remote注記と区別し、元reportを保持した派生記録を追加。数値や受入条件の変更はない。
+
+
+## 2026年11月5日 API品質追補（プロジェクト内）
+
+利用者依頼に従いCI・本流統合を除外し、API品質未達原因の改善と残る評価を実施した。[全結果と次票](api-quality.md)。
+
+- 引用文字列→厳密UTF-8範囲のwire、callerの述語/観測catalog、共通指示、最初の失敗を保持して独立要求を継続する共通API sessionを実装。製品の意味分岐・schema/migration・独自writerは追加していない。
+- 既存200×2モデル×2版=800、新独立60×2×2=240、40仕事×2抽出×2読取×2版=320比較/4arm1280回答枠を完了。全320比較の記録再生が一致。順序均等採点も完了し、回答不変と各組合せ内10回ずつの配置を検査。
+- 固定コピーverify1086 pass/0 fail/19577 assertions/92 files、build成功。source前後一致c3823ad…。CIは実行していない。
+- 同じrubric 1.1.0/libraryの全30項目で技術品質80.3を再確認。APIは品質未達、採点不一致も残り、受入済みにはしない。Local/P5・実host/Memoryの新規受入・長期運用を完了へ変更しない。
+- 費用は過去分・未確定予約を含む保守的上限2.93 USD以内。全3826要求、最大同時2、API自動再試行なし。キーはzprofileの環境を利用し、個別.envへ記載しない。
+- 証拠：`artifacts/api-quality/2026-11-05/`。元の回答・採点・旧snapshotは保持。以後の課金呼出しと本流取り込みは実施していない。
+
+
+## 2026年11月6日 過剰保留・採点整合性の改善（プロジェクト内）
+
+最新の正本は[API品質の確定結果](api-quality.md#最新の確定結果2026年11月6日judge-9--selector-2)。CI・本流/兄弟repoへの取り込みを行わず、既存ローカルmainと未コミット変更を保持した。
+
+- selectorが根拠を空集合へ落としていた経路を再現。既存のcaller述語定義を渡し、資料上の根拠と条件充足/鮮度/有効時点を区別する共通指示へ修正。J02/J05専用分岐や空でない選択の強制なし。読取りdevは36/40→40/40。
+- readerが見たcontextManifestがjudgeに渡らず、平文正答が誤判定される欠落を修正。共通factoryを再利用。旧graderでmetadata回帰試験1fail、新版で成功。校正は回答28＋抽出10で両社38/38。
+- 全40仕事×2抽出版×2抽出×2読取の320組/1280回答枠を完了。候補Worldは全4組合せ40/40、原文より評価用12〜13件改善/全40件悪化0。平文は39〜40/40で改善5件要件を満たさず、構造の優位は未実証。
+- 新規確認60例の候補版は両社とも95%/0違反/欠測0/意味57件以上を満たした。対照版の新規60例だけは費用配分で省略し、全40仕事の対照は保持。
+- 既存native holdoutはLuna57/65 precision・57/66 recall、Claude56/64・56/66で未達。旧独立Luna意味56/60（必要57）も未達。対照版の撤回値再掲8回答枠、生成HTTP503の1要求/2セルも失敗として保存。**API総合は未受入**。元の期待値・分母・閾値・全arm安全性0条件を変更していない。
+- 採点修正では全320組の回答・厳密採点・保存経路を固定し、434件の採点だけを実行。全320組の最終オフライン再生は差分0・ネットワーク0。同一judge入力310群は最初の判定共有で不一致0、異会社で同じ入力25群も全boolean一致。普遍的な採点精度の証明とはしない。
+- Codex自身が事前固定8仕事/64組/256回答枠と全安全8枠・厳密/意味差12枠・J32を原典照合。外部人手や無作為標本とは呼ばない。残る差12枠はJ34の依頼外typed claimsで、厳密失敗を維持した。
+- 最終固定コードverify **1094 pass/0 fail/19635 assertions/93 files**、build成功。同じrubric1.1.0/library全30項目・同じ重みで技術80.3、正式、根拠100%、確信度Medium、除外0を維持。製品src143ファイルは前回評価版と同一。Local/P5・実host/Memoryの新規受入・24時間運用を完了へ変更しない。
+- 累積費用上限は既知usage9.26874495＋未確定11予約0.08889165＝**9.3576366 USD（9.36 USD以内）**、9947予約、最大2並列。過去計上・不明予約は減らさず、同じ累積10 USD台帳を使用。再試行・旧rawの再生成・有利な判定の選択なし。キーはzprofileを継承し.envへ複製していない。
+- 最新M0 `df0d414fc74194a67b3ccb16ffa0c6ff70055a2a3218fc410a9fc67413fb851d`。source-context83.tgz SHA256 `4c6f22fa50519a32204d91c1a61e86d8c5f09f8b72def187010052e52e7ea2a2`。vendor/distを含む403 M0ファイルの一致を確認。各固定版を保持し、生成器・入出力ハッシュ・未変更関数の証拠で検証を接続した。
+
+証拠は`artifacts/api-quality-next/2026-11-05/`のacceptance-final83.json、codex-source-audit83.json、score-technical83.json、offline-context83/、final-qa83.json、SHA256SUMS83.json。新しい根拠のないnative調整の反復を止め、注釈/意味解釈/保持更新/多出典の次票を残した。技術80点超と、新規/通しの候補版合格は確認したが、利用者が求めたAPI全基準の達成は未完了として報告する。以後の課金や本流取り込みは行わない。
+
+## 2026年11月6日 コードレビューと修正
+
+目的は現在のローカルmain・未コミット変更をレビューし、再現できる不具合を解消すること。
+既存のLLM指示・API共通実行・条件評価・公開Slice・SQLiteの書込み境界を確認してから修正した。
+範囲はこのプロジェクト内。CI・本流への取り込み・有料API検証は実施しない。
+完了条件は再現試験、関連結合試験、verify/build、修正差分の再レビューで未解消指摘がないこととした。
+
+修正した指摘は8件。
+
+1. API応答のメモリ内・ディスク再利用がraw保存方針の違いを無視していた。保存方針の不一致は再送せず拒否する。要求hashを分けて初回応答を再生成する方法は取らない。
+2. 費用台帳が不正・欠番・精算済み再利用の予約IDを受け入れた。連続した一意の安全整数だけを受け入れ、読込失敗時はlockを回収する。
+3. 実usageが予約を超えた後も新しい費用予約を受け入れた。既知費用を保持したまま追加予約を止め、再起動でも同じ停止状態を復元する。
+4. 台帳を閉じて書込みlockを解放した後も精算を書けた。終了後の精算を拒否し、ファイルが変わらないことを確認した。
+5. `.mjs`/`.cjs`が測定の入力hash・実行中変更検知から漏れた。同じ共通判定に含め、書換え後に元へ戻した場合も測定を無効にする。
+6. 同じキャッシュを使う別ApiSessionが、同じ要求を2回送れた。fake APIで2呼出しを再現。共通キャッシュに原子的な`.claim`と送信前の記録同期を追加し、実行開始・応答記録が欠けた場合も再生成を拒否する。単一sessionのメモリ内Mapでは別instance間を保護できないための最小限のファイル排他であり、意味判断の追加ではない。
+7. 数学的な条件同値判定が、未登場の文字列/entity値と大きな数値の外側区間を試さず、異なる式を同値とした。公開条件評価を再利用し、等値集合の補集合、単位ごとの境界・区間を試す。組合せ上限は展開前に強制する。
+8. `planScopeEpoch`が最大安全整数から不正な更新番号を作った。上限での変更は例外、同じ状態の再送は維持する。実SQLiteのfile/WAL・memory双方で、失敗時に以前の投影と更新番号を保持することを確認した。
+
+回帰試験は修正前の失敗を記録してから修正した。初回5fail→23pass、重複呼出し1fail→関連40pass、条件比較1fail→9pass、更新番号3fail→563pass。
+最終の評価系結合試験は41pass/0fail。`bun run verify`は**1104pass/0fail/19694 assertions/93 files**、`bun run build`成功。
+format/lint/typecheck・依存境界・全domain・SQLite・インストール済みconsumerを含む。未実装のhost/運用受入を代わりに完了扱いにしない。
+
+レビュー対象は既存差分、API費用/応答キャッシュ/採点/測定経路、公開契約、権限・Scope・revision、同期transaction/rollback境界。
+最終差分点検では語句・シナリオ別分岐やLLMの意味判断を代替する処理の追加なし。今回確認できた指摘の未解消は0、残作業0。
+実API品質の前回未受入はこのコードレビューで合格へ変更せず、過去の固定コード・採点記録・技術80.3点の証拠も書き換えていない。
+
+追加API費用は**0 USD**。共有台帳のコピーを新しい読込規則で再生でき、累積上限は**9.3576366 USD**、9947予約を維持した。
+原台帳SHA256 `37688e387670c221d0af5be252f9f475110c7d8b2dcc1fe1eec3c682e5172a70`は着手前後で一致。
+証拠は`artifacts/code-review/2026-11-06/`のbefore.json、各修正前後のlog、integration-final.log、verify.log、build.log、budget-compatibility.json、final-audit.json。

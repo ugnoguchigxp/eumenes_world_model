@@ -1,3 +1,4 @@
+import type { Freshness } from "../../assertions/index.ts";
 import {
 	asRecord,
 	checkEpochMs,
@@ -10,7 +11,11 @@ import {
 	ok,
 	type Checked,
 } from "../../../contracts/index.ts";
-import { checkGraphInput, type ReasoningReason } from "../contracts/index.ts";
+import {
+	checkGraphInput,
+	type ReasoningEdge,
+	type ReasoningReason,
+} from "../contracts/index.ts";
 import { checkResourceStates } from "./dependencies.ts";
 import { buildGraph, conditionOf, fitPresentation, Meter } from "./shared.ts";
 
@@ -40,6 +45,7 @@ export interface ResearchGap {
 	readonly kind: GapKind;
 	readonly subjectId: string;
 	readonly edgeId: string;
+	readonly freshness?: Freshness;
 	/** What to confirm; a candidate, never an instruction to act. */
 	readonly confirmWith: {
 		readonly kind: "entity" | "edge";
@@ -162,18 +168,19 @@ export function findResearchGaps(input: unknown): Checked<GapResult> {
 	const found = new Map<string, ResearchGap>();
 	function add(
 		kind: GapKind,
-		subjectId: string,
-		edgeId: string,
+		edge: ReasoningEdge,
 		confirmWith: ResearchGap["confirmWith"],
 	) {
+		const edgeId = edge.id;
 		const gapKey = `${kind}:${edgeId}`;
 		if (found.has(gapKey)) return;
 		const note = notes.get(gapKey);
 		found.set(gapKey, {
 			gapKey,
 			kind,
-			subjectId,
+			subjectId: edge.from,
 			edgeId,
+			freshness: edge.freshness ?? "unknown",
 			confirmWith,
 			blocksGoal: goalRef?.status === "adopted" && note?.blocksGoal === true,
 			deadlineAt: note?.deadlineAt ?? null,
@@ -203,12 +210,12 @@ export function findResearchGaps(input: unknown): Checked<GapResult> {
 		) {
 			const state = states.value.get(edge.to);
 			if (state === "unavailable")
-				add("MISSING_RESOURCE", edge.from, edge.id, {
+				add("MISSING_RESOURCE", edge, {
 					kind: "entity",
 					id: edge.to,
 				});
 			else if (state !== "available")
-				add("RESOURCE_STATE_UNKNOWN", edge.from, edge.id, {
+				add("RESOURCE_STATE_UNKNOWN", edge, {
 					kind: "entity",
 					id: edge.to,
 				});
@@ -217,12 +224,12 @@ export function findResearchGaps(input: unknown): Checked<GapResult> {
 			(causal || edge.relation === "depends_on") &&
 			conditionOf(graph.value, edge) === "unknown"
 		)
-			add("CONDITION_UNKNOWN", edge.from, edge.id, {
+			add("CONDITION_UNKNOWN", edge, {
 				kind: "edge",
 				id: edge.id,
 			});
 		if (causal && !quantitative)
-			add("MEASUREMENT_MISSING", edge.from, edge.id, {
+			add("MEASUREMENT_MISSING", edge, {
 				kind: "edge",
 				id: edge.id,
 			});

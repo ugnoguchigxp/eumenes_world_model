@@ -1,6 +1,7 @@
 {
 	"name": "eumenes-world-model",
 	"version": "0.0.1",
+	"license": "MIT",
 	"private": true,
 	"type": "module",
 	"sideEffects": false,
@@ -21,6 +22,9 @@
 		"build": "tsc -p tsconfig.build.json",
 		"test:domain": "bun scripts/test-domain.ts",
 		"bench:world": "bun scripts/bench-world.ts",
+		"measure:world": "bun eval/measurement/main.ts",
+		"eval:pipeline": "bun eval/pipeline/main.ts",
+		"eval:replay-extraction": "bun eval/extraction/replay-main.ts",
 		"pack:local": "bun scripts/pack.ts",
 		"eval:extraction": "bun eval/extraction/main.ts",
 		"eval:decision": "bun eval/decision/main.ts",

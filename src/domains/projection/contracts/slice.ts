@@ -22,6 +22,7 @@ import type {
 import {
 	checkSourceRef,
 	checkSourceState,
+	checkAssertionRefList,
 	lifecycles,
 	sourceIdentityKey,
 	type AssertionRef,
@@ -68,6 +69,7 @@ export const sliceReasonCodes = [
 	"UNITS_OMITTED_BY_BUDGET",
 	"NO_ELIGIBLE_UNITS",
 	"FOCUS_NOT_FOUND",
+	"FOCUS_ASSERTION_NOT_FOUND",
 ] as const;
 export type SliceReasonCode = (typeof sliceReasonCodes)[number];
 
@@ -80,6 +82,8 @@ export interface SliceRequest {
 	readonly goalRef?: GoalRef;
 	/** Subjects whose units are mandatory for the decision. */
 	readonly focusSubjectIds?: readonly string[];
+	/** Exact host/LLM-selected assertion versions that must be kept whole. */
+	readonly focusAssertionRefs?: readonly AssertionRef[];
 	/** Host budget in bytes; the smaller of this and the default is used. */
 	readonly maxBytes?: number;
 }
@@ -174,10 +178,27 @@ export function checkSliceRequest(
 	const extra = firstUnknownKey(object, [
 		"goalRef",
 		"focusSubjectIds",
+		"focusAssertionRefs",
 		"maxBytes",
 	]);
 	if (extra !== undefined) return fail("INVALID_INPUT", `${path}.${extra}`);
 	let request: SliceRequest = {};
+	if (object["focusAssertionRefs"] !== undefined) {
+		const refs = checkAssertionRefList(
+			object["focusAssertionRefs"],
+			`${path}.focusAssertionRefs`,
+		);
+		if (!refs.ok) return refs;
+		const unique = new Map(
+			refs.value.map((ref) => [JSON.stringify([ref.id, ref.revision]), ref]),
+		);
+		request = {
+			...request,
+			focusAssertionRefs: [...unique.values()].sort((a, b) =>
+				a.id === b.id ? a.revision - b.revision : a.id < b.id ? -1 : 1,
+			),
+		};
+	}
 	if (object["goalRef"] !== undefined) {
 		const goal = checkGoalRef(object["goalRef"], `${path}.goalRef`);
 		if (!goal.ok) return goal;

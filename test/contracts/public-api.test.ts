@@ -102,6 +102,7 @@ describe("P1-11 public surface", () => {
 			"planSplit",
 			"prepareExtraction",
 			"resolveEntity",
+			"sourceIdentityKey",
 			"terminalLifecycles",
 			"toSliceReceipt",
 			"traceInfluence",

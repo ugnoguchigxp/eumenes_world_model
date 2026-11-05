@@ -40,6 +40,8 @@ eumenes_world_model/
     scenario/                     domain横断シナリオの予約場所
     consumer/                     正式配布物試験の予約場所
   fixtures/ / eval/                固定fixtureと実モデル評価を分離
+    eval/measurement/              既存CLIの実行・保全・再生・同条件比較（M0）
+    eval/pipeline/                 公開APIの検証・保存・採用・表示を通す独立診断（M1）
   scripts/
     domains.ts                    所有範囲・直接依存の正本
     boundaries.ts                 公開境界・層・IO規則

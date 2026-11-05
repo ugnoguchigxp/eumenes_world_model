@@ -1,0 +1,695 @@
+{
+	"rubric_version": "1.1.0",
+	"mode": "technical",
+	"depth": "deep",
+	"technical_profile": "library",
+	"assessment_kind": "expected",
+	"target": {
+		"locator": "/Users/y.noguchi/Code/eumenes_world_model",
+		"snapshot": "Expected scenario after Q00-Q08, conditional on required evidence; baseline HEAD 06e948047b34361e6ac469f33747601869522af4 + tracked/untracked working tree; SHA256 e860fce79884c9bcf5133bf436d4eaed990a11495cf6dac5dbcaecb67df134e4",
+		"reviewed_at": "2026-11-05",
+		"stage": "Expected improvements to the same pre-production embedded library; no production-stage promotion",
+		"scope": "Full/deep/library current review. Snapshot contains 683 tracked and nonignored untracked files. Primary paths sampled: extraction validation → inbox/settle → explicit adoption → SQLite projection/snapshot → Slice/receipt revalidation, plus correction/forget/restore and reasoning. Bun 1.4.4 darwin arm64, existing pinned node_modules shared read-only by symlink. Runtime side effects confined to disposable snapshot/test stores. Excluded: live host/product DB/config/secrets, new paid/live model calls, real Memory/process-crash/24h acceptance, exhaustive research-experiment and grokbot-kit audit, market-size/user-retention survey. Host/remote-model historical outcomes are repository reports, not newly executed acceptance. No production certification. Expected scenario: same applicability and weights. Target anchors are acceptance requirements, not achieved observations. High confidence for target anchor4 means future evidence must be High before awarding that value. Claude/Luna external API evidence never substitutes for existing Local acceptance."
+	},
+	"evidence": [
+		{
+			"id": "E01",
+			"kind": "code",
+			"locator": "scripts/domains.ts; scripts/boundaries.ts; test/tooling/boundaries.test.ts @ snapshot",
+			"observed_at": "2026-11-05",
+			"observation": "8 domain ownership, public imports/dependency closure, pure/persistence boundary and negative violation tests.",
+			"scope": "Actual boundary checker and negative controls included in full verify."
+		},
+		{
+			"id": "E02",
+			"kind": "code",
+			"locator": "src/application/sqlite/apply.ts:290; checks.ts:130; test/scenario/atomicity.test.ts; replay.test.ts",
+			"observed_at": "2026-11-05",
+			"observation": "Write requires caller transaction; access/source/tombstone/version prechecks, operation-key replay conflict, incremental projection + receipt share transaction. DML fault injection checks complete rollback.",
+			"scope": "Host must roll back thrown errors and keep external Memory steps in same transaction; no live host crash verified."
+		},
+		{
+			"id": "E03",
+			"kind": "code",
+			"locator": "src/application/sqlite/read.ts; validate-usage.ts; test/scenario/{scope,snapshot,correction,restore}.test.ts",
+			"observed_at": "2026-11-05",
+			"observation": "Scoped bounded WAL snapshot, epoch check, receipt head/source/policy/forget/restore revalidation; denial does not leak content.",
+			"scope": "Host is trusted to supply authenticated access and consistent source snapshot; not an independent authentication system."
+		},
+		{
+			"id": "E04",
+			"kind": "execution",
+			"locator": "partial.log; integration.log; verify.log; build.log in this evidence directory",
+			"observed_at": "2026-11-05",
+			"observation": "Bun 1.4.4, isolated snapshot, no live models. bun test ./test/contracts ./test/sqlite ./src/domains/conditions/test: exit0,85 pass. bun test ./test/scenario ./src/domains/projection/test ./test/eval/pipeline.test.ts: exit0,240 pass. bun run verify: exit0,1058 pass,0 fail,19187 expectations,85 files; format/lint/type/boundary/consumer pass. bun run build: exit0.",
+			"scope": "Partial → integration → full, no source edits; test numbers overlap and must not be added. Uses existing node_modules; fresh dev dependency install not independently repeated."
+		},
+		{
+			"id": "E05",
+			"kind": "code",
+			"locator": "src/domains/extraction/service/validate.ts; eval/extraction/providers.ts; test/eval/pipeline.test.ts",
+			"observed_at": "2026-11-05",
+			"observation": "IDs/times are host-issued, forbidden model authority fields rejected, references/quote bytes/limits validated, candidate validation distinct from explicit adoption. Current/history extraction instructions separated.",
+			"scope": "Structural correctness/quote equality do not prove semantic support; host remains responsible for adoption and authorization."
+		},
+		{
+			"id": "E06",
+			"kind": "execution",
+			"locator": "benchmark.log; benchmark.json; scripts/bench-world.ts in frozen snapshot",
+			"observed_at": "2026-11-05",
+			"observation": "bun run bench:world -- --sizes 1000,10000,100000 --out ../benchmark.json: exit0. 100 measured runs +10 warmup each. Slice p95 10.60/10.01/14.55 ms; writer p95 .99/.78/1.09 ms. max fetched rows500, unindexed queries0; 100k rebuild3165ms. Declared 10k Slice<=50ms/writer<=20ms met.",
+			"scope": "Synthetic file/WAL single writer + readonly reader on Apple M4/32GB. Every Slice run partial. No real host queue, multi-writer, model,20万-head boundary or physical deletion measurement."
+		},
+		{
+			"id": "E07",
+			"kind": "code",
+			"locator": "scripts/check-memory-vendor.ts; scripts/pack.ts; test/consumer/package.test.ts; vendor/eumenes-memory.pin.json",
+			"observed_at": "2026-11-05",
+			"observation": "Memory artifact/manifest/file-set hashes pinned; pack derives export/schema/source manifest from built JS; isolated installed JS and strict d.ts consumer tests pass. Versions locked; update provenance rules explicit.",
+			"scope": "Local unpublished package. No cross-machine reproducible artifact guarantee, hosted release policy or reachability-aware vulnerability scan assessed."
+		},
+		{
+			"id": "E08",
+			"kind": "primary_doc",
+			"locator": "spec/plan/progress.md:775-790; 1034-1100; spec/operational-acceptance.md; operations-runbook.md",
+			"observed_at": "2026-11-05",
+			"observation": "Records remediation, rejected experiments, fixture and host acceptance separately. Formal Local200-case/400-generation, actual Memory journal/process crash and24h multi-scope acceptance remain pending. Latest host integration report217/457 fixture tests is recorded, not independently rerun.",
+			"scope": "Historical statements; no assumption that model catalog/server state is unchanged today."
+		},
+		{
+			"id": "E09",
+			"kind": "execution",
+			"locator": "probes.ts; probes.json; probes.log in evidence directory",
+			"observed_at": "2026-11-05",
+			"observation": "bun ../probes.ts: exit0. Valid active relation projected fresh vs stale (age500/5000ms,maxAge1000ms), edgesFromEntries→traceInfluence yields same decreases/confirmed:true and no freshness metadata. Counterchecks invalidated lifecycle and changed source both exclude edge.",
+			"scope": "Pure public composition using valid fixture snapshot; confirmed is documented as condition satisfaction, not truth. Concrete defect is loss of freshness for downstream basis assessment, not proof of a production wrong answer."
+		},
+		{
+			"id": "E10",
+			"kind": "code",
+			"locator": "src/domains/projection/service/project.ts:135-152; src/domains/reasoning/contracts/query.ts:59-115; influence.ts:31-37,136-150",
+			"observed_at": "2026-11-05",
+			"observation": "Projection exposes freshness separately from lifecycle; ReasoningEdge conversion omits freshness/observedAt/policy and causalEligible ignores freshness. Influence paths expose condition confirmation only.",
+			"scope": "No assertion that stale universally means false. Carry diagnostic/basis state to caller/LLM rather than hardcoding content rules."
+		},
+		{
+			"id": "E11",
+			"kind": "execution",
+			"locator": "probes.ts/probes.json source-forget-intake; src/application/sqlite/forget.ts:185-214; spec/world-sqlite-public-api.md:100",
+			"observed_at": "2026-11-05",
+			"observation": "Synthetic inbox payload contains src-1 body before settle. source-root forget returns World complete (awaitingConfirmation1) while payload remains in received event. Separate candidate-root forget removes row.",
+			"scope": "Known documented host-root requirement. World complete is local target closure, not global deletion success; no bypass demonstrated under a compliant host root supplier."
+		},
+		{
+			"id": "E12",
+			"kind": "primary_doc",
+			"locator": "spec/plan/progress.md:968-992; spec/plan/next-stage.md:65-100",
+			"observed_at": "2026-11-05",
+			"observation": "Historical exploratory remote comparison: hand World76,plain77,raw-memory49; extracted World38,plain43. Evaluation15 extracted World vs memory improves1,worsens6,ties6,unresolved2. Author found critical hand-claim conditions absent from sources. Framing not demonstrated.",
+			"scope": "Not current-snapshot Local formal acceptance; raw remote-run files outside reviewed snapshot, so numeric history is reported evidence only. M1-M3 fixture improvements do not establish renewed semantic gains."
+		},
+		{
+			"id": "E13",
+			"kind": "primary_doc",
+			"locator": "spec/plan/progress.md:976-1000; fixtures/experiments/operative-sources-holdout/2026-10-16.md; corresponding .json.gz with SHA manifest",
+			"observed_at": "2026-11-05",
+			"observation": "Historical long-history comparison reports full18/18,budget4/18,Slice15/18; source positions worst-case for recency truncation. Fixed research experiments retain full responses and re-score tests; a changed instruction is rejected for unseen regression47/48→46/48.",
+			"scope": "Small author-created suites, non-independent repetitions, nonblind scoring; no comparison with current hybrid RAG/Graphiti/Mem0 execution."
+		},
+		{
+			"id": "E14",
+			"kind": "primary_doc",
+			"locator": "https://www.getzep.com/platform/graphiti/ ; https://help.getzep.com/graphiti/getting-started/welcome (accessed2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "Graphiti official docs describe temporal graph, changing-fact invalidation, hybrid semantic/keyword/graph retrieval and pluggable graph backends.",
+			"scope": "Feature claims from maintainer; no head-to-head benchmark. Documentation subpages temporal-data-model/temporal-graphs unavailable in browser."
+		},
+		{
+			"id": "E15",
+			"kind": "primary_doc",
+			"locator": "https://docs.mem0.ai/platform/features/graph-memory (accessed2026-11-05)",
+			"observed_at": "2026-11-05",
+			"observation": "Current Mem0 Platform docs describe built-in entity/co-occurrence graph boosting vector+BM25 retrieval; no external graph DB provisioned; graph does not assign typed entity relationships.",
+			"scope": "Platform documentation only; do not generalize to every Mem0 OSS/historical version. No performance ranking against this repository."
+		},
+		{
+			"id": "E16",
+			"kind": "primary_doc",
+			"locator": "https://sqlite.org/whentouse.html (accessed2026-11-05); spec/world-model-design.md:1-80",
+			"observed_at": "2026-11-05",
+			"observation": "SQLite official scope fits device-local low-writer-concurrency use; World intentionally borrows one host transaction/connection instead of introducing distributed writes or its own DB service.",
+			"scope": "Architecture-fit inference for declared embedded use, not proof of arbitrary distributed scale."
+		},
+		{
+			"id": "E17",
+			"kind": "primary_doc",
+			"locator": "https://chatgpt.com/space/page_9fc5877949748191b556705128f6a2f5 sequence34,updated2026-10-07; README.md",
+			"observed_at": "2026-11-05",
+			"observation": "Product concept targets persistent personal assistant, reducing background re-explanation and tracking work; World separates raw sources/current understanding/goals/uncertainty.",
+			"scope": "Concept/user direction evidence; no independent recurring-user study, quantified saved effort, demand or retention evidence."
+		},
+		{
+			"id": "E18",
+			"kind": "primary_doc",
+			"locator": "spec/plan/next-stage.md; implementation-plan.md; progress.md; git log through06e9480",
+			"observed_at": "2026-11-05",
+			"observation": "Staged gates and reviewer-driven remediation are explicit; owner identifiable from local project and repository history. Latest source includes substantial uncommitted M0-M4 harness and focus-ref work.",
+			"scope": "No formal staffing/budget/runway/hand-over record established; commit counts alone not used as health/market evidence."
+		},
+		{
+			"id": "E19",
+			"kind": "code",
+			"locator": "spec/distribution.md:13 vs scripts/pack.ts:155-165; test/consumer/package.test.ts:35-61",
+			"observed_at": "2026-11-05",
+			"observation": "Distribution spec says Memory peerDependencies is emitted; actual pack intentionally omits it, records types requirement in manifest; consumer explicitly installs both tarballs.",
+			"scope": "Low-impact documentation drift. Verified consumer succeeds; not a broken package claim."
+		},
+		{
+			"id": "E20",
+			"kind": "execution",
+			"locator": "snapshot.json + hash comparison result",
+			"observed_at": "2026-11-05",
+			"observation": "683 tracked/nonignored files hashed; originalChangedFiles=[] after review probes/tests/build/benchmark; no original source modification.",
+			"scope": "Snapshot hash covers reviewed nonignored files, not ignored products, credentials, node_modules or remote host."
+		},
+		{
+			"id": "E21",
+			"kind": "primary_doc",
+			"locator": "spec/plan/quality-80.md @ 2026-11-05 planning change",
+			"observed_at": "2026-11-05",
+			"observation": "Defines proposed Q00-Q08 tasks, future required evidence and pass/fail conditions, dual-API protocol, call/cost assumptions and review targets. It is evidence of a plan, not implementation or successful execution.",
+			"scope": "Expected scenario only; no API experiment or host changes performed."
+		}
+	],
+	"claims": [
+		{
+			"id": "C01",
+			"type": "Assumption",
+			"statement": "Q00-Q08で必要証拠が揃い、示した目標アンカーを全て独立に満たす。",
+			"limitations": "得点保証・達成実績ではなく、未達アンカーは実際の再評価で下げる。",
+			"evidence_ids": ["E21"]
+		}
+	],
+	"findings": [
+		{
+			"id": "F01",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "該当能力を実仕事で信頼する次の統合前に解決する。",
+			"confidence": "High",
+			"title": "因果探索へ渡すと主張の鮮度診断が失われる",
+			"root_cause": "ReasoningEdgeがProjectionEntry.freshnessと評価に必要なobservedAt/policyを保持せず、causalEligibleは採用状態と反証だけで決まる。",
+			"evidence_ids": ["E09", "E10"],
+			"condition": "原典は現行、主張はactiveだがmaxAge超過。条件は明示無条件または現観測でsatisfied。",
+			"consequence": "staleな主張もfreshと同一の経路・条件confirmed:trueになり、結果だけを受けるhost/LLMは根拠の古さを区別できない。",
+			"counterevidence": "Expected scenario only: Q01/Q02/Q03による修正・検証が成立したと仮定する。現行指摘は未修正であり、元のCurrent台帳ではconfirmedのまま。 confirmedは条件充足であり真理の証明ではない。source changed/invalidatedは正しく除外される。staleを一律falseにする必要性までは本probeは示さない。",
+			"fix": "既存の投影→edge→経路の契約で鮮度/根拠検証状態を保持し、古い根拠を隠さずunknown/診断として返す。意味上の採否はLLM/hostに残す。",
+			"verification": "fresh/stale/unknown、source変更、撤回、期間外の同条件試験で、正常経路を残しつつ不確実性が結果に保持される。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "correctness",
+					"criterion": "edge_cases",
+					"reason": "通常の経路合成で重要な根拠状態が脱落する。"
+				}
+			],
+			"hypothetical_resolution": true
+		},
+		{
+			"id": "F02",
+			"status": "withdrawn",
+			"severity": "Medium",
+			"priority": "P1",
+			"priority_reason": "該当能力を実仕事で信頼する次の統合前に解決する。",
+			"confidence": "High",
+			"title": "未settle受信payloadの忘却はhostの候補root供給に依存する",
+			"root_cause": "source/stateの逆依存はassertionとmanifestだけを辿り、manifestなしworld_inboxを辿らない。",
+			"evidence_ids": ["E11", "E08"],
+			"condition": "受信直後/held/rejectedでmanifestがなく、hostがsource rootだけを渡す。",
+			"consequence": "Worldの指定root閉包はcompleteでも受信本文が残る。製品の削除完了を満たすにはhost側で候補ID供給の完全性を保証する必要がある。",
+			"counterevidence": "Expected scenario only: Q01/Q02/Q03による修正・検証が成立したと仮定する。現行指摘は未修正であり、元のCurrent台帳ではconfirmedのまま。 既知制約として公開APIに明示。candidate rootを供給すれば削除され、外部確認待ちgateもある。契約を守るhostでの漏洩/復活は今回示していない。",
+			"fix": "まず既存のhost root供給契約を通し検証する。不足が再現した場合のみ、receive時から依存索引を同一transactionで保持する最小migrationを追加する。",
+			"verification": "received/held/rejected/appliedと再起動を含め、source/state忘却後に全対象本文が消え、遅着が復活しないことをhost結合で確認。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "security",
+					"criterion": "input_secrets",
+					"reason": "個人情報の削除到達が追加のhost契約へ依存。"
+				}
+			],
+			"hypothetical_resolution": true
+		},
+		{
+			"id": "F03",
+			"status": "withdrawn",
+			"severity": "Low",
+			"priority": "P2",
+			"priority_reason": "導入文書を次に更新する際に整合させる。",
+			"confidence": "High",
+			"title": "配布仕様のMemory peer dependency記述が実物と異なる",
+			"root_cause": "spec/distribution.mdはpeerDependencies宣言ありと記すがpackは意図的に省略する。",
+			"evidence_ids": ["E19", "E04"],
+			"condition": "利用者が配布仕様だけを読んで型依存の解決を設計する。",
+			"consequence": "型依存の導入手順を誤解しうる。実際のconsumerは両tarballを明示installして成功。",
+			"counterevidence": "Expected scenario only: Q01/Q02/Q03による修正・検証が成立したと仮定する。現行指摘は未修正であり、元のCurrent台帳ではconfirmedのまま。 配布manifestは依存を記録し、実consumerは正しい導入方法を確認済み。実行artifactが壊れているという指摘ではない。",
+			"fix": "文書を実際のmanifest記録/両tarball導入方針へ同期する。",
+			"verification": "生成package.jsonと案内を照合し、既存consumer成功を維持。",
+			"impacts": [
+				{
+					"track": "technical",
+					"dimension": "maintainability",
+					"criterion": "clarity",
+					"reason": "低影響だが導入案内と実物が不一致。"
+				}
+			],
+			"hypothetical_resolution": true
+		}
+	],
+	"tracks": {
+		"technical": {
+			"dimensions": {
+				"architecture": {
+					"criteria": {
+						"boundaries": {
+							"status": "assessed",
+							"value": 4,
+							"confidence": "High",
+							"evidence_ids": ["E01", "E04"],
+							"rationale": "純粋層・domain・application・hostの責務が明示され、private/type/reexport/循環/IO違反の負例も自動検出。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"anchor_support": "現行の境界検査と複数種の意図的な違反負例を含むverifyを実行し、source/型/再export/純粋層/循環境界を確認。",
+							"baseline_value": 4,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"flow": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E02", "E03", "E04"],
+							"rationale": "入力から台帳/投影/receiptと公開直前の再検証まで追跡でき、DML段階のrollback/再送/WAL snapshotを試験。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"fit": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E06", "E16"],
+							"rationale": "同一host transactionという制約に小さい埋込構成が適合し、10万主張でも予算内。hostの大規模queueは未測定。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						}
+					}
+				},
+				"correctness": {
+					"criteria": {
+						"contracts": {
+							"status": "assessed",
+							"value": 4,
+							"baseline_value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q06: 全17更新と公開read/usageの契約・負例・状態遷移を網羅し、隠れた例外なしで高確信度の証拠を得る。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q06: 全17更新と公開read/usageの契約・負例・状態遷移を網羅し、隠れた例外なしで高確信度の証拠を得る。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。",
+							"anchor_support": "Q06/Q07の実行記録、全体状態比較、重要な変異の検出、独立した入力/状態経路によりHigh confidenceが成立することを将来の必須条件とする。現在の4点根拠ではない。"
+						},
+						"edge_cases": {
+							"status": "assessed",
+							"value": 3,
+							"baseline_value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q01/Q02: 鮮度・版・条件・期間・全inbox状態を跨いで診断と消去到達を検証し、正常な経路も維持する。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q01/Q02: 鮮度・版・条件・期間・全inbox状態を跨いで診断と消去到達を検証し、正常な経路も維持する。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。"
+						},
+						"concurrency": {
+							"status": "assessed",
+							"value": 4,
+							"baseline_value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q06/Q07: 宣言済み単一Writer/WAL上のreader、古いreceipt、訂正・forget・restore、取消とcommit前後の窓を実境界で検証する。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q06/Q07: 宣言済み単一Writer/WAL上のreader、古いreceipt、訂正・forget・restore、取消とcommit前後の窓を実境界で検証する。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。",
+							"anchor_support": "Q06/Q07の実行記録、全体状態比較、重要な変異の検出、独立した入力/状態経路によりHigh confidenceが成立することを将来の必須条件とする。現在の4点根拠ではない。"
+						}
+					}
+				},
+				"security": {
+					"criteria": {
+						"access": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E03", "E04"],
+							"rationale": "principal/Scope/policyを内容読取より先に照合し、history/receiptでも再確認。未認可時は存在を区別させない試験。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"input_secrets": {
+							"status": "assessed",
+							"value": 3,
+							"baseline_value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q02/Q05: 未settleを含む到達保証、Scopeとモデル権威境界、本文の再利用・復活防止を対照つきで確認する。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q02/Q05: 未settleを含む到達保証、Scopeとモデル権威境界、本文の再利用・復活防止を対照つきで確認する。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。"
+						},
+						"abuse": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E01", "E03", "E04", "E05"],
+							"rationale": "過大・壊れたモデル入力、forbidden fields、墓標による遅着、他Scope操作を拒否。モデル本文の意味的攻撃一般の安全は未主張。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						}
+					}
+				},
+				"reliability": {
+					"criteria": {
+						"failure": {
+							"status": "assessed",
+							"value": 4,
+							"baseline_value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q06/Q07: 各DML・依存登録・checkpoint・commit前後の例外/process終了/不確定結果を注入し、再開・再送で全体の契約を保つ。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q06/Q07: 各DML・依存登録・checkpoint・commit前後の例外/process終了/不確定結果を注入し、再開・再送で全体の契約を保つ。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。",
+							"anchor_support": "Q06/Q07の実行記録、全体状態比較、重要な変異の検出、独立した入力/状態経路によりHigh confidenceが成立することを将来の必須条件とする。現在の4点根拠ではない。"
+						},
+						"recovery": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E02", "E04", "E08"],
+							"rationale": "ローカル台帳の再送/忘却chunk/restore gate/再構築は実SQLiteで確認。実Memory journalとkill-process耐久性は未受入。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"resilience": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E03", "E04", "E05", "E06"],
+							"rationale": "budget/partial/overflowで制御し、モデルなしで純粋規則・保存・忘却が成立。host飽和と実Provider断は未確認。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						}
+					}
+				},
+				"maintainability": {
+					"criteria": {
+						"clarity": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02", "E08", "E19"],
+							"rationale": "所有場所・公開入口・正本の進捗が追跡可能。配布資料1箇所の陳腐化は残る。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"change": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E01", "E04", "E08"],
+							"rationale": "レビュー修正と独立回帰試験、領域別verify、M0のsource/protocol固定を備え、変更範囲と検証が明確。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"debt": {
+							"status": "assessed",
+							"value": 3,
+							"baseline_value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q03: legacy/本体pipeline/抽出評価の用途と維持範囲を整理し、実際の代表変更で局所修正と回帰検出を確認する。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q03: legacy/本体pipeline/抽出評価の用途と維持範囲を整理し、実際の代表変更で局所修正と回帰検出を確認する。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。"
+						}
+					}
+				},
+				"common_components": {
+					"criteria": {
+						"duplication": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E01", "E04", "E07"],
+							"rationale": "共有値・SourceRefはMemory公開型、遷移表・限界値・公開境界を共通化し独立consumerも確認。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"reuse": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E02", "E05", "E07"],
+							"rationale": "独自Writer/queue/model runtimeを持たずhostの接続とMemory公開型を再利用。配布consumerで参照先を分離。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"abstraction": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "Medium",
+							"evidence_ids": ["E01", "E02", "E05"],
+							"rationale": "純粋規則/同期repository/調整層は実consumerの責務に対応。推論呼出しと意味判断を外へ残す。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						}
+					}
+				},
+				"testing": {
+					"criteria": {
+						"risk_coverage": {
+							"status": "assessed",
+							"value": 4,
+							"baseline_value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q06: primary/例外/信頼境界/永続化/配布をリスク行列で確認し、重要な意図的変異を試験が検出する実行証拠を得る。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q06: primary/例外/信頼境界/永続化/配布をリスク行列で確認し、重要な意図的変異を試験が検出する実行証拠を得る。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。",
+							"anchor_support": "Q06/Q07の実行記録、全体状態比較、重要な変異の検出、独立した入力/状態経路によりHigh confidenceが成立することを将来の必須条件とする。現在の4点根拠ではない。"
+						},
+						"quality": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E01", "E02", "E04", "E13"],
+							"rationale": "DML全段階fault injection、違反import負例、固定実応答再採点と悪化例がある。新鮮度probeで残存blind spotも確認。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"automation": {
+							"status": "assessed",
+							"value": 3,
+							"baseline_value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q03: assessed revisionの実CIでverify/build/consumerが成功し、キーなし通常実行と負例検出を確認する。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q03: assessed revisionの実CIでverify/build/consumerが成功し、キーなし通常実行と負例検出を確認する。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。"
+						}
+					}
+				},
+				"supply_chain": {
+					"criteria": {
+						"dependencies": {
+							"status": "assessed",
+							"value": 3,
+							"baseline_value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q03: 版と出自の固定に加え、実経路に基づく依存脆弱性の確認・判断・更新検証を記録する。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q03: 版と出自の固定に加え、実経路に基づく依存脆弱性の確認・判断・更新検証を記録する。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。"
+						},
+						"build_release": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E04", "E07"],
+							"rationale": "生成JSから公開面とmigration/hashを記録し、ソース非依存のtarball consumerと型検査が成功。公開release保護は未評価。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"license": {
+							"status": "assessed",
+							"value": 2,
+							"baseline_value": null,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q03: 本体・同梱物・利用資料の所有者、利用/再配布条件、適用責任を確認する。未確認ならこの目標を採点しない。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q03: 本体・同梱物・利用資料の所有者、利用/再配布条件、適用責任を確認する。未確認ならこの目標を採点しない。"
+						}
+					}
+				},
+				"performance": {
+					"criteria": {
+						"budget": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E06"],
+							"rationale": "10kでSlice p95 10.01ms<=50、writer .78ms<=20。100kまで計測。単一機・合成fixtureである制約を維持。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"hot_path": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E03", "E06"],
+							"rationale": "取得上限500、選択的索引、増分更新、100k実行計画/latencyが対応。忘却entity参照走査と全rebuildは別費用。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"measurement": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E06", "E08"],
+							"rationale": "seed/機材/件数/warmup/raw samples/protocol/sourceを保存する基盤あり、今回も同予算再測定。host queue/実モデル費用は未測定。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						}
+					}
+				},
+				"operability": {
+					"criteria": {
+						"signals": {
+							"status": "assessed",
+							"value": 3,
+							"confidence": "High",
+							"evidence_ids": ["E03", "E04", "E05"],
+							"rationale": "reason codes、partial/overflow、coverage、gateと忘却進捗で失敗を区別可能。実運用診断は未受入。",
+							"countercheck": "契約だけでなく別の実装経路・異常系試験と照合。実host/モデル/長期運用を含む成功へ一般化しない。",
+							"baseline_value": 3,
+							"target_basis": "Retain currently observed anchor within unchanged scope; re-check for regressions in Q08."
+						},
+						"lifecycle": {
+							"status": "assessed",
+							"value": 3,
+							"baseline_value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q07: 適用されるclean install、固定版更新、訂正/forget、再起動、復元/rollbackを使い捨ての実環境で実演する。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q07: 適用されるclean install、固定版更新、訂正/forget、再起動、復元/rollbackを使い捨ての実環境で実演する。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。"
+						},
+						"interaction": {
+							"status": "assessed",
+							"value": 3,
+							"baseline_value": 2,
+							"confidence": "Medium",
+							"evidence_ids": ["E21"],
+							"rationale": "条件付き目標。Q07: 開発者の主操作・失敗診断・復帰を独立consumerと必要なhost利用で確認し、手順と結果を一致させる。",
+							"target_basis": "Required future evidence, not an achieved result.",
+							"required_evidence": "Q07: 開発者の主操作・失敗診断・復帰を独立consumerと必要なhost利用で確認し、手順と結果を一致させる。",
+							"countercheck": "将来の反証確認として、正常対照・重要な負例・既存成功・異なる操作/状態・実行境界を検証する。証拠不足なら目標アンカーを与えない。"
+						}
+					}
+				}
+			}
+		}
+	},
+	"backlog": [
+		{
+			"reference": "F01",
+			"priority": "P1",
+			"action": "既存投影/edge契約で鮮度と根拠検証状態を保持",
+			"dependencies": "投影/推論の公開契約を照合",
+			"acceptance": "fresh/stale/unknown診断と正常経路の両立",
+			"criteria": ["correctness.edge_cases"],
+			"effort": "M: 公開edge型と4探索consumer/回帰を確認するため"
+		},
+		{
+			"reference": "F02",
+			"priority": "P1",
+			"action": "hostの受信直後からの忘却到達を通し検証",
+			"dependencies": "既存host root供給/Memory journal契約",
+			"acceptance": "全inbox状態と再起動で本文残存/復活0",
+			"criteria": ["security.input_secrets", "reliability.recovery"],
+			"effort": "M–L: host/Memoryとの接続受入。索引変更は必要性を再現した場合のみ"
+		},
+		{
+			"reference": "E08/E12/E13",
+			"priority": "P1",
+			"action": "既存M4でモデル版を固定し、原典だけからの抽出→同予算raw/plain/World比較を実施",
+			"dependencies": "期待modelID/確認済み版/予算と独立補助集合",
+			"acceptance": "既存A46/A50と未見悪化・安全の閾値、手書き知識混入なし、全失敗を分母へ残す",
+			"criteria": ["solution.outcomes", "differentiation.advantage"],
+			"effort": "M–L: 基本400生成＋判断比較。価格と単位費用は未固定につき未算出"
+		},
+		{
+			"reference": "E08",
+			"priority": "P1",
+			"action": "正式意味品質受入後に実仕事一巡→実journal/process crash→24h運用",
+			"dependencies": "M4とhost/Memory公開契約",
+			"acceptance": "予測→実測→更新が一巡、削除復活0/Scope漏洩0/前景p95悪化<=5%",
+			"criteria": ["adoption.retention", "operability.lifecycle"],
+			"effort": "L: 外部ownerを跨ぐ運用受入"
+		},
+		{
+			"reference": "F03",
+			"priority": "P2",
+			"action": "配布案内を実packへ同期",
+			"dependencies": "なし",
+			"acceptance": "peer宣言ではなく両tarball導入と型要件を正しく案内",
+			"criteria": ["maintainability.clarity"],
+			"effort": "S: 文書1箇所、既存consumer再利用"
+		}
+	],
+	"baseline_snapshot": "HEAD 06e948047b34361e6ac469f33747601869522af4 + tracked/untracked working tree; SHA256 e860fce79884c9bcf5133bf436d4eaed990a11495cf6dac5dbcaecb67df134e4",
+	"baseline_score": {
+		"provisional_score": 69.7,
+		"coverage_percent": 96.7,
+		"rubric_version": "1.1.0",
+		"technical_profile": "library",
+		"source": "2026-11-05 review in this conversation; original ledger retained in world-model-review/review.json"
+	},
+	"scenario_conditions": [
+		"Q01-Q03 remove the confirmed freshness-information loss, verify complete inbox deletion reachability under the host contract, and synchronize distribution documentation. Baseline findings remain confirmed in the preserved current ledger.",
+		"Q06 validates all17 update operations and public read/usage contracts, representative boundaries, single-writer/WAL race windows, process-exit and every-DML rollback with defect-detecting negative controls. Only direct complete evidence allows contracts/concurrency/failure/risk_coverage targets4.",
+		"Q03 demonstrates actual CI on the assessed revision, reachable-dependency risk review and a proportionate ownership/use/distribution-rights record. Unknown rights remain unknown if records cannot be obtained.",
+		"Q04-Q05 complete direct Claude Sonnet5.5 and GPT-6 Luna API trials using common source-backed tasks, frozen protocol and budgets; log failed first attempts and judge disagreements without weakening Local A46/A50 gates.",
+		"Q07 demonstrates applicable install/update/recovery/rollback and developer tasks, including needed actual host/Memory boundary evidence. Missing permissions, contracts or operation records block dependent anchor upgrades.",
+		"No criterion exclusions, weight changes, weakened thresholds, business-potential blending, invented approvals, per-example semantic branches, or current-score inflation. Q08 recalculates the actual Current ledger; failure to reach80 remains incomplete."
+	]
+}
