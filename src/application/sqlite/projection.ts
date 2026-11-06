@@ -8,7 +8,6 @@ import {
 import {
 	sourceIdentityKey,
 	referencesCurrentContent,
-	terminalLifecycles,
 	type Assertion,
 	type AssertionRef,
 } from "../../domains/assertions/index.ts";
@@ -16,7 +15,12 @@ import {
 	getAssertion,
 	listScopeAssertions,
 } from "../../domains/assertions/sqlite.ts";
-import { buildProjection } from "../../domains/projection/index.ts";
+import {
+	buildProjection,
+	citedSources,
+	isCausalEligible,
+	isLiveRefutation,
+} from "../../domains/projection/index.ts";
 import {
 	advanceProjectionEpoch,
 	clearProjection,
@@ -62,20 +66,13 @@ const refKey = (ref: AssertionRef) => JSON.stringify([ref.id, ref.revision]);
 const compareRef = (a: AssertionRef, b: AssertionRef) =>
 	a.id === b.id ? a.revision - b.revision : a.id < b.id ? -1 : 1;
 
-function citedRefs(assertion: Assertion) {
-	return [
-		...assertion.evidence.map((e) => e.source),
-		...assertion.inputManifest,
-	];
-}
-
 /** H(a) as an integer; hashes only what defines the stored material. */
 export function headHash(
 	assertion: Assertion,
 	hasher: CanonicalHasher,
 ): bigint {
 	const sources = new Map<string, [string, string, string]>();
-	for (const ref of citedRefs(assertion)) {
+	for (const ref of citedSources(assertion)) {
 		const entry: [string, string, string] = [
 			sourceIdentityKey(ref),
 			ref.revision,
@@ -123,10 +120,9 @@ function citedStates(
 ): SourceState[] {
 	const byKey = new Map<string, SourceState>();
 	for (const assertion of assertions)
-		for (const ref of citedRefs(assertion)) {
-			const { range: _range, ...whole } = ref;
+		for (const ref of citedSources(assertion)) {
 			byKey.set(sourceIdentityKey(ref), {
-				...whole,
+				...ref,
 				principal: scope.principal,
 				scopeKey: scope.scopeKey,
 				status: "available",
@@ -156,7 +152,6 @@ function disputersOf(
 
 /** True when `ref` still names the content of a non-terminal ledger head. */
 type LiveHead = (ref: AssertionRef) => boolean;
-const terminalSet = new Set<string>(terminalLifecycles);
 
 /** Live-head lookup against the stored ledger (memoised per call). */
 function dbLiveHead(db: WorldDb, scope: ScopeRef): LiveHead {
@@ -165,11 +160,7 @@ function dbLiveHead(db: WorldDb, scope: ScopeRef): LiveHead {
 		const key = refKey(ref);
 		let live = cache.get(key);
 		if (live === undefined) {
-			const head = getAssertion(db, scope, ref.id);
-			live =
-				head !== undefined &&
-				referencesCurrentContent(ref, head) &&
-				!terminalSet.has(head.lifecycle);
+			live = isLiveRefutation(ref, getAssertion(db, scope, ref.id));
 			cache.set(key, live);
 		}
 		return live;
@@ -183,7 +174,7 @@ const maxGroup = 500;
 function consistentGroups(assertions: readonly Assertion[]): Assertion[][] {
 	const groups: { seen: Map<string, string>; items: Assertion[] }[] = [];
 	for (const assertion of assertions) {
-		const refs = citedRefs(assertion).map(
+		const refs = citedSources(assertion).map(
 			(ref) =>
 				[sourceIdentityKey(ref), `${ref.revision}\u0000${ref.digest}`] as const,
 		);
@@ -253,9 +244,11 @@ function rowsOfGroup(
 		// Scope-wide, page-independent: an active claim is causally eligible
 		// only while none of its refutations (own contradicts + every recorded
 		// disputer) is a live head of the ledger.
-		const causalEligible =
-			entry.status === "active" &&
-			![...refutations.values()].some((ref) => liveHead(ref));
+		const causalEligible = isCausalEligible(
+			entry.status,
+			[...refutations.values()],
+			liveHead,
+		);
 		const payload = entry.assertion.payload;
 		if (payload.kind === "relation")
 			edges.push({
@@ -305,14 +298,7 @@ export function projectLedger(
 ): LedgerProjection {
 	const disputers = disputersOf(assertions);
 	const heads = new Map(assertions.map((a) => [a.id, a] as const));
-	const liveHead: LiveHead = (ref) => {
-		const head = heads.get(ref.id);
-		return (
-			head !== undefined &&
-			referencesCurrentContent(ref, head) &&
-			!terminalSet.has(head.lifecycle)
-		);
-	};
+	const liveHead: LiveHead = (ref) => isLiveRefutation(ref, heads.get(ref.id));
 	const entries: CurrentRow[] = [];
 	const edges: EdgeRow[] = [];
 	for (const group of consistentGroups(assertions)) {
@@ -471,8 +457,7 @@ function recomputeEligibility(
 		const refutations = (
 			JSON.parse(row.payloadJson) as { refutations: AssertionRef[] }
 		).refutations;
-		const eligible =
-			row.lifecycle === "active" && !refutations.some((r) => liveHead(r));
+		const eligible = isCausalEligible(row.lifecycle, refutations, liveHead);
 		if (eligible !== row.causalEligible)
 			setCausalEligible(db, scope, ref.id, ref.revision, eligible);
 	}

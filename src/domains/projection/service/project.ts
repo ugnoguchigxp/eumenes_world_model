@@ -16,6 +16,7 @@ import {
 	referencesCurrentContent,
 	sourceIdentityKey,
 	sourceInputKey,
+	terminalLifecycles,
 	type Assertion,
 	type AssertionRef,
 } from "../../assertions/index.ts";
@@ -27,7 +28,7 @@ import {
 	type ProjectionSnapshot,
 } from "../contracts/snapshot.ts";
 
-const terminal = new Set(["superseded", "retracted", "invalidated"]);
+const terminal = new Set<string>(terminalLifecycles);
 
 /** Upper bound of the material set (500 assertions, 2000 sources, with slack). */
 const materialMaxBytes = 4 * 1024 * 1024;
@@ -53,6 +54,30 @@ export function citedSources(assertion: Assertion): SourceRef[] {
 		seen.set(sourceInputKey(plain), plain);
 	}
 	return sortedBy([...seen.values()], sourceInputKey);
+}
+
+/** A refutation still names the current content of a non-terminal head. */
+export function isLiveRefutation(
+	ref: AssertionRef,
+	head: Assertion | undefined,
+): boolean {
+	return (
+		head !== undefined &&
+		referencesCurrentContent(ref, head) &&
+		!terminal.has(head.lifecycle)
+	);
+}
+
+/**
+ * Adopted material is causal input only while none of its refutations name a
+ * live head. The caller supplies the head lookup (a snapshot map or the ledger).
+ */
+export function isCausalEligible(
+	status: string,
+	refutations: readonly AssertionRef[],
+	isLive: (ref: AssertionRef) => boolean,
+): boolean {
+	return status === "active" && !refutations.some((ref) => isLive(ref));
 }
 
 /** True when the host's current state matches the cited version exactly. */
@@ -149,16 +174,11 @@ export function projectSnapshot(
 			origin: assertion.origin,
 			// An adopted claim with a live (non-terminal) refutation is contested
 			// and must not feed deterministic propagation.
-			causalEligible:
-				status === "active" &&
-				![...refutations.values()].some((ref) => {
-					const head = heads.get(ref.id);
-					return (
-						head !== undefined &&
-						referencesCurrentContent(ref, head) &&
-						!terminal.has(head.lifecycle)
-					);
-				}),
+			causalEligible: isCausalEligible(
+				status,
+				[...refutations.values()],
+				(ref) => isLiveRefutation(ref, heads.get(ref.id)),
+			),
 			refutations: [...refutations.values()].sort(compareRef),
 			sources,
 			assertion,
