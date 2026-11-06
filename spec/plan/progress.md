@@ -31,14 +31,14 @@
 | P2-10 | 永続化段階の受入 | 完了 | test/scenario/world-lifecycle.test.ts、spec/world-sqlite-public-api.md |
 | P3-01 | 正式配布物と独立consumer | 完了 | scripts/pack.ts、test/consumer/package.test.ts 5件(A34)、spec/distribution.md。全体verify 639件 |
 | P3-02 | 現行ホストとの境界固定 | 完了 | spec/host-contract-v1.md、Eumenes api/infrastructure/sqlite readSnapshot+snapshot.test.ts 3件(A35)、Eumenes verify:all成功。残: Memory版差(0.3.6)の照合はP3-05/06 |
-| P3-03 | SourceAdapterと通常変更のoutbox | 完了(host fixture/実SQLite) | Eumenes api/domains/{conversation,world}: outbox migration、correct/retract、ConversationSourceAdapter。conversation 10+20、world 10件(A36)。retractは本文空化+retracted_atのtombstone(dialogue_runsのFKを保つ)、旧eventのrevision/digest消去、cursorは不透明化。残: 旧メッセージ(outbox導入前)の初期同期scan(initial-sync backfill)が無いためnot usable on deployed data until initial-sync backfill exists; World must not be enabled before it(導入済みデータでは使用不可、backfill実装までWorldを有効化してはならない)。retract後のdialogue/memory派生コピーはP3-05 |
+| P3-03 | SourceAdapterと通常変更のoutbox | 完了(host fixture/実SQLite) | Eumenes api/domains/{conversation,world}: outbox migration、correct/retract、ConversationSourceAdapter。conversation 10+20、world 10件(A36)。retractは本文空化+retracted_atのtombstone(dialogue_runsのFKを保つ)、旧eventのrevision/digest消去、cursorは不透明化。2026-11-06: 初期同期backfillと有効化前のメタデータ受領を追加し、中断・再送・忘却を実SQLiteで検証。[追補](#host-sync-fixes-2026-11-06)。製品DBへの適用は未実施。retract後のdialogue/memory派生コピーはP3-05 |
 | P3-04 | GoalSnapshotの公開口 | 完了(host実SQLite) | Eumenes api/domains/goals 12件(A37)。goal epoch/revisionで利用receipt失効判定。残: 操作冪等キー・World向け読取専用口の分離は未実装 |
-| P3-05 | Memory依存登録と忘却復元の結合 | 完了(host temp file SQLite、crashはfixture) | Eumenes api/domains/world: memory-adapter、world-journal(別JSONL)、lifecycle-adapter、host-gate、feed consumer。world 63件、memory 2件(A25,A30-A32,A38)。残: 実process killとMemory実復元は未実施、>500 rootsは複数forget(~n)に分割 |
+| P3-05 | Memory依存登録と忘却復元の結合 | 完了(host temp file SQLite、crashはfixture) | Eumenes api/domains/world: memory-adapter、world-journal(別JSONL)、lifecycle-adapter、host-gate、feed consumer。world 63件、memory 2件(A25,A30-A32,A38)。2026-11-06: 一時hostで実Memory/World journalを使う10境界のSIGKILLと旧DB復元を検証。[追補](#host-sync-fixes-2026-11-06)。電源断・媒体破損・実運用は未受入。>500 rootsは複数forget(~n)に分割 |
 | P3-06 | migration登録と手動入力の縦断 | 完了(host実Writer/temp file) | World migration7本+world_host_state/lifecycleを末尾に追加、manual-world.test.ts、migrations.test.ts 12件(A22,A25,A39)。World既定OFF。server.tsへの配線は未実施、製品DBへの実migrationも未実施 |
 | P3-07 | Context Brokerと回答採用 | 完了(host実Writer/queue、fixture provider) | Eumenes api/domains/world/service/context-broker.ts、dialogue worldContext port、world_host_usage。context-broker 11件+dialogue/world-context 36件(A24,A40: 4注入点×7原因)。送信直前検査はWriter往復でありsend直前の窓は閉じられない。app.ts配線・実provider未実施。他セッション作業(timers)の途中変更によりEumenes全体testは一時的に失敗中のため最終確認は未了 |
 | P3-08 | World回答の本文とTTS公開制御 | 完了(fixture、実ブラウザ/実TTS未実施) | Eumenes dialogue worldUsed/worldBlocked、progress()を採用済み回答のみ、attitude dataset先行保存の漏れ修正、voice canSpeak。voice-dialogue/test/world-release.test.ts 8件(A41: SSE本文とTTS spy)。ゲートを外すと6件失敗を確認。残: LARM delivery judgeへ未採用本文が送られる、Memory/agent-projection runの同種dataset保存、app.ts未配線のため実ブラウザ検査不可 |
-| P3-09 | 最初の製品接続の受入 | 完了(host fixture)、実Local Provider未受入 | Eumenes api/application/world.ts(EUMENES_WORLD=off|protect|on、既定off)、world-acceptance-p3.test.ts 4件+world.test.ts 9件(A34host側,A35-A41)、real-local-providerは明示skip(未実施)。残: 既存メッセージのsnapshot scan無し、製品のmessage forget入口無し、既定Scopeのみ、実migrationは一時DBのみ。実モデル未受入はP4-05へ |
-| P4-01 | 継続入力の受領と進捗 | 完了(host fixture/実SQLite) | Eumenes world/service/extraction-intake.ts、feedStages(owner→scanned→received→applied)、change-feed.test.ts 14件(A28,A29,A42)。残: 履歴backfillなし、packageにinbox/checkpoint読取APIが無くhost recordで代用 |
+| P3-09 | 最初の製品接続の受入 | 完了(host fixture)、実Local Provider未受入 | Eumenes api/application/world.ts(EUMENES_WORLD=off|protect|on、既定off)、world-acceptance-p3.test.ts 4件+world.test.ts 9件(A34host側,A35-A41)、real-local-providerは明示skip(未実施)。2026-11-06: 既存メッセージ初期同期を追加。[追補](#host-sync-fixes-2026-11-06)。残: 製品のmessage forget入口無し、既定Scopeのみ、実migrationは一時DBのみ。実モデル未受入はP4-05へ |
+| P4-01 | 継続入力の受領と進捗 | 完了(host fixture/実SQLite) | Eumenes world/service/extraction-intake.ts、feedStages(owner→scanned→received→applied)、change-feed.test.ts 14件(A28,A29,A42)。2026-11-06: 初期履歴backfillと確定済みcursorからの再開を追加。[追補](#host-sync-fixes-2026-11-06)。packageにinbox/checkpoint読取APIが無くhost recordで代用 |
 | P4-02 | Local抽出のqueue handler | 完了(fixture provider) | extraction-handler.ts(world.extract、larm-only/cloudAllowed=false、30s budget、slot再利用防止)、extraction-handler.test.ts 16件+application/world-extraction.test.ts 6件(A19,A20,A43、Cloud fetch 0)。実Local Provider未実施、entity listing無しでsubject名はSUBJECT_UNRESOLVED |
 | P4-03 | 前景優先と取消と再開 | 完了(host fixture/stub provider) | Eumenes world/service/foreground.ts、extraction-handler(hold/unconfirmed slot/stale attempt)、application/world-foreground.ts、inferenceにforegroundBusy hook。scheduling.test.ts 11件+application/world-scheduling.test.ts 5件(A44)。実Local Provider未実施。前景=interactive laneの全job(長時間jobで抽出が止まる) |
 | P4-04 | Runtime結果の観測化 | 待機(fixtureのみ。公開実行台帳が無く未受入) | runtime-adapter.ts+RuntimeLedgerPort fixture、outcomes.test.ts 14件(A18,A45のWorld部分)。待機理由: tool-runtime/agent-runtime/capabilitiesにcomparisonId/metric/unit/config/baseline/検証状態を持つ公開snapshotが無い。package側にoutcome source入力・prediction読取APIが無い |
@@ -1337,3 +1337,24 @@ legacy-before.json、pure-projection-before.log、integration-final-v2.log、
 verify-final-v2.log、build-final-v2.log、final-audit.json、SHA256SUMS.json。
 実モデルのAPI品質は従来の未受入を維持し、実hostの接続・運用受入と正式評点の
 再評価は今回のローカル成功から外挿しない。
+
+<a id="host-sync-fixes-2026-11-06"></a>
+
+## 初期同期と強制終了復旧の指摘対応（2026年11月6日）
+
+ユーザーが4指摘の評価後に改修を依頼し、CIは対象外とした。F01/F02に必要なEumenesホストのソース・試験も対象に含め、製品DB・設定・秘密・サーバー操作、他の兄弟repoは対象外のままとした。別Codexチャットへの送信、commit/push、実モデル/API呼出しは行っていない。今回は評点を再計算しない。
+
+- **F01 初期同期**: conversationの公開writer操作が、outbox以前の確定メッセージの現在版を200件ずつ補完する。既存イベントは変更せず、outbox自体で再送・rollback・途中再開を重複排除する。本文をoutboxへ保存しない。Worldは既存の適用関数・Scope/認可/墓標/schema/gate検査を共有し、OFF中の初期同期では`inbox.receive`のメタデータ受領だけを許す。意味適用・採用・モデル呼出しは通常のON条件を維持する。旧outbox-onlyの完了フラグは末尾migration `world/0012-initial-source-sync`で一度無効化する。開始済み状態を保存し、ページ上限・中断後も確定済みcursorから続ける。
+- 初期受領の想定外の拒否や未確認のforgetが残れば完了にしない。Memoryで既に忘却した旧メッセージ、同期中の訂正・撤回、World inboxの消去、再送後の非復活を検証した。505件のfixtureでは500件の確定後に中断し、再準備でcursorを失わず、訂正・撤回後504件を重複なく受領した。初期同期の開始前・通常OFF中のscanは従来契約のまま。
+- **F02 実process復旧**: `world-process.test.ts`が親から実SIGKILLを送り、別processでファイル/WAL・実Memory復旧・実World journalを開き直す。Memory journal追記後、World journal追記後、chunkのcommit前/後、Memory確認中、cursor保存中、restoreのbegin/reconcile/finish前/後の10境界を検証した。1002 rootsを分割して処理し、投影・主張履歴・墓標・Scope/host gate・cursor・Memory external確認・未完了intakeを、同じ復旧順を通した完全な対照再生と比較する。再送も一致。古いDB＋新しい両journalの復元も含む。restore epoch変更と未適用入力の破棄は既存契約であり、通常再開と完全復元の対照を区別する。
+- **F03 runner重複**: `operative-sources-comparison`と`operative-sources-holdout`を共通`runner.ts`へ統合。入口は17/18行。資料・指示・採点・順序・上限・初回成功/失敗cache・凍結検査を維持した。両入口のprepare/resumeとsource変更拒否、保存済み回答の再採点をモデル呼出しなしで確認した。既存凍結runを新コードで無理に再開する扱いには変えない。
+
+部分→結合→通しで検証。変更前は過去メッセージ受領0件、初期同期の再準備で確定cursorがnullになることを再現した。修正後の専用5試験は5 pass/0 fail（初期同期3・source backfill1・初期受領ガード1）。SIGKILL試験も下記ホストの最終通しに含む。
+
+- WorldModel: `bun run verify` **1144 pass/0 fail/20017 assertions/99 files**、`bun run build`成功。境界、純粋層、SQLite、配布consumerを含む。製品src・公開export・配布物・固定vendorは不変。
+- 固定コピーのEumenes: `bun run verify -- --domain conversation --domain world --domain memory --domain steward`成功。**backend 530 pass/0 fail/86 files、web 63 pass/8 files**。整形・lint・全体型・依存/SQL境界・規模上限・SystemContext・migration・DesignSystem buildを含む。最終input revisionは前後一致 `0045f9b15ae64141602b6d05dcdaef68c9915b7ec136bce1b845288b2903198e`。対象19ファイルは作業ツリーとbyte一致。
+- 検証用コピーの初回起動はGit基点不足で失敗し、次はpackage固有の依存不足で停止した。実装や期待値を変更せず、コピーに実基点と既存の固定依存を接続して再検証した。担当外の既存差分・作業中に更新された文書は保持した。元の作業ツリーのDesignSystem buildやサーバー操作はしていない。
+
+証拠: `artifacts/host-sync-fixes/2026-11-06/`の`world-verify.log`、`world-build.log`、`host-verify.log`、`host-report/report.json`、`initial-sync.log`、`resume-regression-before.log`、`final-audit.json`。契約は[ホスト接続契約の追補](../host-contract-v1.md)を参照。
+
+**未受入**: 稼働hostへの反映・製品DBのmigration・実データ初回同期、実モデルの意味品質、実仕事、24時間/複数Scope運用、電源断・媒体破損・journal書込み中の全バイト境界。今回の10境界成功をそれらの合格へ読み替えない。CIは変更・実行していない。
