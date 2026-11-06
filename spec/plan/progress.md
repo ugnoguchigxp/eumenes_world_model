@@ -1203,3 +1203,137 @@ format/lint/typecheck・依存境界・全domain・SQLite・インストール�
 追加API費用は**0 USD**。共有台帳のコピーを新しい読込規則で再生でき、累積上限は**9.3576366 USD**、9947予約を維持した。
 原台帳SHA256 `37688e387670c221d0af5be252f9f475110c7d8b2dcc1fe1eec3c682e5172a70`は着手前後で一致。
 証拠は`artifacts/code-review/2026-11-06/`のbefore.json、各修正前後のlog、integration-final.log、verify.log、build.log、budget-compatibility.json、final-audit.json。
+
+## 2026年11月6日 API品質の残課題追試（8.2）
+
+正本は[追試計画・全結果](api-quality-followup.md)。依頼に従い累積10 USD以内、CI・本流統合なしで実施。
+`codex/api-quality-remaining`上の変更で、HEAD/製品src/公開契約/既存goldを維持し、commit/pushも行っていない。
+
+- 既存のhost contextManifestを共通化し、抽出と抽出採点にも明示。生成入力へreference/holdModalityを混ぜないfake回帰試験は旧版で失敗、新版で成功。
+- 「伝聞でも帰属を引用から落としてよい」という指示の矛盾を修正。日時と観測条件、述語方向を共通指示で整理。コードによる語句分類・逆述語補修・固定正答なし。
+- 事前固定の新しいdev8例×両社×旧/新版は両社7/8→8/8。実際の話者帰属が欠落した引用が両社で修正された。抽出採点校正は既存10例/社すべて一致。
+- 8.2の既存native holdout100件/社は400要求で全件完了。両社ともok100/100、処理エラー/違反0。
+  Lunaは採用精度57/65→59/66・採用再現率57/66→59/66・保留32/34・区分27/30→28/30。
+  Claudeは56/64→58/64・56/66→58/66・33/34→34/34・27/30→29/30。Claudeの保留/区分は合格、採用精度/再現率は両社とも95%未達。
+- 同名群は両社7/10。残る正規方向・引用の不一致はredacted集計を保持し、隠れたgroupや名前別規則で通さない。
+  旧独立の二出典期待と一引用形式の不一致、正規方向の契約の曖昧さ、既存40仕事の平文比較上限を残課題へ記録した。
+- 旧/新独立60件、既存dev100件、40仕事の新版全体再実行は予算見込みに収まらず省略。部分標本や旧版の合格を新しい全ゲート達成へ外挿しない。**API総合は未受入**。
+- 部分/結合26試験成功、最終verify **1105pass/0fail/19704 assertions/93 files**、build成功。
+  固定コピーからのみ実APIを実行し、前後ソースと作業ツリーのsource digestが一致。秘密一致0、raw非保存400キャッシュの保存違反0、過去証拠8857ファイルのhash差0。
+- 新規484要求、最大同時2、再試行0。追加費用上限0.57420675 USD、過去分を含む累積は**9.93184335 USD**（既知9.8429517＋従来の未確定11予約0.08889165）。
+  過去の台帳prefixは不変、10431予約、残額0.06815665 USD。追加の課金は停止した。
+
+証拠は`artifacts/api-quality-followup/2026-11-06/`。固定コードのarchive SHA256は
+`09a0cbafdfcf71a8544492ad6befe64c189428a2a71e22b06a81d7176be827a5`。
+観測できた改善を残し、原典/表現契約の整理と新しい十分な検証予算なしに、同じ失敗へ指示追記・再試行を続けない。
+
+## 評価・表現契約の監査と判断更新（2026年11月6日、ローカル検証）
+
+作業票は[contract-cycle.md](contract-cycle.md)。既存のLLM指示、wire、
+公開候補検証器、採点、Scenario/SQLite更新機構を確認し、採点条件の緩和や
+文言別の製品分岐を追加せず、既存機構を再利用した。srcと公開契約は変更していない。
+
+- 固定40仕事の320セルをオフラインで再集計。groundedの平文対照は
+  評価30件中29/30/29/30件正解で、完全なWorldの改善上限は1/0/1/0件。
+  固定対照に対しては改善5件ゲートに到達不能。旧閾値と合否は維持し、
+  summaryに到達可能性を別項目として追加した。将来のモデル試行の上限ではない。
+- 独立60件のI-lifecycle-09は2出典を単一主張に要求するが、現行quoteからは
+  Evidenceが1件しか生成されない。両方の引用を個別にnative decoderと
+  公開検証器へ通して再現した。入力manifestで支持Evidenceを代用しない。
+  この1件だけから全体95%が不可能とは断定していない。
+- 有料acceptance/independent/regression等は、未解決の表現衝突を
+  台帳/session開始前に検出して止まる。3入口を通信禁止の子プロセスで検証し、
+  費用台帳の未生成まで確認した。古い結果・gold・採点期待値は変更していない。
+- 「課金前に契約を監査する」という1仕事で、明示Goal→予測→実際の監査値
+  →観測登録→旧receipt失効→新Slice取得→明示入力の判断案の訂正→新判断の
+  利用検査を、実ファイルSQLite/WALと公開APIで一巡させた。
+  next-stepは版2→3(candidate)→4(active)、根拠はoperator/audit/afterへ追跡可能。
+  条件違反、依存不足、相関と因果仮説を別々に保持し、supportedを因果証明にしていない。
+- 観測なし、古いreceipt、測定構成違い、未確認source、Scope不許可、host gate閉鎖は拒否。
+  同一観測の再送はno_op、host後処理の失敗は訂正をrollbackする。
+- 判断案・Goal・時刻・許可はfixture、監査値は実行結果、DBは実SQLite。
+  Claude/Lunaの自律判断、実host実行台帳、Local/実機受入、Worldの優位性は未検証。
+  過去のAPI総合未受入と正式評点を更新していない。
+- 部分/結合は12pass/77 assertions。全体verifyは
+  **1117pass/0fail/19781 assertions/95 files**、build成功。
+  API呼出し0、追加費用0、台帳hash不変で累積上限**9.93184335 USD**を維持。
+  CI/commit/push/本流への取り込みは行っていない。
+
+証拠: `artifacts/contract-cycle/2026-11-06/`のbefore.json、audit/audit.json、
+cycle/cycle.json、verify.log、build.log、final-audit.json。
+監査と一巡のsource digestは一致。次は複数引用の意味・検証契約を確定し、
+同一原典/同一operator情報の別protocolで実モデル判断を測る。未解決の契約を
+指示追記だけで補い、既存評価を再課金する進め方は採らない。
+
+## 契約修正のローカル受入（2026年11月6日、実APIなし）
+
+作業票は[contract-remediation.md](contract-remediation.md)。編集前に
+`contract-remediation/1`の合否条件と複数引用の契約差分を固定した。
+旧改善5件/悪化0・95%・gold・過去結果は保持したまま、次を修正した。
+
+- 公開operationの必須構造・未知field・SourceStateを利用前に検査。
+  prediction/outcomeのinput欠落、null state、採用根拠のないplanは
+  例外や書込みを起こさず拒否する。既存の根拠重複/版衝突の理由コードも維持。
+- 観測訂正の接続例はOutcome、派生観測の置換、使用済み判断の失効を同じ
+  host transactionで反映。最新版と不一致の測定を使う採用は拒否し、
+  先行到着した生Outcomeからの反映・再送・途中失敗も試験した。
+  新しいdomain queryは同一Outcome identityの最新版を既存索引で1件取得する。
+  Outcome単独で任意hostの全派生文脈を自動更新するAPIとはしていない。
+- `quotes` 1〜12個を公開候補へ追加、旧`quote`は互換、併記/空/過多/重複/
+  不正な追加引用は拒否。第一Evidenceのhost割当IDを維持し、追加IDだけを
+  同期SHA-256で導出する。全入力manifestとhost由来の根拠系列を保持した。
+- Native抽出版は`typed-calendar-9-multiquote`。単一引用schemaも保持し、
+  profileごとに実際の容量を監査する。新版で旧baselineを救済しない。
+  I-lifecycle-09は元の2出典goldに一致し、read前forgetで全主張が消えることも確認。
+- 部分/結合29pass/190 assertions。全体verifyは
+  **1131pass/0fail/19887 assertions/97 files**、build成功。
+- API呼出し0、台帳hash不変、累積上限**9.93184335 USD**。
+  CI/commit/push/本流への取り込み、隣接repoや製品DBの変更なし。
+
+証拠: `artifacts/contract-remediation/2026-11-06/`。
+この合格はローカルの契約・結合に限定する。新版の実モデル比較、実hostの
+実行台帳との接続、P5/Local正式受入、評点の再評価は未実施。
+
+## 差分レビューと整合性修正（2026年11月6日、実APIなし）
+
+既存の未commit変更を含め、公開入力、遷移plan、保存と利用再検査、複数引用、
+観測訂正、評価への接続を点検した。既存のLLM指示・公開検査器・純粋plannerを
+確認して再利用し、次の再現可能な問題を修正した。
+
+- **遷移planの欠落・混入（P1）**: 停止対象を省略したinvalidateでも成功し、
+  旧版がactiveのまま残った。現在のheadと既存plannerから再構成したplan全体を
+  canonical照合し、書込み前に拒否する。6 actionで不正planの無変更と正規planの
+  成功を検証。rule/subjectの認可はhostの責任であり、再構成で権限を与えない。
+- **主張の検査経路による不一致（P1）**: 支持根拠のない無条件指定、originと
+  根拠の不一致、実測時刻欠落が保存経路を通った。既存の文脈非依存な検査を共有し、
+  保存・旧候補のactive化・通常read・receipt再利用・公開Projection/Sliceで確認する。
+  既に保存済みの不整合なactive内容も利用できない。履歴取得と失効による後始末は
+  維持し、失効後の旧内容は投影から除外する。
+- **観測版の飛び番と遅着（P1、接続fixture）**: Outcome版からAssertion版を
+  算出していたため、飛び番で正しい訂正を拒否し、遅着の反映で判断材料が巻き戻った。
+  receipt中の実版と宣言した測定の出典・値・単位・metric・subjectを照合し、
+  最新Outcomeより古い反映はDML前に拒否する。飛び番の訂正成功、遅着拒否、
+  拒否時の全行不変を実SQLiteで検証した。
+- **手書き評価材料の誤った扱い（P2、旧decision接続）**: 公開投影の検査を
+  揃えた結果、出典のない4材料をactive/document_claimとして渡していたことが
+  判明した。candidate/model_hypothesisとして接続し、Sliceのclaim/hypothesisを
+  モデルへの提示にも保持した。新提示版は`decision-world-presentation/2`。
+  課題・rubric・正解・合格基準は変更していない。旧実モデル結果はそのまま保持し、
+  新提示との比較では両armの再測定が必要。この変更を実モデルの品質改善とはしない。
+
+部分→結合→通しの順に検証。最終の対象結合は**113pass/0fail/2192 assertions**、
+全体verifyは**1143pass/0fail/20001 assertions/98 files**、build成功。
+途中の全体検証12failは上記の旧decision接続1原因に絞り、製品の検査や期待値を
+緩めず修正した。再現試験、旧データ、正常系、後始末を含めて再点検し、今回の
+確認範囲に未修正の再現可能な指摘は残していない。
+
+変更は構造・状態・根拠契約の検査とfixture接続に限定。発話や固有名による
+製品分岐、意味判断の固定処理、新しい実行基盤は追加していない。
+過去証拠1052ファイルのhash差0、費用台帳hash不変、API呼出し/追加費用0。
+累積費用上限は**9.93184335 USD**のまま。CI/commit/push/本流取り込みなし。
+
+証拠: `artifacts/code-review-fixes/2026-11-06/`のprobes-before/after.json、
+legacy-before.json、pure-projection-before.log、integration-final-v2.log、
+verify-final-v2.log、build-final-v2.log、final-audit.json、SHA256SUMS.json。
+実モデルのAPI品質は従来の未受入を維持し、実hostの接続・運用受入と正式評点の
+再評価は今回のローカル成功から外挿しない。

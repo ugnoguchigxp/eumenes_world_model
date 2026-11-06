@@ -1,5 +1,5 @@
 /** Nonrecursive native JSON, converted structurally to the public extraction contract. */
-import { relationKinds } from "../../src/index.ts";
+import { extractionLimits, relationKinds } from "../../src/index.ts";
 import {
 	decodeQuotedCandidates,
 	wireObject as obj,
@@ -44,16 +44,31 @@ const bound = obj({
 });
 export const CALENDAR_BOUND_POLICY =
 	"Calendar annotation convention: when a coarse boundary names one day/month/year, its uncertainty interval spans that calendar unit. Explicitly supplied endpoint ranges retain their stated endpoints. A start in a month has earliest at that month's start and latest at the next month's start. An inclusive through-month end is an exclusive boundary AFTER that month: earliest is the next month's start and latest the following month's start. These are contract uncertainty bounds, not a claim that the old value remains current. Exact boundaries have earliest=latest.";
-export const typedExtractionSchema = {
+const typedSchema = (multiple: boolean) => ({
 	...obj({
 		candidates: {
 			type: "array",
 			items: obj({
-				quote: obj({
-					utteranceId: str,
-					text: str,
-					occurrence: { type: "integer" },
-				}),
+				...(multiple
+					? {
+							quotes: {
+								type: "array",
+								minItems: 1,
+								maxItems: extractionLimits.maxQuotesPerCandidate,
+								items: obj({
+									utteranceId: str,
+									text: str,
+									occurrence: { type: "integer" },
+								}),
+							},
+						}
+					: {
+							quote: obj({
+								utteranceId: str,
+								text: str,
+								occurrence: { type: "integer" },
+							}),
+						}),
 				modality: {
 					type: "string",
 					enum: ["asserted", "reported", "hypothetical", "negated", "question"],
@@ -92,7 +107,9 @@ export const typedExtractionSchema = {
 		},
 	}),
 	$defs: { subject, value },
-};
+});
+export const typedSingleQuoteSchema = typedSchema(false);
+export const typedExtractionSchema = typedSchema(true);
 function record(x: unknown): Record<string, unknown> {
 	if (!x || typeof x !== "object" || Array.isArray(x))
 		throw Error("TYPED_WIRE_OBJECT");
@@ -277,7 +294,7 @@ export function decodeTypedCandidates(
 			"subject",
 			"predicate",
 			"payload",
-			"quote",
+			Object.hasOwn(c, "quotes") ? "quotes" : "quote",
 			"modality",
 			"condition",
 			"validTime",

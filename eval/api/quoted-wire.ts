@@ -1,5 +1,5 @@
 /** Exact wire binding only. No paraphrase search, normalization or meaning repair. */
-import { relationKinds } from "../../src/index.ts";
+import { extractionLimits, relationKinds } from "../../src/index.ts";
 import type { ProviderRequest } from "../extraction/runner.ts";
 type Schema = Record<string, unknown>;
 export const wireString = { type: "string" };
@@ -124,44 +124,59 @@ export function decodeQuotedCandidates(
 				"subject",
 				"predicate",
 				"payload",
-				"quote",
+				Object.hasOwn(c, "quotes") ? "quotes" : "quote",
 				"modality",
 				"conditionJson",
 				"validTimeJson",
 			]);
-			const q = record(c["quote"]);
-			exactKeys(q, ["utteranceId", "text", "occurrence"]);
+			const plural = Object.hasOwn(c, "quotes");
+			const rawQuotes = plural ? c["quotes"] : [c["quote"]];
 			if (
-				typeof q["text"] !== "string" ||
-				!q["text"].length ||
-				!Number.isSafeInteger(q["occurrence"]) ||
-				(q["occurrence"] as number) < 0
+				!Array.isArray(rawQuotes) ||
+				rawQuotes.length === 0 ||
+				rawQuotes.length > extractionLimits.maxQuotesPerCandidate
 			)
-				throw new Error("WIRE_QUOTE_INVALID");
-			const source = window.find((u) => u.utteranceId === q["utteranceId"]);
-			if (!source) throw new Error("WIRE_QUOTE_SOURCE_MISSING");
-			let at = -1;
-			for (let i = 0; i <= (q["occurrence"] as number); i++) {
-				at = source.text.indexOf(q["text"], at + 1);
-				if (at < 0) throw new Error("WIRE_QUOTE_NOT_EXACT");
-			}
-			if (
-				typeof c["conditionJson"] !== "string" ||
-				typeof c["validTimeJson"] !== "string"
-			)
-				throw new Error("WIRE_JSON_STRING_REQUIRED");
-			return {
-				subject: c["subject"],
-				predicate: c["predicate"],
-				payload: c["payload"],
-				modality: c["modality"],
-				quote: {
+				throw new Error("WIRE_QUOTES_INVALID");
+			const quotes = rawQuotes.map((rawQuote) => {
+				const q = record(rawQuote);
+				exactKeys(q, ["utteranceId", "text", "occurrence"]);
+				if (
+					typeof q["text"] !== "string" ||
+					!q["text"].length ||
+					!Number.isSafeInteger(q["occurrence"]) ||
+					(q["occurrence"] as number) < 0
+				)
+					throw new Error("WIRE_QUOTE_INVALID");
+				const source = window.find((u) => u.utteranceId === q["utteranceId"]);
+				if (!source) throw new Error("WIRE_QUOTE_SOURCE_MISSING");
+				let at = -1;
+				for (let i = 0; i <= (q["occurrence"] as number); i++) {
+					at = source.text.indexOf(q["text"], at + 1);
+					if (at < 0) throw new Error("WIRE_QUOTE_NOT_EXACT");
+				}
+				return {
 					utteranceId: source.utteranceId,
 					startByte: Buffer.byteLength(source.text.slice(0, at)),
 					endByte: Buffer.byteLength(
 						source.text.slice(0, at + q["text"].length),
 					),
-				},
+				};
+			});
+			if (
+				typeof c["conditionJson"] !== "string" ||
+				typeof c["validTimeJson"] !== "string"
+			)
+				throw new Error("WIRE_JSON_STRING_REQUIRED");
+			const quoteFields: {
+				quote?: (typeof quotes)[number];
+				quotes?: typeof quotes;
+			} = plural ? { quotes } : { quote: quotes[0]! };
+			return {
+				subject: c["subject"],
+				predicate: c["predicate"],
+				payload: c["payload"],
+				modality: c["modality"],
+				...quoteFields,
 				...(c["conditionJson"] === ""
 					? {}
 					: { condition: JSON.parse(c["conditionJson"]) }),

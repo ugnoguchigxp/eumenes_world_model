@@ -10,12 +10,17 @@ import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { ApiBudget, type ApiService } from "../api/client.ts";
 import { ApiSession } from "../api/session.ts";
+import { GROUNDED_VERSION } from "../api/grounded-extraction.ts";
 import { sourceSnapshot } from "../measurement/run.ts";
 import { runJobs, runIndependent, holdout } from "./main.ts";
 import { judgeOne, judgeExtraction, RELIABLE_VERSION } from "./reliable.ts";
 import { replay, describeValidation } from "./pipeline.ts";
 import { semanticPass } from "./scoring.ts";
 import { loadQuality, type Job, type QualityCase } from "./dataset.ts";
+import {
+	auditProfiles,
+	requireProfilesRepresentable,
+} from "./contract-audit.ts";
 const save = (file: string, v: unknown) =>
 	writeFileSync(file, JSON.stringify(v, null, 2) + "\n", { flag: "wx" });
 async function calibration(session: ApiSession, out: string) {
@@ -214,6 +219,38 @@ async function main() {
 	const effort = process.env["EUMENES_EVAL_API_EFFORT"] ?? "medium";
 	if (effort !== "medium" && effort !== "high")
 		throw Error("INVALID_API_EFFORT");
+	let independentCases: QualityCase[] | undefined;
+	if (mode === "regression" || mode === "independent")
+		independentCases = loadQuality<QualityCase>("independent");
+	if (mode === "fresh") {
+		const bytes = readFileSync(
+			new URL(
+				"../../fixtures/api-quality/independent.v2.json",
+				import.meta.url,
+			),
+		);
+		const data = JSON.parse(bytes.toString()) as { cases: QualityCase[] };
+		if (data.cases.length !== 60) throw Error("FRESH_COUNT");
+		independentCases = data.cases;
+		save(join(out, "dataset.json"), {
+			sha256: createHash("sha256").update(bytes).digest("hex"),
+			count: 60,
+		});
+	}
+	if (independentCases) {
+		save(
+			join(out, "contract-audit.json"),
+			auditProfiles(
+				independentCases,
+				mode === "fresh" ? ["baseline", "grounded"] : ["grounded"],
+			),
+		);
+		// Including regression's holdout: do not spend before discovering a known conflict.
+		requireProfilesRepresentable(
+			independentCases,
+			mode === "fresh" ? ["baseline", "grounded"] : ["grounded"],
+		);
+	}
 	const root = resolve(import.meta.dir, "../.."),
 		before = sourceSnapshot(root);
 	save(join(out, "manifest.json"), {
@@ -221,6 +258,7 @@ async function main() {
 		source: before,
 		version: RELIABLE_VERSION,
 		effort,
+		extractionVersion: GROUNDED_VERSION,
 		startedAt: new Date().toISOString(),
 		budgetLimitUSD: 10,
 		includesAllPrevious: true,
@@ -235,29 +273,13 @@ async function main() {
 			await runJobs(session, out, true, undefined, ["grounded"]);
 		if (mode === "jobs") await runJobs(session, out, false);
 		if (mode === "regression") await holdout(session, out);
-		if (mode === "regression" || mode === "independent") {
+		if (independentCases)
 			await runIndependent(
 				session,
 				out,
-				loadQuality<QualityCase>("independent"),
-				["grounded"],
+				independentCases,
+				mode === "fresh" ? undefined : ["grounded"],
 			);
-		}
-		if (mode === "fresh") {
-			const bytes = readFileSync(
-				new URL(
-					"../../fixtures/api-quality/independent.v2.json",
-					import.meta.url,
-				),
-			);
-			const data = JSON.parse(bytes.toString()) as { cases: QualityCase[] };
-			if (data.cases.length !== 60) throw Error("FRESH_COUNT");
-			save(join(out, "dataset.json"), {
-				sha256: createHash("sha256").update(bytes).digest("hex"),
-				count: 60,
-			});
-			await runIndependent(session, out, data.cases);
-		}
 		complete = true;
 	} finally {
 		const after = sourceSnapshot(root);

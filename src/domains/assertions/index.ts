@@ -1,5 +1,9 @@
 /** Assertions pure API: validation, transition planning, evidence roots. */
-export { validateAssertion, assessFreshness } from "./service/validate.ts";
+export {
+	validateAssertion,
+	assessFreshness,
+	assertionConsistencyCodes,
+} from "./service/validate.ts";
 export type {
 	AssertionRejectCode,
 	ValidateResult,

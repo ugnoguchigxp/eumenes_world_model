@@ -32,6 +32,11 @@ import { sourceSnapshot } from "../measurement/run.ts";
 import { loadDataset, DATASET_SHA256 } from "../extraction/dataset.ts";
 import { runEvaluation } from "../extraction/runner.ts";
 import { redactHoldoutReport } from "../extraction/main.ts";
+import { comparisonFeasibility, comparisonGate } from "./contracts.ts";
+import {
+	auditProfiles,
+	requireProfilesRepresentable,
+} from "./contract-audit.ts";
 const save = (file: string, value: unknown) =>
 	writeFileSync(file, JSON.stringify(value, null, 2) + "\n", { flag: "wx" });
 const message = (e: unknown) =>
@@ -92,11 +97,16 @@ export function summary(cells: Cell[]) {
 					return {
 						improvedEvaluation: improved,
 						worsenedAll: worsened,
+						feasibility: comparisonFeasibility(
+							group.length,
+							evals.length,
+							evals.filter((c) => pass(c, against)).length,
+						),
 						passed:
-							group.length === 40 &&
-							evals.length === 30 &&
-							improved >= 5 &&
-							worsened === 0,
+							group.length === comparisonGate.cases &&
+							evals.length === comparisonGate.evaluationCases &&
+							improved >= comparisonGate.minImprovements &&
+							worsened <= comparisonGate.maxWorsened,
 					};
 				};
 				out.push({
@@ -305,6 +315,7 @@ export async function runIndependent(
 	activeProfiles: readonly Profile[] = profiles,
 ) {
 	const cases = providedCases ?? loadQuality<QualityCase>("independent");
+	requireProfilesRepresentable(cases, activeProfiles);
 	const records: IndependentResult[] = [];
 	await pool(
 		cases.flatMap((c) => services.map((extractor) => ({ c, extractor }))),
@@ -529,8 +540,15 @@ async function main() {
 		);
 	if (existsSync(output)) throw new Error("OUTPUT_EXISTS");
 	mkdirSync(output, { recursive: true });
-	loadQuality("independent");
+	const independent = loadQuality("independent");
 	loadQuality("jobs");
+	save(
+		join(output, "contract-audit.json"),
+		auditProfiles(independent, profiles),
+	);
+	// Stop before opening a budget/session. Old scores and fixtures remain intact.
+	if (suite === "acceptance")
+		requireProfilesRepresentable(independent, profiles);
 	const before = sourceSnapshot(resolve(import.meta.dir, "../.."));
 	save(join(output, "manifest.json"), {
 		protocol: PROTOCOL,

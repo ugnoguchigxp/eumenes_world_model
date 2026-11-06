@@ -322,26 +322,48 @@ function judge(
 		};
 	} else return rejected(index, "MALFORMED_CANDIDATE");
 
-	const quote = asRecord(object["quote"]);
-	if (
-		!quote ||
-		firstUnknownKey(quote, ["utteranceId", "startByte", "endByte"]) !==
-			undefined
-	)
+	const plural = object["quotes"];
+	if (plural !== undefined && object["quote"] !== undefined)
 		return rejected(index, "MALFORMED_CANDIDATE");
-	const utterance = ctx.window.find(
-		(u) => u.utteranceId === quote["utteranceId"],
-	);
-	if (!utterance) return rejected(index, "QUOTE_SOURCE_NOT_IN_WINDOW");
-	const state = findState(ctx.scope, utterance.source, ctx.states);
-	if (!state || state.content === undefined)
-		return rejected(index, "SOURCE_NOT_AVAILABLE");
-	const start = quote["startByte"];
-	const end = quote["endByte"];
-	if (typeof start !== "number" || typeof end !== "number")
+	const rawQuotes = plural === undefined ? [object["quote"]] : plural;
+	if (!Array.isArray(rawQuotes) || rawQuotes.length === 0)
 		return rejected(index, "MALFORMED_CANDIDATE");
-	const bytes = citedBytes(state.content, { startByte: start, endByte: end });
-	if (!bytes.ok) return rejected(index, "QUOTE_OUT_OF_RANGE");
+	if (rawQuotes.length > extractionLimits.maxQuotesPerCandidate)
+		return rejected(index, "QUOTE_LIMIT_EXCEEDED");
+	const quoted: {
+		utterance: PreparedUtterance;
+		start: number;
+		end: number;
+		bytes: Uint8Array;
+	}[] = [];
+	const seenQuotes = new Set<string>();
+	for (const rawQuote of rawQuotes) {
+		const quote = asRecord(rawQuote);
+		if (
+			!quote ||
+			firstUnknownKey(quote, ["utteranceId", "startByte", "endByte"]) !==
+				undefined
+		)
+			return rejected(index, "MALFORMED_CANDIDATE");
+		const utterance = ctx.window.find(
+			(u) => u.utteranceId === quote["utteranceId"],
+		);
+		if (!utterance) return rejected(index, "QUOTE_SOURCE_NOT_IN_WINDOW");
+		const state = findState(ctx.scope, utterance.source, ctx.states);
+		if (!state || state.content === undefined)
+			return rejected(index, "SOURCE_NOT_AVAILABLE");
+		const start = quote["startByte"],
+			end = quote["endByte"];
+		if (typeof start !== "number" || typeof end !== "number")
+			return rejected(index, "MALFORMED_CANDIDATE");
+		const bytes = citedBytes(state.content, { startByte: start, endByte: end });
+		if (!bytes.ok) return rejected(index, "QUOTE_OUT_OF_RANGE");
+		const key = JSON.stringify([utterance.utteranceId, start, end]);
+		if (seenQuotes.has(key)) return rejected(index, "DUPLICATE_QUOTE");
+		seenQuotes.add(key);
+		quoted.push({ utterance, start, end, bytes: bytes.value });
+	}
+	const utterance = quoted[0]!.utterance;
 
 	const condition = checkConditionSpec(object["condition"]);
 	if (!condition.ok) return rejected(index, "CONDITION_INVALID");
@@ -365,20 +387,20 @@ function judge(
 		subjectId,
 		predicate: predicate.value,
 		payload,
-		evidence: [
-			{
-				evidenceId: assigned.evidenceId,
-				kind:
-					utterance.origin === "user_report" ? "user_statement" : "document",
-				stance: "supports",
-				source: {
-					...utterance.source,
-					range: { startByte: start, endByte: end },
-				},
-				rootEvidenceId: utterance.rootEvidenceId,
-				quoteDigest: `sha256:${hasher(bytes.value)}`,
+		evidence: quoted.map(({ utterance, start, end, bytes }, quoteIndex) => ({
+			evidenceId:
+				quoteIndex === 0
+					? assigned.evidenceId
+					: `evq-${hasher(new TextEncoder().encode(JSON.stringify([assigned.evidenceId, quoteIndex])))}`,
+			kind: utterance.origin === "user_report" ? "user_statement" : "document",
+			stance: "supports",
+			source: {
+				...utterance.source,
+				range: { startByte: start, endByte: end },
 			},
-		],
+			rootEvidenceId: utterance.rootEvidenceId,
+			quoteDigest: `sha256:${hasher(bytes)}`,
+		})),
 		// Every input the model saw, cited or not (forget traverses all of it).
 		inputManifest: ctx.dependencies,
 		// A reported statement is a hypothesis about someone else's claim.

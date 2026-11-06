@@ -280,6 +280,42 @@ describe("A24 scope epoch material", () => {
 });
 
 describe("review fixes: projection hardening", () => {
+	test("public projection and Slice reject inconsistent live assertions", () => {
+		for (const extra of [
+			{
+				condition: {
+					kind: "explicitly_unconditional",
+					adoptionEvidenceId: "missing",
+				},
+			},
+			{ origin: "runtime_observation", observedAt: undefined },
+			{ origin: "document_claim" },
+		]) {
+			const assertions = [rec("c1", extra)];
+			for (const result of [
+				project(assertions),
+				buildWorldSlice(sliceInput(assertions), sha256),
+			])
+				expect(result).toMatchObject({ ok: false, code: "INVALID_INPUT" });
+			// Historic invalid content may still be excluded after cleanup.
+			expect(
+				ok(project([rec("c1", { ...extra, lifecycle: "invalidated" })]))
+					.entries,
+			).toEqual([]);
+		}
+		expect(
+			ok(
+				project([
+					rec("c1", {
+						condition: {
+							kind: "explicitly_unconditional",
+							adoptionEvidenceId: "ev-c1",
+						},
+					}),
+				]),
+			).entries,
+		).toHaveLength(1);
+	});
 	test("duplicate source identities are rejected, in either order", () => {
 		const a = state({ revision: "rev-2" });
 		const b = state();

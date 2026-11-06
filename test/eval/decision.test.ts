@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { applyBudget, buildContext } from "../../eval/decision/context.ts";
+import {
+	applyBudget,
+	buildContext,
+	renderItem,
+} from "../../eval/decision/context.ts";
 import {
 	createFixtureProvider,
 	type FixtureBehavior,
@@ -960,6 +964,22 @@ describe("plain-facts control and the World pipeline", () => {
 			);
 			expect(presented.digest).toBe(presentWorldClaims(task).digest);
 		}
+	});
+	test("uncited fixture material stays a visible hypothesis", () => {
+		let hypotheses = 0;
+		for (const task of allTasks) {
+			const presented = presentWorldClaims(task);
+			for (const claim of task.world) {
+				const item = presented.items.find((i) => i.id === claim.id)!;
+				const ungrounded = claim.evidence.length === 0;
+				expect(item.stance).toBe(ungrounded ? "hypothesis" : "claim");
+				expect(renderItem(item)).toContain(
+					ungrounded ? "扱い: 仮説" : "扱い: 主張",
+				);
+				if (ungrounded) hypotheses++;
+			}
+		}
+		expect(hypotheses).toBeGreaterThan(0);
 	});
 
 	test("a claim the pipeline rejects fails the World cell, not the others", async () => {

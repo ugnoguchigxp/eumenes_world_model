@@ -5,7 +5,10 @@ import {
 	firstUnknownKey,
 	sameScope,
 } from "../../contracts/index.ts";
-import { sourceIdentityKey } from "../../domains/assertions/index.ts";
+import {
+	assertionConsistencyCodes,
+	sourceIdentityKey,
+} from "../../domains/assertions/index.ts";
 import { getAssertion, getHead } from "../../domains/assertions/sqlite.ts";
 import { getTombstone, isGateOpen } from "../../domains/lifecycle/sqlite.ts";
 import {
@@ -98,7 +101,7 @@ export function validateWorldUsage(
 				)
 					return [];
 				const stored = getAssertion(db, scope.value, used.id, used.revision);
-				return stored
+				return stored && assertionConsistencyCodes(stored).length === 0
 					? [
 							{
 								id: stored.id,

@@ -11,6 +11,8 @@ export function estimateTokens(text: string): number {
 
 export function renderItem(item: ContextItem): string {
 	const lines = [`[${item.id}] (${item.kind}) ${item.text}`];
+	if (item.stance !== undefined)
+		lines.push(`扱い: ${item.stance === "hypothesis" ? "仮説" : "主張"}`);
 	if (item.conditions !== undefined) lines.push(`条件: ${item.conditions}`);
 	if (item.evidence !== undefined && item.evidence.length > 0) {
 		lines.push(`根拠: ${item.evidence.join(", ")}`);

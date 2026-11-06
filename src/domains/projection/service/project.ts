@@ -12,6 +12,7 @@ import {
 } from "../../../contracts/index.ts";
 import {
 	assessFreshness,
+	assertionConsistencyCodes,
 	referencesCurrentContent,
 	sourceIdentityKey,
 	sourceInputKey,
@@ -83,6 +84,14 @@ export function projectSnapshot(
 	snapshot: ProjectionSnapshot,
 	hasher: CanonicalHasher,
 ): Checked<Projection> {
+	for (let i = 0; i < snapshot.assertions.length; i++) {
+		const assertion = snapshot.assertions[i]!;
+		if (
+			!terminal.has(assertion.lifecycle) &&
+			assertionConsistencyCodes(assertion).length > 0
+		)
+			return fail("INVALID_INPUT", `snapshot.assertions[${i}]`);
+	}
 	const states = indexStates(snapshot.sources);
 	const heads = new Map(snapshot.assertions.map((a) => [a.id, a]));
 	const disputers = new Map<string, AssertionRef[]>();

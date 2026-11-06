@@ -21,6 +21,8 @@ import {
 /** Initial extraction limits (P1-10). Bytes are UTF-8. */
 export const extractionLimits = Object.freeze({
 	maxUtterances: 12,
+	/** Joint supporting quotes of one proposition, individually verified. */
+	maxQuotesPerCandidate: 12,
 	maxWindowBytes: 32 * 1024,
 	maxCandidates: 8,
 	maxDependencies: maxManifestSources,

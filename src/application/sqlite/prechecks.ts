@@ -8,14 +8,18 @@ import {
 } from "../../contracts/index.ts";
 import {
 	sourceInputKey,
+	checkAssertionRecord,
+	assertionConsistencyCodes,
 	sourceIdentityKey,
 	transitionTable,
+	planAssertionTransition,
 	type Assertion,
 	type TransitionPlan,
 } from "../../domains/assertions/index.ts";
 import { getAssertion } from "../../domains/assertions/sqlite.ts";
 import type { WorldDb } from "../../infrastructure/sqlite/db.ts";
 import { rejectedResult } from "./checks.ts";
+import { transitionRequestOf } from "./operation-shape.ts";
 
 type Refusal = ReturnType<typeof rejectedResult>;
 
@@ -69,6 +73,10 @@ export function precheckAssertionRows(
 	}
 	if (byIdentity.size > limits.manifestDependencies)
 		return rejectedResult("LIMIT_EXCEEDED");
+	if (!checkAssertionRecord(assertion, "assertion").ok)
+		return rejectedResult("INVALID_INPUT");
+	const codes = assertionConsistencyCodes(assertion);
+	if (codes.length) return rejectedResult(codes[0]!);
 	return null;
 }
 
@@ -96,11 +104,49 @@ export function precheckTransitionPlan(
 	const head = getAssertion(db, scope, plan.id);
 	if (head && head.lifecycle !== plan.from)
 		return rejectedResult("LIFECYCLE_MISMATCH");
+	// Older stores may contain candidates accepted before these invariants
+	// were enforced. Promotion must recheck them; cleanup must stay possible.
+	if (head && plan.nextLifecycle === "active") {
+		const codes = assertionConsistencyCodes(head);
+		if (codes.length) return rejectedResult(codes[0]!);
+	}
 	// A dispute must name stored targets, otherwise the incremental projection
 	// (which cannot back-fill a later target) would drift from a rebuild.
 	for (const target of Array.isArray(plan.contradicts) ? plan.contradicts : [])
 		if (!getAssertion(db, scope, target.id, target.revision))
 			return rejectedResult("CONTRADICTION_TARGET_NOT_FOUND");
+	if (head) {
+		const request = transitionRequestOf(plan);
+		if (!request) return rejectedResult("TRANSITION_NOT_ALLOWED");
+		const expected = planAssertionTransition({
+			contractVersion: 1,
+			scope,
+			current: {
+				id: head.id,
+				revision: head.revision,
+				scope,
+				lifecycle: head.lifecycle,
+				origin: head.origin,
+			},
+			expectedRevision: plan.expectedRevision,
+			request,
+			// The host has already authorized this rule/subject. Replanning checks
+			// ledger consistency; it does not reissue authority or query a registry.
+			registeredAdoptionRules:
+				plan.adoption?.kind === "rule" ? [plan.adoption.ruleId] : [],
+		});
+		if (!expected.ok || expected.value.status !== "planned")
+			return rejectedResult("TRANSITION_NOT_ALLOWED");
+		const actualBytes = canonicalBytes(plan),
+			expectedBytes = canonicalBytes(expected.value.plan);
+		if (
+			!actualBytes.ok ||
+			!expectedBytes.ok ||
+			actualBytes.value.length !== expectedBytes.value.length ||
+			actualBytes.value.some((b, i) => b !== expectedBytes.value[i])
+		)
+			return rejectedResult("TRANSITION_NOT_ALLOWED");
+	}
 	if (replacement) {
 		const refused = precheckAssertionRows(replacement);
 		if (refused) return refused;

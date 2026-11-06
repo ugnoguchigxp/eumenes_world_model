@@ -12,7 +12,11 @@ import {
 	type SourceRef,
 	type SourceState,
 } from "../../contracts/index.ts";
-import { sourceIdentityKey } from "../../domains/assertions/index.ts";
+import {
+	checkSourceState,
+	sourceIdentityKey,
+} from "../../domains/assertions/index.ts";
+import { extractionLimits } from "../../domains/extraction/contracts/index.ts";
 import {
 	isGateOpen,
 	listTombstones,
@@ -53,10 +57,18 @@ const operationKinds = [
 	"rebuild",
 ] as const;
 
+type ApplicationChecked<T> =
+	| Checked<T>
+	| {
+			readonly ok: false;
+			readonly code: "SOURCE_NOT_AVAILABLE" | "CONFLICTING_INPUT_REVISIONS";
+			readonly path: string;
+	  };
+
 export function checkHostChecks(
 	value: unknown,
 	path = "hostChecks",
-): Checked<HostChecks> {
+): ApplicationChecked<HostChecks> {
 	const object = asRecord(value);
 	if (!object) return { ok: false, code: "INVALID_INPUT", path };
 	const extra = firstUnknownKey(object, [
@@ -86,11 +98,36 @@ export function checkHostChecks(
 		const id = checkId(object[key], `${path}.${key}`);
 		if (!id.ok) return id;
 	}
+	if (snapshot["states"].length > extractionLimits.maxSourceStates)
+		return { ok: false, code: "LIMIT_EXCEEDED", path };
+	const states: SourceState[] = [];
+	const identities = new Set<string>();
+	for (const raw of snapshot["states"]) {
+		const checked = checkSourceState(raw);
+		if (!checked.ok)
+			return {
+				...checked,
+				code:
+					checked.path === "state.status"
+						? "SOURCE_NOT_AVAILABLE"
+						: checked.code,
+			};
+		const state = checked.value;
+		const key = JSON.stringify([
+			state.principal,
+			state.scopeKey,
+			sourceIdentityKey(state),
+		]);
+		if (identities.has(key))
+			return { ok: false, code: "CONFLICTING_INPUT_REVISIONS", path };
+		identities.add(key);
+		states.push(state);
+	}
 	return {
 		ok: true,
 		value: {
 			...(gate === undefined ? {} : { gate }),
-			sourceSnapshot: { states: snapshot["states"] as SourceState[] },
+			sourceSnapshot: { states },
 			forgetEpoch: object["forgetEpoch"] as string,
 			restoreEpoch: object["restoreEpoch"] as string,
 			policyRevision: object["policyRevision"] as string,
@@ -127,7 +164,9 @@ export function checkAccess(
 }
 
 /** Strict envelope parse: unknown keys are rejected, never dropped. */
-export function parseEnvelope(input: unknown): Checked<WorldOperationInput> {
+export function parseEnvelope(
+	input: unknown,
+): ApplicationChecked<WorldOperationInput> {
 	const object = asRecord(input);
 	if (!object) return { ok: false, code: "INVALID_INPUT", path: "input" };
 	const extra = firstUnknownKey(object, [

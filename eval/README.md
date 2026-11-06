@@ -38,6 +38,12 @@ compareのexit 0は同条件で差分を計算できたという意味で、改�
 変更できる対象はsrcと共有抽出指示/adapterのproviders.ts。抽出のprompt-version/instructionVersionは変更前後の版を開示して比較する。
 評価器や入力を変更したら両armのbaselineを新しい版で取り直す。時間計測は単独で実行し、複数runのばらつきを見る。
 fixtureの得点・推定token数は実モデル性能や実課金の証拠ではない。未報告tokensはnull。金額、正確なモデル呼出し数、host待ち時間は計測しない。
+
+2026年11月6日のレビューで、decisionの手書き・出典なし材料を
+`candidate/model_hypothesis`へ修正し、Sliceの`claim/hypothesis`を提示に保持した。
+提示版は`decision-world-presentation/2`。課題・rubric・合格基準は変えず、
+旧提示の実モデル結果も更新しない。入力が変わるため、将来の比較では両armを
+同じ新版で取り直す。この変更だけを品質向上の測定結果にしない。
 性能標本のp95はrawMsから再計算し、欠けた標本を成功扱いしない。
 
 実Local/remoteを測る場合も、`--`以降は既存CLIの明示指定を使う。既存のモデル・予算・holdout受入条件を先に満たす。
@@ -105,6 +111,10 @@ zsh -lc 'EUMENES_EVAL_API_EFFORT=high bun eval/api-quality/confirmation.ts jobs 
 confirmationのeffortは明示的にmedium/highを選べ、既定medium。今回の固定版はhigh。
 要求のhashには実際のeffort・モデル・指示・入力・schema・出力上限・tierを含む。
 実装版・全結果・費用・未達条件の正本は[API品質の検証記録](../spec/plan/api-quality.md)。
+現行の追試候補はnative8.2 / extraction judge2。共通のhost contextManifestを抽出・採点にも渡し、
+実際の話者帰属を引用から除かない。[2026年11月6日の追試](../spec/plan/api-quality-followup.md)では
+既存holdout100件/社の改善を確認したが、両社の採用精度/再現率は95%未達で、総合未受入のまま。
+既存の8.1の新規60例・40仕事の合格を8.2の新規検証とみなさない。残予算での全件再実行は行わない。
 
 共有台帳で累積10 USD・12000予約を送信前に強制する。旧記録は再計算・返金扱いにしない。
 新規の既知usageはinput/read 0.15、cache-write 0.25、思考を含むoutput 0.60 USD/百万token。
@@ -159,3 +169,38 @@ source前後不一致はinvalidated。`status:completed`は処理完了であり
 旧版・旧料金計上の結果は履歴であり、現行8.1や新しい採点結果へ置き換えない。
 実モデルのAPI品質、Local/P5正式受入、技術品質の評点は別の判定。
 CIと本流への取り込みはこの作業に含まれない。
+
+## 課金前の契約監査と判断更新
+
+API不要の入口を追加した。出力先は未作成のディレクトリを指定する。
+
+```sh
+bun eval/api-quality/audit-main.ts <new-output> [historical-cells.jsonl]
+bun eval/scenarios/contract-update/main.ts <new-output>
+```
+
+監査は、固定対照に対する改善可能件数と、単一引用に対するgoldの出典数を
+照合する。`possible`は品質合格ではなく、件数上の余地があるという意味。
+`unreachable`は指定した固定対照についての上限であり、将来のモデル比較へ
+一般化しない。過去の合否・95%・改善5件以上/悪化0の条件は維持する。
+
+`main.ts acceptance`と`confirmation.ts independent/regression/fresh`は
+独立データの表現衝突を費用台帳の開始前に検査する。衝突が残る評価は
+`contract-audit.json`を残して停止する。検出なしを意味品質の保証にはしない。
+
+判断更新は「課金前の契約監査」という一つの仕事を実SQLiteへ保存し、
+観測→旧receipt失効→新Slice→訂正→再利用検査を確認する。
+監査値は実行結果、Goal・判断案・host採用はfixture。Claude/Lunaの判断性能、
+実host接続や製品受入は測っていない。詳しい範囲と次の条件は
+`spec/plan/contract-cycle.md`に記録する。
+
+2026-11-06の契約修正は`spec/plan/contract-remediation.md`を正本とする。
+新版`typed-calendar-9-multiquote`は`quotes`配列を要求し、各引用を公開検証器で
+検査して一つの主張へ保存する。旧`quote`は互換で、baselineの単一引用容量は
+変更していない。preflightは実行profileごとの容量を確認するため、baselineを
+含む旧全比較は引き続き表現衝突を報告する。新版のAPI品質は未測定。
+独立fixtureの2出典goldを満たせても、原典の忘却後はその主張を表示しない。
+
+観測訂正の接続例は、Outcomeと派生主張の訂正・失効を同一host transactionへ
+載せる。採用前に測定identityの最新版を読み、古いOutcomeの指定を拒否する。
+この接続例の成立を、任意のhostでの自動同期や実LLMの判断改善と読み替えない。

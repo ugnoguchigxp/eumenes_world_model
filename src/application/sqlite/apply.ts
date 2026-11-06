@@ -32,6 +32,7 @@ import {
 	type WorldDb,
 } from "../../infrastructure/sqlite/db.ts";
 import { operationDigest } from "./digest.ts";
+import { validOperationShape } from "./operation-shape.ts";
 import {
 	blockedResult,
 	checkAccess,
@@ -320,6 +321,8 @@ export function applyWorldOperation(
 	const restoring = input.operation.kind.startsWith("restore.");
 	// Deleting must never wait on a policy change, the gate, a model or World ON/OFF.
 	if (access === "POLICY_CHANGED" && !forgetting) return blockedResult(access);
+	if (!validOperationShape(input.operation))
+		return rejectedResult("INVALID_INPUT");
 
 	// Current gate / tombstone / source state is re-checked even for a resend.
 	if (!forgetting && !restoring) {

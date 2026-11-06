@@ -4,7 +4,13 @@ import {
 	assertDeclaredPayloads,
 } from "../../eval/api/typed-wire.ts";
 import { loadQuality, type Job } from "../../eval/api-quality/dataset.ts";
-import { answerReliable, judgeOne } from "../../eval/api-quality/reliable.ts";
+import {
+	answerReliable,
+	judgeOne,
+	judgeExtraction,
+} from "../../eval/api-quality/reliable.ts";
+import { groundedExtractionProvider } from "../../eval/api/grounded-extraction.ts";
+import { recordContext } from "../../eval/api/record-context.ts";
 import { semanticPass } from "../../eval/api-quality/scoring.ts";
 import { ApiSession } from "../../eval/api/session.ts";
 import { ApiBudget } from "../../eval/api/client.ts";
@@ -18,6 +24,87 @@ const window = [
 		text: "制御室は許可証があり監督者が在室するとき利用できる。",
 	},
 ];
+test("extraction and its judge share host provenance without putting references into generation", async () => {
+	const dir = mkdtempSync(join(tmpdir(), "world-record-context-"));
+	const budget = new ApiBudget(join(dir, "ledger"));
+	const inputs: Record<string, unknown>[] = [];
+	const c = loadQuality("independent")[0]!;
+	const session = new ApiSession(budget, join(dir, "cache"), {
+		key: "fake",
+		fetchImpl: async (_url, init) => {
+			const body = JSON.parse(String(init.body));
+			inputs.push(JSON.parse(body.input));
+			return Response.json({
+				model: "gpt-6-luna",
+				status: "completed",
+				usage: { input_tokens: 10, output_tokens: 5 },
+				output: [
+					{
+						type: "message",
+						content: [
+							{
+								type: "output_text",
+								text:
+									inputs.length < 3
+										? '{"candidates":[]}'
+										: JSON.stringify({
+												label: "output",
+												correct: true,
+												sourceSupported: true,
+												qualificationsPreserved: true,
+												appropriateHold: true,
+												safetyViolation: false,
+												referenceConflict: false,
+												reason: "supported",
+											}),
+							},
+						],
+					},
+				],
+			});
+		},
+	});
+	try {
+		const provider = groundedExtractionProvider(session.client("openai"), {
+			predicates: c.predicates,
+			bindings: c.bindings,
+		});
+		const response = await provider.extract(
+			{
+				requestKey: "test",
+				window: c.sources.map((s) => ({ utteranceId: s.id, text: s.text })),
+				entities: c.entities,
+				predicates: c.predicates.map((p) => p.name),
+				timeoutMs: 1000,
+			},
+			AbortSignal.timeout(1000),
+		);
+		await judgeExtraction(session, "openai", c, response.output, {}, true);
+		expect(inputs).toHaveLength(3);
+		expect(inputs[0]!["contextManifest"]).toEqual(
+			recordContext(c.sources.map((s) => s.id)),
+		);
+		expect(
+			(inputs[1]!["originalInput"] as Record<string, unknown>)[
+				"contextManifest"
+			],
+		).toEqual(inputs[0]!["contextManifest"]);
+		expect(inputs[2]!["contextManifest"]).toEqual(
+			inputs[0]!["contextManifest"],
+		);
+		for (const input of [
+			inputs[0]!,
+			inputs[1]!["originalInput"] as Record<string, unknown>,
+		]) {
+			expect(input).not.toHaveProperty("reference");
+			expect(input).not.toHaveProperty("expected");
+			expect(input).not.toHaveProperty("holdModality");
+		}
+	} finally {
+		budget.close();
+		rmSync(dir, { recursive: true, force: true });
+	}
+});
 test("fixed review sees original input and first draft, and never falls back to an unreviewed draft", async () => {
 	const calls: { instruction: string; prompt: string }[] = [];
 	const reply = (text: string) => ({

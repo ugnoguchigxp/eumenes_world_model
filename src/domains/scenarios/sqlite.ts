@@ -22,6 +22,7 @@ export {
 export {
 	deletePredictionsAndOutcomes,
 	getOutcome,
+	getLatestOutcome,
 	insertOutcome,
 	listOutcomesByComparison,
 	type OutcomeInput,

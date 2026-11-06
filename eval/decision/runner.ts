@@ -355,10 +355,10 @@ function worldAuthoring(tasks: readonly Task[]): Report["worldAuthoring"] {
 	}
 	return {
 		pipeline:
-			"World純粋API buildWorldSlice（assertion記録の検証・Scope・source状態・鮮度・提示予算）を通した slice unit を提示",
+			"decision-world-presentation/2: World純粋API buildWorldSlice（assertion記録の検証・Scope・source状態・鮮度・提示予算）を通した slice unit とclaim/hypothesisを提示",
 		handAuthored: HAND_AUTHORED,
 		sliceDigests,
-		note: "全仕事で主張文・条件文・置換元・保留条件は手書き（v1）。純粋層はMemory原典からこれらを導出しない。passはWorldの有用性の証拠ではなく、memory-plain-facts対照に対する差で別途判断する。",
+		note: "全仕事で主張文・条件文・置換元・保留条件は手書き（v1）。出典のない材料はcandidate/model_hypothesisとし、仮説と表示する。純粋層はMemory原典からこれらを導出しない。提示版2は旧版と同一入力ではなく、比較時は両armを取り直す。passはWorldの有用性の証拠ではなく、memory-plain-facts対照に対する差で別途判断する。",
 	};
 }
 

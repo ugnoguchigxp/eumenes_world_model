@@ -11,6 +11,7 @@ import {
 } from "../../contracts/index.ts";
 import {
 	sourceIdentityKey,
+	assertionConsistencyCodes,
 	type Assertion,
 } from "../../domains/assertions/index.ts";
 import { getAssertion, getHead } from "../../domains/assertions/sqlite.ts";
@@ -335,6 +336,8 @@ function readScope(db: WorldDb, request: ReadRequest): WorldSnapshotResult {
 		);
 		// Projection and ledger are written in one transaction: a gap is corruption.
 		if (!stored) throw new WorldIntegrityError("PROJECTION_LEDGER_MISMATCH");
+		if (assertionConsistencyCodes(stored).length)
+			return blockedResult("ASSERTION_CONTENT_INVALID");
 		assertions.push(withoutTransitionMeta(stored));
 	}
 	// A returned assertion must not name a forgotten entity (subject, relation

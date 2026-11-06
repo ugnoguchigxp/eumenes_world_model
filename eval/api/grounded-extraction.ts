@@ -2,6 +2,7 @@ import { relationKinds } from "../../src/index.ts";
 import type { ExtractionProvider } from "../extraction/runner.ts";
 import { EvaluationApi, apiModels, type ApiReply } from "./client.ts";
 import { reviewedCompletion } from "./reviewed-completion.ts";
+import { recordContext } from "./record-context.ts";
 import {
 	typedExtractionSchema,
 	decodeTypedCandidates,
@@ -45,7 +46,7 @@ export const evaluationPredicates: readonly PredicateDefinition[] = [
 		payload: "relation:depends_on",
 	},
 ];
-export const GROUNDED_VERSION = "typed-calendar-8.1";
+export const GROUNDED_VERSION = "typed-calendar-9-multiquote";
 export const groundedInstruction = (purpose: "current" | "history") =>
 	[
 		"Extract source-supported in-scope propositions using the supplied predicate definitions, including standalone denials, assumptions and inquiries required for classification. A candidate is not an adopted fact. Return candidates, never execute actions or assign authority.",
@@ -55,8 +56,8 @@ export const groundedInstruction = (purpose: "current" | "history") =>
 			: "Purpose: retain supported history. Preserve distinct time-qualified claims and corrections as separate candidates. Do not turn an earlier dated state into a current unconditional fact. Explicit withdrawn/forgotten material is ineligible for reuse.",
 		"Use the proposition's actual grammatical direction and the predicate catalog. Do not emit a second inverse or negative proposition just because the sentence contrasts it with the affirmed one. Omit unrelated subjects outside the entity catalog. Preserve an ambiguous alias rather than guessing an ID.",
 		"Modality is semantic: asserted for a direct affirmative factual claim; reported for attribution to another speaker, hearsay or explicit uncertainty; hypothetical for an assumed/supposed scenario; negated for a denied fact; question for a question. Hypothetical, negated and question candidates are not facts. Referring to a record of one's own factual report/confirmation is a discourse frame, not secondhand attribution. Do not change a direct user assertion to reported solely because it has a reporting/recording preface.",
-		"For quote, select a verbatim contiguous supporting span that states this claim and its qualifications. Remove discourse lead-ins, retain the proposition subject and needed condition/time/attribution. Supply utteranceId, text and zero-based occurrence of that exact text. Do not compute byte offsets. Do not paraphrase or normalize quote text.",
-		'Quote boundary example: in "点検記録を確認すると、中継盤は北棟に設置されている。", the assertion quote is "中継盤は北棟に設置されている。". The recording preface is not part of that proposition. Reported modality can still retain the claim core as quote without copying its introductory attribution clause; preserve the reported modality separately.',
+		"For quotes, select 1 to 12 verbatim contiguous supporting spans whose combined content states this one claim and its qualifications. Put its primary proposition first; preserve any additional context needed for a joint-source conclusion. Never add unrelated quotes or duplicate a span. Remove only content-free discourse lead-ins. Retain actual speaker attribution, doubt, negation and needed condition/time; encoding modality separately does not make its supporting source phrase dispensable. Supply utteranceId, text and zero-based occurrence of that exact text. Do not compute byte offsets. Do not paraphrase or normalize quote text.",
+		'Quote boundary example: in "点検記録を確認すると、中継盤は北棟に設置されている。", the assertion quote is "中継盤は北棟に設置されている。". The recording preface is not part of that proposition. An actual attributed speaker or hearsay qualification is part of the supporting proposition and stays in its quote.',
 		"payload is {kind:value,value:<typed object>} or {kind:relation,relation:<allowed relation>,object:<id/alias>}. Typed values are {kind:string,value:string}, {kind:boolean,value:boolean}, {kind:number,value:number,unit:string}, {kind:entity,entityId:string}.",
 		`Allowed relation names: ${JSON.stringify(relationKinds)}. A predicate is not automatically a relation name.`,
 		'condition is null if not stated. Otherwise {nodes:[...]} in POSTORDER, final node is root. Leaf {kind:"compare",key,op,value:<typed value>} or {kind:"unsupported"}; groups {kind:"all|any",children:[earlier node indexes]}; negation {kind:"not",child:<earlier index>}. Every node must be used by the root. Max64 nodes/depth8. This is a structural encoding of the public condition AST, not prose or a JSON string. Missing bindings mean unsupported, never invent observation keys.',
@@ -64,11 +65,12 @@ export const groundedInstruction = (purpose: "current" | "history") =>
 
 		"Modality precedence: an explicitly secondhand negative claim is reported with a false value, not negated. A request to be notified when a future condition becomes true is hypothetical, not a present fact, and still needs a hypothetical candidate. Reported requires attribution to another speaker or explicit doubt/rumor; a direct assertion introduced by the speaker own earlier report or confirmation stays asserted.",
 		CALENDAR_BOUND_POLICY,
+		"A calendar date, availability period or hypothetical future time belongs in validTime when determinate; it is not an observation condition. Do not add an unsupported condition solely because a time or hypothetical modality is present. Preserve a separate actual eligibility condition when the source states one.",
 		"Select the exact proposition quote and its modality before binding subject/predicate/value. Resolve unambiguous abbreviations and anaphora from the whole ordered record to the catalog ID; do not leave a uniquely grounded entity as an unregistered alias. Keep actual shared-name ambiguity held.",
 		"A correction with an abbreviated field name inherits the earlier field unless the source explicitly changes what is measured. A completed state-changing event establishes a current value; its completed cause/timing is not an ongoing eligibility condition. A correction's contrast with the old value is not itself a condition.",
 		"Identify the complete proposition before assigning a predicate: a condition/qualification does not independently imply availability. Keep its condition attached to the stated numeric/relation/value proposition; do not manufacture another fact from a clause fragment.",
 		"Preserve standalone denied, assumed and question propositions as negated/hypothetical/question candidates for classification even though they cannot be adopted. Omit a contrasted negative only when it merely excludes an alternative alongside a positive ownership statement. An uncertain or withdrawn schedule is not a new eligible schedule value such as undecided.",
-		"Canonical predicate orientation follows discourse topic. Thing-centered identification (the device's operator is a person) uses owner(thing,person). Person-centered responsibility (a person handles a device) uses responsible_for(person,thing), including a person being described as its operator. Do not swap these merely because the inverse has equivalent natural meaning.",
+		"Canonical predicate orientation follows the information being specified, not the first-mentioned name or surface word order. Identifying who holds a thing's assignment uses owner(thing,person), including a relative-clause/cleft that supplies that person's identity. A statement about a person's assigned responsibility uses responsible_for(person,thing). Do not swap these merely because the inverse has equivalent natural meaning; use the caller catalog for other predicates.",
 		"Entity IDs must be unambiguously grounded in the supplied names/aliases. Shared aliases do not distinguish people; never pick the first catalog entry. If an entity-valued payload cannot be resolved uniquely, omit that candidate. Subject/relation-object ambiguity may retain an alias for the public resolver to hold.",
 		"Canonical-orientation illustrations (P=person, E=equipment; placeholders, never actual input IDs): source『排水設備の担当者はナオだ』encodes owner(E,P); source『ナオは排水設備の担当者だ』encodes responsible_for(P,E). The noun has the same meaning, but the source's subject/topic determines the canonical predicate. An equivalent inverse is not an alternative encoding. Apply the actual caller catalog to every different name and domain.",
 		"Annotation policy: source-level reporting/recording is not itself attribution to another speaker. Require an actual attributed other speaker, hearsay or doubt before using reported. Without such evidence a document/user's own source claim stays asserted (or negated for a direct denial). Illustration:『議事録では、北区画の定員は4名だ』is asserted record content;『隣室の人から北区画の定員は4名と聞いた』is reported. These illustrations are not input records and must not be emitted.",
@@ -125,6 +127,9 @@ export function groundedExtractionProvider(
 					window: request.window,
 					entities: request.entities,
 					predicateCatalog: definitions,
+					contextManifest: recordContext(
+						request.window.map((u) => u.utteranceId),
+					),
 					sourcePolicy:
 						"origin is caller-provided provenance, not modality or adoption authority; interpret the ordered record and preserve nonfactual candidates",
 					predicates: request.predicates,

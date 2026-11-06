@@ -97,6 +97,8 @@ export interface ContextItem {
 	readonly id: string;
 	readonly kind: "memory" | "related" | "fact" | "world";
 	readonly text: string;
+	/** Preserved from the World Slice; hypotheses must stay visible as such. */
+	readonly stance?: "claim" | "hypothesis";
 	readonly conditions?: string;
 	readonly evidence?: readonly string[];
 	readonly supersedes?: readonly string[];

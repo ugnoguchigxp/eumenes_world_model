@@ -157,7 +157,10 @@ function checkSource(
 		codes.add("QUOTE_DIGEST_MISMATCH");
 }
 
-function checkOrigin(draft: AssertionDraft, codes: Set<AssertionRejectCode>) {
+function checkOrigin(
+	draft: Omit<AssertionDraft, "lifecycle">,
+	codes: Set<AssertionRejectCode>,
+) {
 	const needed = originEvidence[draft.origin];
 	if (needed !== undefined) {
 		const backed = draft.evidence.some(
@@ -167,6 +170,35 @@ function checkOrigin(draft: AssertionDraft, codes: Set<AssertionRejectCode>) {
 	}
 	if (draft.origin === "runtime_observation" && draft.observedAt === undefined)
 		codes.add("MISSING_OBSERVED_AT");
+}
+
+/** Context-free invariants of a structurally parsed draft. No entity/authority lookup. */
+export function assertionConsistencyCodes(
+	value: Omit<AssertionDraft, "lifecycle">,
+): readonly AssertionRejectCode[] {
+	const codes = new Set<AssertionRejectCode>();
+	if (hasRootConflict(value.evidence)) codes.add("ROOT_LABEL_CONFLICT");
+	checkOrigin(value, codes);
+	if (value.condition.kind === "explicitly_unconditional") {
+		const adoptionId = value.condition.adoptionEvidenceId;
+		const backed = value.evidence.some(
+			(item: Evidence) =>
+				item.evidenceId === adoptionId &&
+				item.stance === "supports" &&
+				// An assistant summary never backs adoption on its own.
+				item.kind !== "assistant_summary",
+		);
+		if (!backed) codes.add("UNCONDITIONAL_WITHOUT_EVIDENCE");
+	}
+	if (value.contradicts.some((ref) => ref.id === value.id))
+		codes.add("SELF_CONTRADICTION");
+	if (
+		value.supersedes.some(
+			(ref) => ref.id !== value.id || ref.revision >= value.revision,
+		)
+	)
+		codes.add("INVALID_SUPERSEDES");
+	return [...codes].sort();
 }
 
 function canonicalRefs(refs: readonly AssertionRef[]): readonly AssertionRef[] {
@@ -326,21 +358,7 @@ export function validateAssertion(
 		const { range: _range, ...whole } = ref;
 		checkSource(whole, value.scope, states, hasher, undefined, codes);
 	}
-	if (hasRootConflict(value.evidence)) codes.add("ROOT_LABEL_CONFLICT");
-	checkOrigin(value, codes);
-	if (value.condition.kind === "explicitly_unconditional") {
-		const adoptionId = value.condition.adoptionEvidenceId;
-		const backed = value.evidence.some(
-			(item: Evidence) =>
-				item.evidenceId === adoptionId &&
-				item.stance === "supports" &&
-				// An assistant summary never backs adoption on its own.
-				item.kind !== "assistant_summary",
-		);
-		if (!backed) codes.add("UNCONDITIONAL_WITHOUT_EVIDENCE");
-	}
-	if (value.contradicts.some((ref) => ref.id === value.id))
-		codes.add("SELF_CONTRADICTION");
+	for (const code of assertionConsistencyCodes(value)) codes.add(code);
 	const subject = resolves(value.scope, value.subjectId, object["entities"]);
 	if (!subject.ok) return subject;
 	if (!subject.value) codes.add("SUBJECT_NOT_RESOLVED");
@@ -363,12 +381,7 @@ export function validateAssertion(
 	const manifest = mergedManifest(value);
 	if (manifest.length > maxManifestSources)
 		codes.add("MANIFEST_LIMIT_EXCEEDED");
-	if (
-		value.supersedes.some(
-			(ref) => ref.id !== value.id || ref.revision >= value.revision,
-		)
-	)
-		codes.add("INVALID_SUPERSEDES");
+
 	if (codes.size > 0)
 		return ok({
 			status: "rejected",

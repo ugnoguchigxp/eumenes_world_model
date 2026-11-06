@@ -131,6 +131,20 @@ export function getOutcome(
 	return row ? toStored(row) : undefined;
 }
 
+/** Latest immutable revision of this outcome identity, across comparisons. */
+export function getLatestOutcome(
+	db: WorldDb,
+	scope: ScopeRef,
+	id: string,
+): StoredOutcome | undefined {
+	const row = db
+		.query(
+			"SELECT payload_json, prediction_id FROM world_outcome WHERE principal = ? AND scope_key = ? AND id = ? ORDER BY revision DESC LIMIT 1",
+		)
+		.get(scope.principal, scope.scopeKey, id) as OutcomeRow | undefined;
+	return row ? toStored(row) : undefined;
+}
+
 export function listOutcomesByComparison(
 	db: WorldDb,
 	scope: ScopeRef,

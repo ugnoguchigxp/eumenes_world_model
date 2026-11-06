@@ -88,7 +88,9 @@ function record(
 			};
 		}),
 		inputManifest: [],
-		origin: "document_claim",
+		// These are hand-authored fixtures. With no cited source, the record
+		// is an unadopted hypothesis, never a backed document claim.
+		origin: claim.evidence.length ? "document_claim" : "model_hypothesis",
 		observedAt: PIPELINE_AS_OF - 1000,
 		recordedAt: PIPELINE_AS_OF - 1000,
 		freshnessPolicy: { maxAgeMs: 86_400_000 },
@@ -96,7 +98,7 @@ function record(
 		supersedes: [],
 		contradicts: [],
 		interpretationVersion: "decision-eval-1",
-		lifecycle: "active",
+		lifecycle: claim.evidence.length ? "active" : "candidate",
 		rootEvidenceIds: [...new Set(claim.evidence)].sort(),
 	};
 }
@@ -170,6 +172,7 @@ export function presentWorldClaims(task: Task): WorldPresentation {
 			id: claim.id,
 			kind: "world",
 			text: payload.value.value,
+			stance: unit.stance,
 			conditions: claim.conditions,
 			evidence: unit.sources.map((s) => s.id),
 			...(claim.supersedes === undefined

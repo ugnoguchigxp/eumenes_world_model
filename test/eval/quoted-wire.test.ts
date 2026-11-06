@@ -16,7 +16,8 @@ const decode = (c: unknown, source = "前文。青い📘。青い📘。") =>
 test("verbatim Unicode quotation binds the requested occurrence to exact UTF8 bytes", () => {
 	for (const n of [0, 1]) {
 		const c = decode(item("青い📘", n));
-		const q = c.quote;
+		expect(c.quote).toBeDefined();
+		const q = c.quote!;
 		expect(
 			Buffer.from("前文。青い📘。青い📘。")
 				.subarray(q.startByte, q.endByte)

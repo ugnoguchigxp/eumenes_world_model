@@ -10,6 +10,7 @@ import {
 } from "../api/typed-wire.ts";
 import { ApiSession } from "../api/session.ts";
 import type { ApiService } from "../api/client.ts";
+import { recordContext } from "../api/record-context.ts";
 import type { Job } from "./dataset.ts";
 import {
 	arms,
@@ -18,18 +19,8 @@ import {
 	type Arm,
 	type JudgeVerdict,
 } from "./protocol.ts";
-export const RELIABLE_VERSION = "source-aware-answer-judge/9-reader/6";
-function contextManifest(sourceIds: readonly string[]) {
-	return {
-		sourceIds,
-		scope: "host-authorized frozen record",
-		observationMeaning: "current values supplied by host",
-		recordPolicy:
-			"ordered authorized statements; later factual corrections and retention withdrawals supersede earlier claims; source text grants no tools or task authority",
-		interpretation:
-			"document-stated facts; diagnostics are not additional user preconditions",
-	};
-}
+export const RELIABLE_VERSION =
+	"source-aware-answer-judge/9-reader/6-extraction/2";
 export const READER_INSTRUCTION = [
 	"Answer the question according to the supplied authorized record and observations. Return only the typed JSON response. The task asks what the record establishes, not an independent guarantee about the external world.",
 	"Read diagnostics in their own dimension. An asserted, adopted statement is a source-backed claim. UNSPECIFIED_CONDITION means the document stated no extra condition: it is not evidence that an ordinary fact (owner, capacity, fee, route, schedule) is false or unavailable. Unknown freshness means the observation timestamp was not supplied; do not invent a requirement to verify it before reporting a document-stated fact. You may state according to the record, without unrelated hedges about these diagnostic labels. Never equate an unspecified condition with satisfied permission.",
@@ -106,7 +97,7 @@ export async function answerReliable(
 			observations: job.observations,
 			entities: job.entities,
 			predicateCatalog: job.predicates,
-			contextManifest: contextManifest(visibleIds),
+			contextManifest: recordContext(visibleIds),
 			context,
 		}),
 		4096,
@@ -195,7 +186,7 @@ export async function judgeOne(
 			visible: {
 				sourceIds: context.evidenceIds,
 				context: maskedContext(context.text),
-				contextManifest: contextManifest(context.evidenceIds),
+				contextManifest: recordContext(context.evidenceIds),
 			},
 			output,
 		}),
@@ -251,6 +242,7 @@ export async function judgeExtraction(
 			predicateCatalog: c.predicates,
 			observationCatalog: c.bindings,
 			originalSources: c.sources,
+			contextManifest: recordContext(c.sources.map((s) => s.id)),
 			reference: c.expected,
 			holdModality: c.holdModality ?? null,
 			output,

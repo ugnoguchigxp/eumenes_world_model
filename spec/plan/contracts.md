@@ -57,6 +57,38 @@ SourceRef自体に所有Scopeはない。ホストが提供する検証済みSou
 
 ## C4 純粋APIと状態遷移
 
+2026年11月6日レビュー追補: 調整済み書込みは、渡された遷移planを現在のheadと
+既存の純粋plannerから再構成したplanへcanonical照合する。停止対象・置換参照・
+他actionの付加metadataを省略/混入したplanを受理しない。rule登録とsubject認可は
+従来通りhostの事実であり、この再構成で新しい権限を与えるものではない。
+原典/対象解決に依存しない主張の整合規則は純粋検査と書込みで共有する。
+無条件指定の支持根拠、originに対応する根拠、実測時刻等を保存とactive化で確認し、
+旧不整合データは通常readの`ASSERTION_CONTENT_INVALID`または利用再検査で止める。
+DBを経由しない公開Projection/Sliceも同じ純粋規則で非終端の不整合な主張を拒否し、
+失効済みの旧内容は従来通り投影から除外する。
+既存データの監査用履歴取得、撤回・失効・忘却による後始末は妨げない。
+
+同追補: 観測の反映は測定identityの最新版より古い入力で巻き戻さない。
+Outcome版と派生Assertion版の増分が等しいとは仮定せず、採用に渡されたreceiptの
+実際のAssertion版と、宣言された測定・出典の版/値/単位/metric/subjectを照合する。
+
+2026年11月6日追補（contract-remediation/1）: 公開candidateは旧`quote`または
+`quotes`（1〜12要素）の片方だけを持つ。各要素は同じutteranceId/UTF-8範囲契約。
+全引用を検証し、不正な追加引用があれば候補全体を拒否する。第一引用をprimaryとし、
+source由来のoriginを維持する。追加Evidence IDはhost割当Evidence IDと引用順の
+SHA-256から導出する。根拠系列はhostのrootを保持し、引用数から独立性や採用を推定しない。
+全入力manifest、condition/modality/時点/採用権限は従来通り。DBschema変更はない。
+Native抽出版9は複数引用を要求し、旧単一引用decoderは互換のため残す。
+
+同追補: WorldOperationの必須構造を認可後・利用前に検査する。HostChecksの各
+SourceStateも既存の公開検査器で確認し、同一identityの複数状態は入力版衝突で拒否する。
+既存のDUPLICATE_EVIDENCE/CONFLICTING_INPUT_REVISIONS等の理由は維持する。
+
+同追補: 観測訂正のhost接続例はOutcomeと派生主張の訂正・失効を同じtransactionへ
+載せる。採用時にはpublic scenarios/sqliteの`getLatestOutcome`で測定identityの最新版を
+確認する。古いOutcomeだけでは採用せず、比較不能/反証を以前の支持と混同しない。
+Outcome単独の書込みを「全派生文脈が自動更新された」と扱わない。
+
 2026年10月31日M1/M3追補: 本体readで全根拠を取得済みでも、同じ対象の全主張を必須扱いするSliceが予算超過する再現を得た。
 SliceRequestへ任意の`focusAssertionRefs: readonly {id, revision}[]`（最大64、重複は正規化）を追加する。
 対象・主張・必要な関係を意味的に選ぶ責務はhost/LLMに残し、codeは既に権限検査済みsnapshot内のIDと版の一致だけを調べる。
