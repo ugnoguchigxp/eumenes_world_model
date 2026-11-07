@@ -87,6 +87,7 @@ export async function answerReliable(
 	job: Job,
 	context: string,
 	visibleIds: readonly string[],
+	onUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ): Promise<Answer> {
 	const r = await session.complete(
 		reader,
@@ -103,6 +104,7 @@ export async function answerReliable(
 		4096,
 		answerSchema(job, visibleIds),
 	);
+	onUsage?.(r);
 	const a = JSON.parse(r.text) as {
 		answer: string;
 		citations: string[] | null;
@@ -202,16 +204,24 @@ export async function judgeReliable(
 	answers: Record<Arm, Answer | null>,
 	contexts: VisibleContexts,
 ) {
-	const result: Partial<Record<Arm, JudgeVerdict>> = {};
-	for (const arm of arms)
-		result[arm] = await judgeOne(
-			session,
-			reader === "openai" ? "claude" : "openai",
-			job,
-			answers[arm],
-			contexts[arm],
-		);
-	return result;
+	const judgments: Partial<Record<Arm, JudgeVerdict>> = {};
+	const errors: Partial<Record<Arm, string>> = {};
+	for (const arm of arms) {
+		try {
+			judgments[arm] = await judgeOne(
+				session,
+				reader === "openai" ? "claude" : "openai",
+				job,
+				answers[arm],
+				contexts[arm],
+			);
+		} catch (error) {
+			// Each first response is independent. Never discard prior verdicts
+			// or retry the failed arm; the shared session enforces its own stop.
+			errors[arm] = error instanceof Error ? error.message : "JUDGE_ERROR";
+		}
+	}
+	return { judgments, errors };
 }
 
 export async function judgeExtraction(

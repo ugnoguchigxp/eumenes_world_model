@@ -16,11 +16,11 @@ import type { TypedValue } from "../../src/index.ts";
 
 export const DATASET_VERSION = "ext-ja-v2";
 /**
- * Evaluation version = dataset + thresholds + harness rules. ext-v2: dataset
- * ext-ja-v2 (holdout independent of dev) and ext-threshold-v2 (adopt recall is
- * gated). Results of ext-v1 are not comparable and are never mixed in.
+ * Evaluation version = dataset + thresholds + harness rules. ext-v3 keeps
+ * ext-ja-v2 and ext-threshold-v2, and checks condition equivalence and every
+ * time-bound value. Results from older scoring are never silently relabeled.
  */
-export const EVALUATION_VERSION = "ext-v2";
+export const EVALUATION_VERSION = "ext-v3";
 /** SHA-256 of the canonical (sorted-key) JSON of the committed dataset. */
 export const DATASET_SHA256 =
 	"100097a76c4832c2af76b419c0fc16153f412163a711399d12ad10e1fc0fd332";

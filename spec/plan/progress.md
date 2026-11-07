@@ -1358,3 +1358,106 @@ verify-final-v2.log、build-final-v2.log、final-audit.json、SHA256SUMS.json。
 証拠: `artifacts/host-sync-fixes/2026-11-06/`の`world-verify.log`、`world-build.log`、`host-verify.log`、`host-report/report.json`、`initial-sync.log`、`resume-regression-before.log`、`final-audit.json`。契約は[ホスト接続契約の追補](../host-contract-v1.md)を参照。
 
 **未受入**: 稼働hostへの反映・製品DBのmigration・実データ初回同期、実モデルの意味品質、実仕事、24時間/複数Scope運用、電源断・媒体破損・journal書込み中の全バイト境界。今回の10境界成功をそれらの合格へ読み替えない。CIは変更・実行していない。
+
+## 重複を除いた残課題の改善（2026年11月7日）
+
+指摘評価後の改善依頼に基づき、[作業範囲](remaining-improvements.md)を固定した。
+初期同期backfill、実process復旧、複数引用、観測訂正の実装は作り直していない。
+既存のLLM指示・入力情報・採点・共通runner・SQLite公開APIを先に確認し、
+以下は既存評価経路の再利用と計測に限定した。製品src・公開契約・migration・
+固定gold・vendor・既存の品質基準・LLM指示は変更していない。
+
+- **抽出診断**: `eval/extraction/diagnostics.ts`とscoring/runnerの追加fieldで、
+  全候補の不一致、validatorの理由、抽出不足、分類誤り、実行失敗を内容なしで集計。
+  従来の最初の不一致・precision/recall・95%・0違反・正式受入の計算は維持する。
+  旧結果は最初の不一致しか復元できないと明示し、非保存rawからの再採点をしない。
+  述語方向や正解の意味的妥当性を、コードの分類結果だけで確定しない。
+- **時系列比較**: `longitudinal-fixtures.ts`の3対象×8時点を、既存`runJobs`へ接続。
+  更新、条件不足/観測、保持撤回、新確認、忘却、同じsourceの遅着を含む。
+  raw/plain/World/oracle、2抽出×2読取り、盲検judgeを維持。忘却対象を抽出前にも
+  除き、同じsource identityに既存forgetを適用する。World/plainは情報を揃える。
+  誤再断定、妥当な判断変更、不要な変更、正しい保留、欠測、安全違反、reference
+  conflict、pipeline失敗、回答token/応答時間/提示bytesを別集計する。
+  unknownの費用を0にせず、全runの予約上限と回答の処理量を混同しない。
+- **課金なしの準備**: `longitudinal-prepare`はepisode・source/protocol digest・
+  最大960要求（96セル/384回答枠）を新規出力へ保存。API/予算台帳を開かず、
+  既存証拠を上書きしない。実モデル実行は明示の`longitudinal`と既存共有台帳を使う。
+  比較条件と制約は[評価仕様](../longitudinal-evaluation.md)に記録した。
+- **main CI**: 公開main `8a1eae43110d4055885bbac182e093427e18a331`を既存workflowで
+  手動実行し、frozen install・verify・buildの成功を確認。
+  [run 42371771400](https://github.com/ugnoguchigxp/eumenes_world_model/actions/runs/42371771400)。
+  ローカル基点`a2c7a941ee35414a2f7ac5e1bf9b925c9c82aa9e`と今回の未commit変更の
+  CI成功という意味ではない。CI設定変更・commit/push・mainへの統合は行っていない。
+
+部分→結合→全体の順で検証。新規17試験は診断2＋時系列15。
+APIの応答はfixtureと明示し、8時点すべてのnative wire→公開validator→実SQLite→
+回答→judgeと使用量の接続、旧値の再断定・欠測・壊れたpayload・pipeline失敗・
+重複セル・同一情報/byte予算・gold非流入・忘却対象非流入を確認した。
+対象結合は**114pass/0fail/4783 assertions/7 files**。
+`bun run verify`は**1161pass/0fail/20819 assertions/101 files**、`bun run build`成功。
+最初の型検査で新規fixtureのjudge reason欠落を検出して補い、最終固定後の検証中に
+ソースを編集していない。全568対象ファイルの検証前後hash差0。
+最終点検で、準備時に旧60件の監査を併記する表示上の不整合を確認したため、
+対象24時点/groundedだけの監査を保存するよう修正してから再固定した。
+変更はmainと新規試験の2ファイルだけと確認し、部分/結合・全体・buildを再実行。
+旧版のログを保持し、最後のv2で上記件数とsource不変を確認した。
+
+実API呼出し0、共有費用台帳hash不変。累積上限**9.93184335 USD**を維持する。
+古い回答・gold・過去の実行証拠は変更していない。語句・固有名で意味判断をする
+製品分岐や、独自writer・DB・実行台帳は追加していない。担当外の差分なし。
+
+最終証拠は`artifacts/remaining-improvements/2026-11-07/`の`protocol-v2/`、
+`integration-v2.log`、`verify-v2.log`、`build-v2.log`、`main-ci.json`、
+`frozen-before-v2.json`、`final-audit-v2.json`。初回の証拠も上書きせず保持する。
+
+**残る受入**: 合成snapshotの各回は独立した一時DBであり、連続host状態・24時間・
+実LLMの学習改善ではない。新規群は同型の基盤確認用で、未見の一般化証拠にしない。
+実データ初期同期/稼働hostへの反映と別host/state入力のroot供給、現行抽出版の
+実モデル品質、実Runtime台帳とcache-latency一巡、独立原典群/検索対照による比較は
+未受入を維持。隣接repoは参照専用のため、必要なhost変更と公開実行契約を確定し、
+実モデル測定の十分な予算・環境が揃ってから進む。今回の成功から評点は再計算しない。
+
+## 評価コードのレビュー3件改修（2026年11月7日）
+
+ユーザーの明示依頼で、[固定した改修範囲](evaluation-review-fixes.md)の3件を修正した。
+24時間運用はユーザーが不要と指定したため対象外。既存の未commit差分は保持し、
+製品src・公開契約・DB・隣接repo・既存gold・LLM指示・配布物を変更していない。
+
+- **条件と有効期間の採点（P1）**: nativeのmatchDraftが条件種類と期間の形だけを
+  比較していたため、条件反転と有効期間1年移動も正解になった。既存のsameCondition、
+  公開checkConditionSpec、構造比較を再利用し、三値の同値性と全earliest/latestを
+  検査する。精度・原文語句・始終点の有無の検査も維持。元dev正解と二重否定の
+  同値式は成功、反転/1ms/1年ずれは構造が有効でも不正解になることを確認。
+  評価版だけ**ext-v3**へ更新し、dataset ext-ja-v2とext-threshold-v2（95%と4違反0）は
+  不変。compareRunsは旧ext-v2との混在比較を拒否。過去の率・非保存rawは再採点しない。
+- **途中judge失敗による判定消失（P2）**: judgeReliableは方式ごとのjudgments/errorsを
+  返し、CellへjudgeErrorsを追加。旧judgeErrorは読取り互換で保持する。
+  独立した方式の初回判定を続け、失敗要求を再送しない。共通summaryと時系列集計が
+  方式別の失敗だけを欠測にし、先に得た安全違反を保持する。503による部分失敗と
+  全失敗、cells.jsonlへの保存、他方式の成功・安全違反件数を実行して確認した。
+- **保留フラグ付きの旧値集計漏れ（P2）**: holdに関係なく出力されたtyped claimsを
+  検査。hold=trueかつclaims非空はcontradictoryHoldsへ記録し、保留成功にしない。
+  同じ旧値を一回答で二度出しても誤再断定は時点として1件とし、欠測・正常保留は維持。
+  変わった評価処理を区別するため共通比較は**api-quality-crossed/2**、時系列は
+  **longitudinal-replay/2**。LLMの指示/採点rubricや保存済みv1結果は変更していない。
+
+回帰試験を先に追加し、旧コードで**16pass/7fail**を確認した。修正後の専用部分は
+23pass/0fail。その後に保存・集計の結合を追加し、最終対象結合は
+**117pass/0fail/4852 assertions/8 files**。条件/期間/版5件、judge回復/保存3件、
+保留矛盾1件の新規9試験を含む。途中の型検査は新規テストのRecord構築と未確定キーを
+指摘したため、期待値を変えず型を修正した。最終の`bun run verify`は
+**1170pass/0fail/20949 assertions/103 files**、`bun run build`成功。
+検証中の編集なし。全570対象ファイルの検証前後hash差0、共有API台帳hash不変。
+
+実API呼出し0、追加費用0、累積上限**9.93184335 USD**を維持。過去の結果を
+新版相当へ補正していない。語句別・固有名別の製品分岐、意味判断の固定補修、
+独自実行基盤は追加していない。新しい判定条件は構造化された値と三値論理の比較、
+方式別の例外処理、hold/claimsの出力契約に限定した。
+
+証拠: `artifacts/evaluation-review-fixes/2026-11-07/`の`before.json`、
+`reproductions-before.log`、`regressions-before.log`、`regressions-after.log`、
+`integration-final.log`、`verify.log`、`build.log`、`protocol/`、`frozen-before.json`、
+`final-audit.json`。
+
+今回の3件は修正・検証済み。実モデルの意味品質・製品への配線をこの成功から
+主張せず、旧API品質の未受入は維持する。CI/commit/pushは実施していない。

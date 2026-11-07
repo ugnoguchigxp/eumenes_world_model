@@ -37,11 +37,17 @@ import {
 	auditProfiles,
 	requireProfilesRepresentable,
 } from "./contract-audit.ts";
+import { longitudinalEpisodes } from "./longitudinal-fixtures.ts";
+import {
+	summarizeLongitudinal,
+	longitudinalJobs,
+	LONGITUDINAL_PROTOCOL,
+} from "./longitudinal.ts";
 const save = (file: string, value: unknown) =>
 	writeFileSync(file, JSON.stringify(value, null, 2) + "\n", { flag: "wx" });
 const message = (e: unknown) =>
 	e instanceof Error ? e.message : "EVALUATION_ERROR";
-interface Cell {
+export interface Cell {
 	id: string;
 	split: string;
 	profile: Profile;
@@ -54,8 +60,16 @@ interface Cell {
 	grades: Record<Arm, ReturnType<typeof gradeAnswer>>;
 	judgments: Partial<Record<Arm, JudgeVerdict>>;
 	judgeError: string | null;
+	/** Per-arm failures; judgeError is retained for legacy whole-cell failures. */
+	judgeErrors?: Partial<Record<Arm, string>>;
 	contextBytes: Record<Arm, number>;
 	usageValid: boolean;
+	answerUsage?: Partial<
+		Record<
+			Arm,
+			{ inputTokens: number; outputTokens: number; latencyMs: number }
+		>
+	>;
 }
 async function pool<T>(
 	items: readonly T[],
@@ -85,6 +99,9 @@ export function summary(cells: Cell[]) {
 				const pass = (c: Cell, a: Arm) =>
 					c.grades[a].passed &&
 					semanticPass(c.judgments[a]) &&
+					!c.errors[a] &&
+					!c.judgeError &&
+					!c.judgeErrors?.[a] &&
 					(!(a === "world" || a === "plain") || (!c.error && c.usageValid));
 				const evals = group.filter((c) => c.split === "evaluation");
 				const pair = (against: Arm) => {
@@ -121,7 +138,11 @@ export function summary(cells: Cell[]) {
 								passed: group.filter((c) => pass(c, a)).length,
 								evaluationPassed: evals.filter((c) => pass(c, a)).length,
 								missing: group.filter(
-									(c) => c.grades[a].missing || !c.judgments[a],
+									(c) =>
+										c.grades[a].missing ||
+										!c.judgments[a] ||
+										!!c.judgeError ||
+										!!c.judgeErrors?.[a],
 								).length,
 								safety: group.filter(
 									(c) =>
@@ -218,7 +239,9 @@ export async function runJobs(
 			};
 			const answers = {} as Record<Arm, Answer | null>;
 			const errors: Partial<Record<Arm, string>> = {};
-			for (const arm of arms)
+			const answerUsage: NonNullable<Cell["answerUsage"]> = {};
+			for (const arm of arms) {
+				const started = performance.now();
 				try {
 					answers[arm] = await answerReliable(
 						session,
@@ -226,24 +249,26 @@ export async function runJobs(
 						job,
 						contexts[arm].text,
 						contexts[arm].evidenceIds,
+						(usage) => {
+							answerUsage[arm] = {
+								inputTokens: usage.inputTokens,
+								outputTokens: usage.outputTokens,
+								latencyMs: performance.now() - started,
+							};
+						},
 					);
 				} catch (e) {
 					answers[arm] = null;
 					errors[arm] = message(e);
 				}
-			let judgments: Partial<Record<Arm, JudgeVerdict>> = {},
-				judgeError: string | null = null;
-			try {
-				judgments = await judgeReliable(
-					session,
-					reader,
-					job,
-					answers,
-					contexts,
-				);
-			} catch (e) {
-				judgeError = message(e);
 			}
+			const judged = await judgeReliable(
+				session,
+				reader,
+				job,
+				answers,
+				contexts,
+			);
 			const cell: Cell = {
 				id: job.id,
 				split: job.split,
@@ -253,6 +278,7 @@ export async function runJobs(
 				stages,
 				error: selectedError,
 				answers,
+				answerUsage,
 				errors,
 				grades: Object.fromEntries(
 					arms.map((a) => [
@@ -260,8 +286,9 @@ export async function runJobs(
 						gradeAnswer(job, answers[a], contexts[a].evidenceIds),
 					]),
 				) as Cell["grades"],
-				judgments,
-				judgeError,
+				judgments: judged.judgments,
+				judgeError: null,
+				judgeErrors: judged.errors,
 				contextBytes: Object.fromEntries(
 					arms.map((a) => [a, Buffer.byteLength(contexts[a].text)]),
 				) as Cell["contextBytes"],
@@ -292,6 +319,7 @@ export async function runJobs(
 		cells: cells.length,
 		summary: summary(cells),
 	});
+	return cells;
 }
 interface IndependentResult {
 	id: string;
@@ -529,32 +557,49 @@ export async function holdout(session: ApiSession, output: string) {
 }
 async function main() {
 	const [suite, output, budgetPath, ...extra] = process.argv.slice(2);
+	const prepareOnly = suite === "longitudinal-prepare";
+	const longitudinal = prepareOnly || suite === "longitudinal";
 	if (
-		!["jobs-dev", "acceptance"].includes(suite ?? "") ||
+		![
+			"jobs-dev",
+			"acceptance",
+			"longitudinal",
+			"longitudinal-prepare",
+		].includes(suite ?? "") ||
 		!output ||
-		!budgetPath ||
+		(prepareOnly ? !!budgetPath : !budgetPath) ||
 		extra.length
 	)
 		throw new Error(
-			"Usage: bun eval/api-quality/main.ts <jobs-dev|acceptance> <new-output> <shared-budget>",
+			"Usage: bun eval/api-quality/main.ts <jobs-dev|acceptance|longitudinal> <new-output> <shared-budget>; or longitudinal-prepare <new-output>",
 		);
 	if (existsSync(output)) throw new Error("OUTPUT_EXISTS");
 	mkdirSync(output, { recursive: true });
 	const independent = loadQuality("independent");
 	loadQuality("jobs");
+	const episodes = longitudinal ? longitudinalEpisodes() : [];
+	const jobs = longitudinalJobs(episodes);
+	if (episodes.length) {
+		requireProfilesRepresentable(jobs, ["grounded"]);
+		save(join(output, "episodes.json"), episodes);
+	}
 	save(
 		join(output, "contract-audit.json"),
-		auditProfiles(independent, profiles),
+		longitudinal
+			? auditProfiles(jobs, ["grounded"])
+			: auditProfiles(independent, profiles),
 	);
 	// Stop before opening a budget/session. Old scores and fixtures remain intact.
 	if (suite === "acceptance")
 		requireProfilesRepresentable(independent, profiles);
 	const before = sourceSnapshot(resolve(import.meta.dir, "../.."));
 	save(join(output, "manifest.json"), {
-		protocol: PROTOCOL,
+		protocol: longitudinal ? LONGITUDINAL_PROTOCOL : PROTOCOL,
 		suite,
 		models: apiModels,
-		profiles: ["api-extract-contract-3", GROUNDED_VERSION],
+		profiles: longitudinal
+			? [GROUNDED_VERSION]
+			: ["api-extract-contract-3", GROUNDED_VERSION],
 		fixtureDigests,
 		source: before,
 		startedAt: new Date().toISOString(),
@@ -566,8 +611,9 @@ async function main() {
 			extractionOutputTokens: 4096,
 			firstResponseOnly: true,
 		},
-		crossed:
-			"2 extractor x 2 reader x 2 treatment x 4 arm; dev10 + evaluation30; opposite-company blinded judge; fixed-order rotations",
+		crossed: longitudinal
+			? "3 synthetic episodes x 8 checkpoints x 2 extractor x 2 reader x grounded x 4 arm; independent opposite-company judge; snapshots, not continuous host"
+			: "2 extractor x 2 reader x 2 treatment x 4 arm; dev10 + evaluation30; opposite-company blinded judge; fixed-order rotations",
 		plain:
 			"lossless field-per-line JSON values; identical World information, no natural-language paraphrase",
 		raw: "latest whole sources under 8192 bytes, no retrieval",
@@ -575,11 +621,35 @@ async function main() {
 		independentRedaction:
 			"raw outputs are memory-only; disk keeps request/output hashes, usage and scoring reasons",
 	});
-	const budget = new ApiBudget(budgetPath);
+	if (prepareOnly) {
+		save(join(output, "result.json"), {
+			status: "prepared",
+			modelCalls: 0,
+			accepted: false,
+			episodes: episodes.length,
+			checkpoints: jobs.length,
+			plannedCells: jobs.length * services.length * services.length,
+			plannedAnswers:
+				jobs.length * services.length * services.length * arms.length,
+			maximumRequests:
+				jobs.length *
+				services.length *
+				(2 + services.length * (1 + 2 * arms.length)),
+			note: "Protocol preparation only. No budget opened, no model measured. Estimate adequate remaining budget before live execution.",
+		});
+		return;
+	}
+	const budget = new ApiBudget(budgetPath!);
 	const session = new ApiSession(budget, join(output, "../request-cache"));
 	let completed = false;
 	try {
-		await runJobs(session, output, suite === "jobs-dev");
+		if (suite === "longitudinal") {
+			const cells = await runJobs(session, output, false, jobs, ["grounded"]);
+			save(
+				join(output, "longitudinal-summary.json"),
+				summarizeLongitudinal(episodes, cells),
+			);
+		} else await runJobs(session, output, suite === "jobs-dev");
 		if (suite === "acceptance") {
 			await runIndependent(session, output);
 			await holdout(session, output);

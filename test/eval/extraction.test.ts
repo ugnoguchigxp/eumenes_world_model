@@ -110,9 +110,9 @@ describe("dataset freeze", () => {
 				).toBe(10);
 	});
 
-	test("versions: dataset ext-ja-v2, evaluation ext-v2, threshold v2", () => {
+	test("versions: dataset ext-ja-v2, evaluation ext-v3, threshold v2", () => {
 		expect(DATASET_VERSION).toBe("ext-ja-v2");
-		expect(EVALUATION_VERSION).toBe("ext-v2");
+		expect(EVALUATION_VERSION).toBe("ext-v3");
 		expect(THRESHOLD_VERSION).toBe("ext-threshold-v2");
 	});
 
@@ -1247,7 +1247,7 @@ describe("CLI: the Local Provider is explicit and never fabricated", () => {
 			const parsed = JSON.parse(content);
 			expect(parsed.samples).toBeUndefined();
 			expect(parsed.sampleCount).toBe(100);
-			expect(parsed.evaluationVersion).toBe("ext-v2");
+			expect(parsed.evaluationVersion).toBe("ext-v3");
 			expect(parsed.promptVersion).toBe("p-9");
 			expect(parsed.score.adoptedPrecision.failingCount).toBe(0);
 			expect(parsed.score.thresholdVersion).toBe("ext-threshold-v2");
@@ -1296,7 +1296,7 @@ describe("CLI: the Local Provider is explicit and never fabricated", () => {
 			["finish", "prompt-B"],
 		]);
 		expect(entries[0]).toMatchObject({
-			evaluationVersion: "ext-v2",
+			evaluationVersion: "ext-v3",
 			datasetVersion: "ext-ja-v2",
 			split: "holdout",
 			modelId: "stub",

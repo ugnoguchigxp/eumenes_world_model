@@ -3,7 +3,7 @@ import type { ApiService } from "../api/client.ts";
 import { ApiSession } from "../api/session.ts";
 import type { Job } from "./dataset.ts";
 import type { Presentation } from "../pipeline/types.ts";
-export const PROTOCOL = "api-quality-crossed/1";
+export const PROTOCOL = "api-quality-crossed/2";
 export const services: readonly ApiService[] = ["openai", "claude"];
 export const profiles = ["baseline", "grounded"] as const;
 export type Profile = (typeof profiles)[number];

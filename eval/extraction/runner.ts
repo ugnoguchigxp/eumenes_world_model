@@ -7,6 +7,7 @@
  * NOT technically enforced here; Local eligibility is the host's responsibility.
  */
 import { createHash, randomUUID } from "node:crypto";
+import { diagnoseEvaluations } from "./diagnostics.ts";
 import {
 	prepareExtraction,
 	validateCandidates,
@@ -239,6 +240,7 @@ export interface RunReport {
 	 */
 	readonly supplySummary: SupplySummary;
 	readonly samples: readonly SampleRecord[];
+	readonly diagnostics?: ReturnType<typeof diagnoseEvaluations>;
 }
 
 export const defaultTimeoutMs = 30_000;
@@ -561,6 +563,7 @@ export async function runEvaluation(options: RunOptions): Promise<RunReport> {
 		},
 		abandonedProviderCalls: abandoned,
 		supplySummary: summarizeSupply(samples),
+		diagnostics: diagnoseEvaluations(samples.map((s) => s.evaluation)),
 		samples,
 	};
 }

@@ -25,10 +25,15 @@ queue oldest age、pending件数、cancel時間、LLM要求数、RSS、前景p95
 
 ## 現在の到達状態
 
+2026年11月7日追補: 下表のhost結合は運用受入runnerについての状態である。
+個別機能のhost/実SQLite・SIGKILL復旧は実施済みで、[進捗台帳](plan/progress.md)を
+正本とする。[更新を含む比較評価](longitudinal-evaluation.md)の合成snapshot再生を
+24時間の連続運用、実モデル品質、製品導入の成功には読み替えない。
+
 | 層 | 状態 |
 |---|---|
-| 実装 | World本体のみ(P1/P2) |
+| 実装 | World本体・個別host結合あり。運用runnerは未受入 |
 | fixture / 実SQLite | 成功(進捗表参照) |
-| host結合 | 未実施 |
+| host結合 | 個別機能は実施済み。24時間/複数Scopeの結合は未実施 |
 | 実モデル | 未実施 |
 | 実運用(24時間) | 未実施 |

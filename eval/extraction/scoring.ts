@@ -11,6 +11,8 @@ import type {
 	CandidateVerdict,
 	ValidationResult,
 } from "../../src/index.ts";
+import { checkConditionSpec } from "../../src/domains/conditions/contracts/index.ts";
+import { sameCondition } from "../api-quality/scoring.ts";
 import {
 	byteToCp,
 	sourceIdOf,
@@ -129,6 +131,14 @@ export interface CaseEvaluation {
 	readonly violations: readonly ViolationKind[];
 	/** Content-free reason codes of the first wrong adoption. */
 	readonly mismatches: readonly string[];
+	/** Additional diagnostics only; legacy scores and first-mismatch stay fixed. */
+	readonly diagnostics?: {
+		readonly candidateMismatches: readonly {
+			readonly index: number;
+			readonly codes: readonly string[];
+		}[];
+		readonly validationCodes: readonly string[];
+	};
 }
 
 export interface ScoringContext {
@@ -203,11 +213,18 @@ export function matchDraft(
 			time.precision === gold.validTime.precision &&
 			(time.start !== undefined) === (gold.validTime.start !== undefined) &&
 			(time.end !== undefined) === (gold.validTime.end !== undefined) &&
+			stableStringify(time.start) === stableStringify(gold.validTime.start) &&
+			stableStringify(time.end) === stableStringify(gold.validTime.end) &&
 			time.original.length > 0 &&
 			text.includes(time.original);
 		if (!ok) out.push("VALID_TIME");
 	} else if (time !== undefined) out.push("VALID_TIME_EXTRA");
-	if (draft.condition?.kind !== gold.condition.kind) out.push("CONDITION");
+	const expectedCondition = checkConditionSpec(gold.condition);
+	if (
+		!expectedCondition.ok ||
+		!sameCondition(draft.condition, expectedCondition.value)
+	)
+		out.push("CONDITION");
 	return out;
 }
 
@@ -324,6 +341,7 @@ export function evaluateSample(
 			classificationCorrect: false,
 			violations: [],
 			mismatches: [],
+			diagnostics: { candidateMismatches: [], validationCodes: [] },
 		};
 	const accepted = outcome.validation.verdicts.filter(
 		(v): v is Extract<CandidateVerdict, { status: "accepted" }> =>
@@ -332,7 +350,9 @@ export function evaluateSample(
 	let correct = 0;
 	let wrong = 0;
 	let mismatches: string[] = [];
-	for (const verdict of accepted) {
+	const candidateMismatches: { index: number; codes: string[] }[] = [];
+	for (const [index, verdict] of outcome.validation.verdicts.entries()) {
+		if (verdict.status !== "accepted") continue;
 		const codes =
 			gold.outcome === "adopt"
 				? matchDraft(tc, gold.candidate, gold.treatment, verdict)
@@ -341,6 +361,10 @@ export function evaluateSample(
 		if (codes.length === 0 && correct === 0) correct += 1;
 		else {
 			wrong += 1;
+			candidateMismatches.push({
+				index,
+				codes: codes.length === 0 ? ["DUPLICATE"] : codes,
+			});
 			if (mismatches.length === 0)
 				mismatches = codes.length === 0 ? ["DUPLICATE"] : codes;
 		}
@@ -356,6 +380,16 @@ export function evaluateSample(
 		classificationCorrect: classify(tc, outcome.raw),
 		violations: violationsOf(tc, ctx, outcome.validation, outcome.raw),
 		mismatches,
+		diagnostics: {
+			candidateMismatches,
+			validationCodes: [
+				...new Set(
+					outcome.validation.verdicts.flatMap((v) =>
+						v.status === "accepted" ? [] : v.reasonCodes,
+					),
+				),
+			].sort(),
+		},
 	};
 }
 
